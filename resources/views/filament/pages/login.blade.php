@@ -8,11 +8,27 @@
         }
 
         .fi-simple-main {
-            background: rgba(255, 255, 255, 0.75);
+            background: rgba(255, 255, 255);
             backdrop-filter: blur(10px);
-            color: black;
+            border: #CE9F41 solid 1px;
         }
+
+        .logo {
+            width: 200px;
+            margin: auto auto 48px auto;
+        }
+
+        .fi-simple-header {
+            display: none;
+        }
+
     </style>
 
-    {{ $this->content }}
+    <div class='container'>
+        <img src='{{ asset('images/logo.svg') }}' alt='Sol Consultorias' class='logo'>
+
+        <div class='form'>
+            {{ $this->content }}
+        </div>
+    </div>
 </x-filament-panels::page.simple>
