@@ -2,6 +2,7 @@
 
 namespace App\Providers\Filament;
 
+use App\Livewire\TopBar;
 use Filament\Http\Middleware\Authenticate;
 use Filament\Http\Middleware\AuthenticateSession;
 use Filament\Http\Middleware\DisableBladeIconComponents;
@@ -34,6 +35,7 @@ class AdminPanelProvider extends PanelProvider
             ->path('admin')
             ->login(LoginPage::class)
             ->passwordReset()
+            ->topbarLivewireComponent(TopBar::class)
             ->colors([
                 'primary' => '#3b250a',
             ])
