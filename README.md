@@ -48,9 +48,10 @@ cd projeto-sol-consultoria
 
 ### 2. Configurar o ambiente
 
-Crie o arquivo .env com base no modelo:
+Cria o arquivo .env com base no modelo e defin o usuário do container o mesmo do host
 ```bash
-cp .env.example .env
+cp .env.example .env && \
+echo "UID=$(id -u)" >> .env && echo "GID=$(id -g)" >> .env
 ```
 
 ### 3. Subir os containers
@@ -70,11 +71,9 @@ docker exec -it laravel_app bash
 Dentro do container:
 
 ```bash
-composer install
-php artisan key:generate
+composer install && \
+php artisan key:generate && \
 php artisan migrate --seed
-php artisan storage:link
-exit
 ```
 
 ### 5. Acessos
