@@ -67,4 +67,3 @@ class LoginPage extends Login
             ->submit('authenticate');
     }
 }
-
