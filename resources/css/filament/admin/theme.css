@@ -73,10 +73,14 @@
     background-color: var(--color-gray-50);
 }
 
+.fi-sidebar-nav {
+    overflow: clip;
+}
+
 #new-project {
     display: flex;
     flex-direction: row;
-    width: 60%;
+    width: 50%;
     font-size: .875em;
     padding: 16px 16px;
     margin: 10px auto;
@@ -88,5 +92,42 @@
         padding: 0;
         width: 1.5em;
         color: var(--escuro-3);
+    }
+}
+
+/* User Menu */
+
+.user-menu {
+    display: flex;
+    flex-direction: column;
+    row-gap: 1em;
+    padding: 1rem;
+    margin: auto;
+    width: 70%;
+
+    aside {
+        margin: auto 0;
+    }
+
+    button {
+        margin: auto;
+        width: 100%;
+        background-color: var(--claro-3);
+        border: var(--escuro-1) solid 1px;
+    }
+}
+
+.user-info {
+    display: flex;
+    flex-direction: row;
+    column-gap: 1em;
+
+    .user-name {
+        font-weight: 600;
+    }
+
+    .user-postion {
+        font-weight: 400;
+        font-size: .8em;
     }
 }

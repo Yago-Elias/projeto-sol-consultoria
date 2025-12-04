@@ -3,12 +3,12 @@
 namespace App\Providers\Filament;
 
 use Filament\Actions\Action;
+use Filament\Auth\Pages\Login;
 use Filament\Enums\UserMenuPosition;
 use Filament\Http\Middleware\Authenticate;
 use Filament\Http\Middleware\AuthenticateSession;
 use Filament\Http\Middleware\DisableBladeIconComponents;
 use Filament\Http\Middleware\DispatchServingFilamentEvent;
-use Filament\Navigation\MenuItem;
 use Filament\Pages\Dashboard;
 use Filament\Panel;
 use Filament\PanelProvider;
@@ -20,6 +20,7 @@ use Illuminate\Cookie\Middleware\EncryptCookies;
 use Illuminate\Foundation\Http\Middleware\VerifyCsrfToken;
 use Illuminate\Routing\Middleware\SubstituteBindings;
 use Illuminate\Session\Middleware\StartSession;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Blade;
 use Illuminate\View\Middleware\ShareErrorsFromSession;
 use App\Filament\Pages\LoginPage;
@@ -43,6 +44,9 @@ class AdminPanelProvider extends PanelProvider
             ->userMenu(position: UserMenuPosition::Sidebar)
             ->renderHook(PanelsRenderHook::SIDEBAR_START,
                         fn () => view('components.sidebar-new-project'))
+            ->userMenu(false)
+            ->renderHook(PanelsRenderHook::SIDEBAR_FOOTER,
+                        fn () => view('components.user-menu'))
             ->colors([
                 'primary' => '#3b250a',
             ])
