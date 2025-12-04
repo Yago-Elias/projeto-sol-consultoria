@@ -20,14 +20,6 @@
 
 /* Top Bar */
 
-.topbar {
-    padding: 10px 50px;
-    background-color: white;
-    box-shadow: #AFA9A2 0 2px 2px;
-    display: flex;
-    align-items: center;
-}
-
 .logo-name {
     width: 100%;
     margin: auto;
@@ -86,13 +78,19 @@
     margin: 10px auto;
     background-color: var(--claro-2);
     color: var(--escuro-3);
+    box-shadow: var(--neutro-2) 1px 1px 2px;
 
     .fi-icon {
         margin: 0;
         padding: 0;
         width: 1.5em;
-        color: var(--escuro-3);
+        color: inherit;
     }
+}
+
+#new-project:hover {
+    background-color: var(--escuro-1);
+    color: var(--claro-3);
 }
 
 /* User Menu */
@@ -114,6 +112,7 @@
         width: 100%;
         background-color: var(--claro-3);
         border: var(--escuro-1) solid 1px;
+        box-shadow: var(--neutro-2) 1px 1px 2px;
     }
 }
 
