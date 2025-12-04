@@ -35,6 +35,7 @@ class AdminPanelProvider extends PanelProvider
             ->path('admin')
             ->login(LoginPage::class)
             ->passwordReset()
+            ->viteTheme('resources/css/filament/admin/theme.css')
             ->topbarLivewireComponent(TopBar::class)
             ->colors([
                 'primary' => '#3b250a',

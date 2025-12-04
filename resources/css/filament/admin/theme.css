@@ -1,0 +1,27 @@
+@import '../../../../vendor/filament/filament/resources/css/theme.css';
+
+@source '../../../../app/Filament/**/*';
+@source '../../../../resources/views/filament/**/*';
+
+/* Top Bar */
+
+.topbar {
+    padding: 10px 50px;
+    background-color: white;
+    box-shadow: #AFA9A2 0 2px 2px;
+    display: flex;
+    align-items: center;
+}
+
+.logo {
+    width: 80px;
+}
+
+.logo-name {
+    width: 100%;
+    margin: auto 80px auto auto;
+    text-align: center;
+    font-size: 2em;
+    font-weight: 700;
+    color: #A77022;
+}
