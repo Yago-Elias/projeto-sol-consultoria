@@ -2,17 +2,16 @@
 
 namespace App\Providers\Filament;
 
-use App\Livewire\TopBar;
+use Filament\Actions\Action;
 use Filament\Enums\UserMenuPosition;
 use Filament\Http\Middleware\Authenticate;
 use Filament\Http\Middleware\AuthenticateSession;
 use Filament\Http\Middleware\DisableBladeIconComponents;
 use Filament\Http\Middleware\DispatchServingFilamentEvent;
+use Filament\Navigation\MenuItem;
 use Filament\Pages\Dashboard;
 use Filament\Panel;
 use Filament\PanelProvider;
-use Filament\Support\Colors\Color;
-use Filament\Support\Facades\FilamentView;
 use Filament\View\PanelsRenderHook;
 use Filament\Widgets\AccountWidget;
 use Filament\Widgets\FilamentInfoWidget;
@@ -37,7 +36,10 @@ class AdminPanelProvider extends PanelProvider
             ->login(LoginPage::class)
             ->passwordReset()
             ->viteTheme('resources/css/filament/admin/theme.css')
-            ->topbarLivewireComponent(TopBar::class)
+            ->brandLogo(asset('images/logo.svg'))
+            ->brandLogoHeight('2em')
+            ->renderHook(PanelsRenderHook::TOPBAR_END,
+                        fn () => Blade::render('<p class="logo-name">Sol Consultorias</p><span style="width: 2em;"></span>'))
             ->userMenu(position: UserMenuPosition::Sidebar)
             ->renderHook(PanelsRenderHook::SIDEBAR_START,
                         fn () => view('components.sidebar-new-project'))
