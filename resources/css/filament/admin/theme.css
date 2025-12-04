@@ -3,6 +3,21 @@
 @source '../../../../app/Filament/**/*';
 @source '../../../../resources/views/filament/**/*';
 
+/* Cores básicas */
+
+:root {
+    --cor-base: #A77022;
+    --claro-1: #C58A33;
+    --claro-2: #E0A856;
+    --claro-3: #F2D4A3;
+    --escuro-1: #85561A;
+    --escuro-2: #5E3C12;
+    --scuro-3: #3B250A;
+    --neutro-1: #F8F5F2;
+    --neutro-2: #AFA9A2;
+    --neutro-3: #2B2B2B;
+}
+
 /* Top Bar */
 
 .topbar {
@@ -24,4 +39,35 @@
     font-size: 2em;
     font-weight: 700;
     color: #A77022;
+}
+
+/* Side Bar */
+
+.fi-sidebar-item-btn {
+    display: flex;
+    flex-direction: column;
+    border-radius: 20px;
+    width: 70%;
+    margin: auto;
+
+    svg, span {
+        margin: auto;
+        color: var(--neutro-3);
+    }
+
+    svg {
+        width: 5em;
+        height: 2.75em;
+        padding: 10px;
+        border-radius: 10px;
+    }
+}
+
+.fi-sidebar-item-icon:hover {
+    background-color: var(--claro-3);
+    transition-duration: 100ms;
+}
+
+.fi-sidebar-item.fi-active>.fi-sidebar-item-icon {
+    background-color: var(--claro-2);
 }
