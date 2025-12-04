@@ -47,6 +47,8 @@ class AdminPanelProvider extends PanelProvider
             ->userMenu(false)
             ->renderHook(PanelsRenderHook::SIDEBAR_FOOTER,
                         fn () => view('components.user-menu'))
+            ->renderHook(PanelsRenderHook::BODY_END,
+                        fn () => Blade::render('<p class="footer">Sol Consultorias &copy; 2025</p>'))
             ->colors([
                 'primary' => '#3b250a',
             ])
