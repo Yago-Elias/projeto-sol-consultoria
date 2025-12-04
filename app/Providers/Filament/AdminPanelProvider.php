@@ -39,6 +39,8 @@ class AdminPanelProvider extends PanelProvider
             ->viteTheme('resources/css/filament/admin/theme.css')
             ->topbarLivewireComponent(TopBar::class)
             ->userMenu(position: UserMenuPosition::Sidebar)
+            ->renderHook(PanelsRenderHook::SIDEBAR_START,
+                        fn () => view('components.sidebar-new-project'))
             ->colors([
                 'primary' => '#3b250a',
             ])
