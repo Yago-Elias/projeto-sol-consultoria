@@ -20,7 +20,7 @@ return new class extends Migration
             $table->date('payment_date')->nullable();
 
             $table->timestamps();
-            
+
             $table->foreignId('project_id')->constrained('projects');
         });
     }

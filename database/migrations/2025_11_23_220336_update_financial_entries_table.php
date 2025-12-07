@@ -26,7 +26,7 @@ return new class extends Migration
         Schema::table('financial_entries', function (Blueprint $table) {
             $table->dropForeign(['type']);
             $table->dropForeign(['nature']);
-            $table->dropForeign(['provider']);    
+            $table->dropForeign(['provider']);
         });
     }
 };
