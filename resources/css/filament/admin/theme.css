@@ -1,0 +1,141 @@
+@import '../../../../vendor/filament/filament/resources/css/theme.css';
+
+@source '../../../../app/Filament/**/*';
+@source '../../../../resources/views/filament/**/*';
+
+/* Cores básicas */
+
+:root {
+    --cor-base: #A77022;
+    --claro-1: #C58A33;
+    --claro-2: #E0A856;
+    --claro-3: #F2D4A3;
+    --escuro-1: #85561A;
+    --escuro-2: #5E3C12;
+    --escuro-3: #3B250A;
+    --neutro-1: #F8F5F2;
+    --neutro-2: #AFA9A2;
+    --neutro-3: #2B2B2B;
+}
+
+/* Top Bar */
+
+.logo-name {
+    width: 100%;
+    margin: auto;
+    text-align: center;
+    font-size: 2em;
+    font-weight: 700;
+    color: #A77022;
+}
+
+/* Side Bar */
+
+.fi-sidebar-item-btn {
+    display: flex;
+    flex-direction: column;
+    width: 70%;
+    margin: auto;
+    border-radius: 20px;
+    row-gap: 0.5em;
+
+    svg, span {
+        margin: auto;
+        color: var(--neutro-3);
+    }
+
+    svg {
+        width: 5em;
+        height: 2.75em;
+        padding: 10px;
+        border-radius: 30px
+    }
+}
+
+.fi-sidebar-item-icon:hover {
+    background-color: var(--claro-3);
+    transition-duration: 100ms;
+}
+
+.fi-sidebar-item.fi-active>.fi-sidebar-item-btn>.fi-sidebar-item-icon {
+    background-color: var(--claro-2);
+}
+
+.fi-sidebar-item.fi-active>.fi-sidebar-item-btn {
+    background-color: var(--color-gray-50);
+}
+
+.fi-sidebar-nav {
+    overflow: clip;
+    height: fit-content;
+}
+
+#new-project {
+    display: flex;
+    flex-direction: row;
+    width: 50%;
+    font-size: .875em;
+    padding: 16px 16px;
+    margin: 16px auto;
+    background-color: var(--claro-2);
+    color: var(--escuro-3);
+    box-shadow: var(--neutro-2) 1px 1px 2px;
+
+    .fi-icon {
+        margin: 0;
+        padding: 0;
+        width: 1.5em;
+        color: inherit;
+    }
+}
+
+#new-project:hover {
+    background-color: var(--escuro-1);
+    color: var(--claro-3);
+}
+
+/* User Menu */
+
+.user-menu {
+    display: flex;
+    flex-direction: column;
+    row-gap: 1em;
+    padding: 1rem;
+    margin: auto;
+    width: 70%;
+
+    aside {
+        margin: auto 0;
+    }
+
+    button {
+        margin: auto;
+        width: 100%;
+        background-color: var(--claro-3);
+        border: var(--escuro-1) solid 1px;
+        box-shadow: var(--neutro-2) 1px 1px 2px;
+    }
+}
+
+.user-info {
+    display: flex;
+    flex-direction: row;
+    column-gap: 1em;
+
+    .user-name {
+        font-weight: 600;
+    }
+
+    .user-postion {
+        font-weight: 400;
+        font-size: .8em;
+    }
+}
+
+.footer {
+    text-align: center;
+    align-content: center;
+    height: 2em;
+    border-top: var(--neutro-2) solid 1px;
+    color: var(--neutro-2);
+}
