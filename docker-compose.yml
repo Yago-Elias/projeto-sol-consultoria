@@ -1,8 +1,13 @@
-version: "3.9"
-
 services:
   app:
-    build: .
+    build:
+      context: .
+      args:
+        UID: ${UID}
+        GID: ${GID}
+    user: "${UID}:${GID}"
+    env_file:
+      - .env
     container_name: laravel_app
     restart: unless-stopped
     working_dir: /var/www
@@ -23,7 +28,6 @@ services:
       - DB_USERNAME=${DB_USERNAME}
       - DB_PASSWORD=${DB_PASSWORD}
       - REDIS_HOST=redis
-    command: bash -c "chown -R www-data:www-data /var/www/storage /var/www/bootstrap/cache && php-fpm"
 
   nginx:
     image: nginx:alpine
@@ -49,7 +53,7 @@ services:
     ports:
       - "3306:3306"
     volumes:
-      - dbdata:/var/lib/mysql
+      - ./docker/mysql/data:/var/lib/mysql
     networks:
       - laravel
 
@@ -79,6 +83,3 @@ services:
 
 networks:
   laravel:
-
-volumes:
-  dbdata:
