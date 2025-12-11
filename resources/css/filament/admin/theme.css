@@ -139,3 +139,18 @@
     border-top: var(--neutro-2) solid 1px;
     color: var(--neutro-2);
 }
+
+
+.fi-wi-stats-overview-stat {
+    justify-items: center;
+}
+
+.fi-wi-stats-overview-stat-value {
+    width: fit-content;
+    margin: auto;
+}
+
+.fi-wi-stats-overview-stat-label-ctn {
+    width: fit-content;
+    margin: auto;
+}

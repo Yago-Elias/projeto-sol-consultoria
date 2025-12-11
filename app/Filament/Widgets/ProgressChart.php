@@ -7,7 +7,7 @@ use Filament\Widgets\ChartWidget;
 
 class ProgressChart extends ChartWidget
 {
-//    protected ?string $heading = 'Andamento dos Projetos';
+    protected ?string $heading = 'Andamento dos Projetos';
 
     protected function getData(): array
     {
