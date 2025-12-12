@@ -12,4 +12,18 @@ class FinanceTable extends Widget
     {
         return 2;
     }
+
+    protected function getViewData(): array
+    {
+        return [
+            ['1 semana', 'R$ 00,00', 'R$ 00,00', 'R$ 00,00'],
+            ['1 semana', 'R$ 00,00', 'R$ 00,00', 'R$ 00,00'],
+            ['1 semana', 'R$ 00,00', 'R$ 00,00', 'R$ 00,00'],
+            ['1 semana', 'R$ 00,00', 'R$ 00,00', 'R$ 00,00'],
+            ['1 semana', 'R$ 00,00', 'R$ 00,00', 'R$ 00,00'],
+            ['1 semana', 'R$ 00,00', 'R$ 00,00', 'R$ 00,00'],
+            ['1 semana', 'R$ 00,00', 'R$ 00,00', 'R$ 00,00'],
+            ['1 semana', 'R$ 00,00', 'R$ 00,00', 'R$ 00,00'],
+        ];
+    }
 }
