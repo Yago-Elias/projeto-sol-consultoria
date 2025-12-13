@@ -32,7 +32,7 @@ class AdminPanelProvider extends PanelProvider
             ->default()
             ->darkMode(false)
             ->id('admin')
-            ->path('admin')
+            ->path('/')
             ->login(LoginPage::class)
             ->passwordReset()
             ->viteTheme('resources/css/filament/admin/theme.css')
