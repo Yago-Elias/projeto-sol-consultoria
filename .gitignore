@@ -23,6 +23,7 @@ bootstrap/cache/*
 .phpunit.result.cache
 .phpactor.json
 .auth.json
+.devcontainer
 
 # =====================================
 # DOCKER
