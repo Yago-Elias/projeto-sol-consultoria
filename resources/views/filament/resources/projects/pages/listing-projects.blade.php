@@ -25,7 +25,7 @@
             </span>
         </div>
         <div class="my-4">
-            <strong>Progresso</strong> *******************************
+            @include('filament.resources.projects.partials.progress', ['percent' => 30])
         </div>
         <hr class="border border-gray-900/30">
         <div class="flex grid grid-flow-col grid-rows-3 my-4 gap-x-4">
@@ -71,5 +71,4 @@
         </div>
     </x-filament::section>
 </div>
-
 </x-filament-panels::page>
