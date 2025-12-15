@@ -7,6 +7,7 @@ use App\Filament\Pages\LoginPage;
 use App\Filament\Widgets\FinanceTable;
 use App\Filament\Widgets\InfoBox;
 use App\Filament\Widgets\ProgressChart;
+use App\Filament\Widgets\ProgressTable;
 use Filament\Enums\UserMenuPosition;
 use Filament\Http\Middleware\Authenticate;
 use Filament\Http\Middleware\AuthenticateSession;
@@ -68,8 +69,7 @@ class AdminPanelProvider extends PanelProvider
             ->discoverWidgets(in: app_path('Filament/Widgets'), for: 'App\Filament\Widgets')
             ->widgets([
                 InfoBox::class,
-                ProgressChart::class,
-                FinanceTable::class
+                ProgressTable::class
             ])
             ->middleware([
                 EncryptCookies::class,

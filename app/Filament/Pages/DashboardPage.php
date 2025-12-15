@@ -31,4 +31,9 @@ class DashboardPage extends Dashboard
     {
         return "Dashboard";
     }
+
+    public function getColumns(): int | array
+    {
+        return 1;
+    }
 }
