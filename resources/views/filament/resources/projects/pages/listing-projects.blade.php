@@ -1,6 +1,8 @@
 <x-filament-panels::page>
+@forelse (($projects ?? []) as $project)
 <div class="flex justify-evenly">
     <x-filament::section class="grid w-100">
+        <a href="#">
         <div class="flex justify-between my-4">
             <div>
                 <span class="text-xl font-bold">
@@ -69,6 +71,17 @@
                 </div>
             </div>
         </div>
+        </a>
     </x-filament::section>
 </div>
+@empty
+<x-filament::empty-state>
+    <x-slot name="heading">
+        Sem projetos cadastrados
+    </x-slot>
+    <x-slot name="description">
+        Clique no botão <span class="underline text-primary-600">Novo Projeto</span> para criar um projeto
+    </x-slot>
+</x-filament::empty-state>
+@endforelse
 </x-filament-panels::page>
