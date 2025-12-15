@@ -156,7 +156,7 @@ class ProjectForm
                     ])
                     ->schema([
                         ViewField::make('selected_consultants')
-                            ->view('filament.components.list-consultants-create-project')
+                            ->view('filament.resources.projects.partials.list-consultants-create-project')
                             // ->viewData()
                     ])
             ]);

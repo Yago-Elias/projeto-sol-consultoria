@@ -1,12 +1,16 @@
 <div class="flex grid sm:grid-cols-6 md:grid-cols-9 lg:grid-flow-cols-12 gap-3">
-    @forelse (($consultants ?? []) as $consultant)
+    @forelse (($consultants ?? ['']) as $consultant)
     <div class="flex justify-evenly min-w-55 p-2 sm:col-span-3 md:col-span-3 lg:col-span-4 xl:col-span-3 rounded-md shadow-md ">
         <div class="min-w-15">
             <img class="rounded-full" src="https://randomuser.me/api/portraits/thumb/women/75.jpg">
         </div>
         <div class="flex flex-col justify-center">
-            <span class="text-base">Solange de Andrade</span>
-            <span class="font-xs text-gray-600">Administrador(a)</span>
+            <span class="text-base">
+                Solange de Andrade
+            </span>
+            <span class="font-xs text-gray-600">
+                Administrador(a)
+            </span>
         </div>
         <div class="flex min-w-10 h-10 items-center justify-center rounded-full hover:bg-red-100 transition duration-500">
             <a href="#">
