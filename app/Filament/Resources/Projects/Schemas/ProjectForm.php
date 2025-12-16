@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources\Projects\Schemas;
 
+use App\Models\Project;
 use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\FileUpload;
 use Filament\Forms\Components\Select;
@@ -85,7 +86,8 @@ class ProjectForm
                                 'xl' => 4,
                             ])
                             ->required()
-                            ->label('Data de Início'),
+                            ->label('Data de Início')
+                            ->disabled(fn ($operation) => $operation === 'edit'),
                         
                         DatePicker::make('end_date')
                             ->columnSpan([
@@ -106,7 +108,8 @@ class ProjectForm
                             ->numeric()
                             ->label('Previsão de Custos')
                             ->prefix('R$')
-                            ->placeholder('0,00'),
+                            ->placeholder('0,00')
+                            ->disabled(fn ($operation) => $operation === 'edit'),
                         TextInput::make('estimated_price')
                             ->columnSpan([
                                 'sm' => 2,
@@ -117,7 +120,8 @@ class ProjectForm
                             ->numeric()
                             ->label('Previsão de Lucro')
                             ->prefix('R$')
-                            ->placeholder('0,00'),
+                            ->placeholder('0,00')
+                            ->disabled(fn ($operation) => $operation === 'edit'),
                         TextInput::make('project_price')
                             ->columnSpan([
                                 'sm' => 2,
@@ -129,7 +133,8 @@ class ProjectForm
                             ->numeric()
                             ->label('Preço do Projeto')
                             ->prefix('R$')
-                            ->placeholder('0,00'),
+                            ->placeholder('0,00')
+                            ->disabled(fn ($operation) => $operation === 'edit'),
                         Select::make('payment')
                             ->columnSpan([
                                 'sm' => 2,
@@ -144,7 +149,8 @@ class ProjectForm
                                 'parcelado_2x' => '2x',
                                 'parcelado_3x' => '3x',
                                 'parcelado_4x' => '4x',
-                            ]),
+                            ])
+                            ->disabled(fn ($operation) => $operation === 'edit'),
                     ]),
                 
                 Section::make('Consultores')
@@ -156,8 +162,18 @@ class ProjectForm
                     ])
                     ->schema([
                         ViewField::make('selected_consultants')
-                            ->view('filament.resources.projects.partials.list-consultants-create-project')
-                            // ->viewData()
+                            ->view('filament.resources.projects.partials.list-consultants-project')
+                            ->viewData(function (Project $record, $operation) {
+                                if ($operation === 'edit') {
+                                    return [
+                                        'consultants' => $record
+                                            ->collaborators()
+                                            ->get()
+                                            ->all()
+                                    ];
+                                }
+                                return [];
+                            })
                     ])
             ]);
     }
