@@ -8,8 +8,8 @@
     $alt = __('filament-panels::layout.avatar.alt', ['name' => $name]);
 @endphp
 
-<div class="user-menu p-4" xmlns:x-filament="http://www.w3.org/1999/html">
-    <div class='user-info flex-column gap-2'>
+<div class="user-menu" xmlns:x-filament="http://www.w3.org/1999/html">
+    <div class='user-info'>
         <aside>
             <x-filament::avatar
                 :src="$src"
@@ -20,9 +20,9 @@
                 "
             />
         </aside>
-        <div class='info w-full'>
+        <div class='info'>
             <p class='user-name'>{{ $name }}</p>
-            <p class='user-postion'>Administrador</p>
+            <p class='user-position'>Administrador</p>
         </div>
     </div>
     {{ \Filament\Actions\Action::make('logout')->url(filament()->getLogoutUrl())->postToUrl()->label('Sair')->icon('heroicon-o-arrow-left-start-on-rectangle') }}
