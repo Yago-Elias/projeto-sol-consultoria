@@ -27,7 +27,7 @@ class ProjectFactory extends Factory
         return [
             'name' => fake()->words(3, true),
             'description' => fake()->paragraph(),
-            'image' => '',
+            'image' => 'https://picsum.photos/seed/' . fake()->uuid() . '/640/480',
             'company_name' => fake()->company(),
             'company_email' => fake()->companyEmail(),
             'project_price' => $price,

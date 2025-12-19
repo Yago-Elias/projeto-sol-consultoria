@@ -27,6 +27,7 @@ class UserFactory extends Factory
             'name' => fake()->name(),
             'email' => fake()->unique()->safeEmail(),
             'email_verified_at' => now(),
+            'image' => 'https://picsum.photos/seed/' . fake()->uuid() . '/640/480',
             'password' => static::$password ??= Hash::make('password'),
             'salary' => fake()->randomFloat(2, 1000, 10000),
             'telephone' => fake()->phoneNumber(),
