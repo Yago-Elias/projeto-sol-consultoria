@@ -24,7 +24,7 @@ class DashboardPage extends Dashboard
 
     public static function getNavigationIcon(): string|BackedEnum|Htmlable|null
     {
-        return Heroicon::Home;
+        return Heroicon::OutlinedHome;
     }
 
     public static function getNavigationLabel(): string
