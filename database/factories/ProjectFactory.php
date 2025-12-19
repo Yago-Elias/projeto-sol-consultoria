@@ -37,5 +37,4 @@ class ProjectFactory extends Factory
             'manager_id' => static::$users->random()
         ];
     }
-
 }

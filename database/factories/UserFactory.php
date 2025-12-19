@@ -18,8 +18,8 @@ class UserFactory extends Factory
      * The current password being used by the factory.
      */
     protected static ?string $password;
-	protected static ?Collection $profiles;
-	protected static ?Collection $roles;
+    protected static ?Collection $profiles;
+    protected static ?Collection $roles;
 
     /**
      * Define the model's default state.
@@ -28,8 +28,8 @@ class UserFactory extends Factory
      */
     public function definition(): array
     {
-		static::$profiles = Profile::all();
-		static::$roles = Role::all();
+        static::$profiles = Profile::all();
+        static::$roles = Role::all();
         return [
             'name' => fake()->name(),
             'email' => fake()->unique()->safeEmail(),
@@ -40,8 +40,8 @@ class UserFactory extends Factory
             'telephone' => fake()->phoneNumber(),
             'remember_token' => Str::random(10),
 
-			'role_id' => static::$roles->random(),
-			'profile_id' => static::$profiles->random(),
+            'role_id' => static::$roles->random(),
+            'profile_id' => static::$profiles->random(),
         ];
     }
 
