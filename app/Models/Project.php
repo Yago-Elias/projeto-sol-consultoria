@@ -32,6 +32,7 @@ class Project extends Model
         return $this->belongsToMany(
             User::class,
             'projects_users',
+            'project_id',
             'user_id'
         );
     }
