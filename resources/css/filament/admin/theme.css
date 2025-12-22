@@ -126,7 +126,7 @@
         font-weight: 600;
     }
 
-    .user-postion {
+    .user-position {
         font-weight: 400;
         font-size: .8em;
     }
@@ -138,4 +138,19 @@
     height: 2em;
     border-top: var(--neutro-2) solid 1px;
     color: var(--neutro-2);
+}
+
+
+.fi-wi-stats-overview-stat {
+    justify-items: center;
+}
+
+.fi-wi-stats-overview-stat-value {
+    width: fit-content;
+    margin: auto;
+}
+
+.fi-wi-stats-overview-stat-label-ctn {
+    width: fit-content;
+    margin: auto;
 }

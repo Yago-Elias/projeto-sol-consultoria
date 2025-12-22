@@ -2,28 +2,28 @@
 
 namespace App\Providers\Filament;
 
-use Filament\Actions\Action;
-use Filament\Auth\Pages\Login;
+use App\Filament\Pages\DashboardPage;
+use App\Filament\Pages\LoginPage;
+use App\Filament\Widgets\FinanceTable;
+use App\Filament\Widgets\InfoBox;
+use App\Filament\Widgets\ProgressChart;
+use App\Filament\Widgets\ProgressTable;
 use Filament\Enums\UserMenuPosition;
 use Filament\Http\Middleware\Authenticate;
 use Filament\Http\Middleware\AuthenticateSession;
 use Filament\Http\Middleware\DisableBladeIconComponents;
 use Filament\Http\Middleware\DispatchServingFilamentEvent;
-use Filament\Pages\Dashboard;
 use Filament\Panel;
 use Filament\PanelProvider;
 use Filament\View\PanelsRenderHook;
-use Filament\Widgets\AccountWidget;
-use Filament\Widgets\FilamentInfoWidget;
 use Illuminate\Cookie\Middleware\AddQueuedCookiesToResponse;
 use Illuminate\Cookie\Middleware\EncryptCookies;
 use Illuminate\Foundation\Http\Middleware\VerifyCsrfToken;
 use Illuminate\Routing\Middleware\SubstituteBindings;
 use Illuminate\Session\Middleware\StartSession;
-use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Blade;
 use Illuminate\View\Middleware\ShareErrorsFromSession;
-use App\Filament\Pages\LoginPage;
+
 
 class AdminPanelProvider extends PanelProvider
 {
@@ -33,7 +33,7 @@ class AdminPanelProvider extends PanelProvider
             ->default()
             ->darkMode(false)
             ->id('admin')
-            ->path('admin')
+            ->path('/')
             ->login(LoginPage::class)
             ->passwordReset()
             ->viteTheme('resources/css/filament/admin/theme.css')
@@ -50,17 +50,26 @@ class AdminPanelProvider extends PanelProvider
             ->renderHook(PanelsRenderHook::BODY_END,
                         fn () => Blade::render('<p class="footer">Sol Consultorias &copy; 2025</p>'))
             ->colors([
-                'primary' => '#3b250a',
+                'primary' => '#A77022',
+                'escuro-1' => '#85561A',
+                'escuro-2' => '#5E3C12',
+                'escuro-3' => '#3B250A',
+                'claro-1:' => '#C58A33',
+                'claro-2:' => '#E0A856',
+                'claro-3:' => '#F2D4A3',
+                'neutro-1:' => '#F8F5F2',
+                'neutro-2:' => '#AFA9A2',
+                'neutro-3:' => '#2B2B2B',
             ])
             ->discoverResources(in: app_path('Filament/Resources'), for: 'App\Filament\Resources')
             ->discoverPages(in: app_path('Filament/Pages'), for: 'App\Filament\Pages')
             ->pages([
-                Dashboard::class,
+                DashboardPage::class,
             ])
             ->discoverWidgets(in: app_path('Filament/Widgets'), for: 'App\Filament\Widgets')
             ->widgets([
-                AccountWidget::class,
-                FilamentInfoWidget::class,
+                InfoBox::class,
+                ProgressTable::class
             ])
             ->middleware([
                 EncryptCookies::class,
