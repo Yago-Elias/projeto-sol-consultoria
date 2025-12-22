@@ -2,7 +2,7 @@
     <div class="grid grid-cols-12">
         @forelse ($projects as $project)
         <x-filament::section class="col-span-6 w-100 m-6">
-            <a href="#">
+            <a href="{{ route('filament.admin.resources.projects.edit', $project->id) }}">
                 <div class="flex justify-between my-4">
                     <div>
                         <span class="text-xl font-bold">

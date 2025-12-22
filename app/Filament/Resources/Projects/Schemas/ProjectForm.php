@@ -163,7 +163,7 @@ class ProjectForm
                     ->schema([
                         ViewField::make('selected_consultants')
                             ->view('filament.resources.projects.partials.list-consultants-project')
-                            ->viewData(function (Project $record, $operation) {
+                            ->viewData(function (?Project $record, $operation) {
                                 if ($operation === 'edit') {
                                     return [
                                         'consultants' => $record
@@ -172,7 +172,7 @@ class ProjectForm
                                             ->all()
                                     ];
                                 }
-                                return [];
+                                return ['consultants' => []];
                             })
                     ])
             ]);
