@@ -24,14 +24,29 @@ class UserForm
                     ])
                     ->columnSpanFull()
                     ->schema([
-                        TextInput::make('name')
-                            ->label('Name')
+                        Section::make()
+                            ->contained(false)
                             ->columnSpan([
                                 'md' => 3,
                                 'lg' => 5,
                                 'xl' => 8
                             ])
-                            ->required(),
+                            ->schema([
+                                TextInput::make('name')
+                                    ->label('Nome')
+                                    ->columnSpanFull()
+                                    ->required(),
+                                TextInput::make('email')
+                                    ->label('Email')
+                                    ->columnSpanFull()
+                                    ->email()
+                                    ->required(),
+                                TextInput::make('telephone')
+                                    ->label('Telefone')
+                                    ->columnSpanFull()
+                                    ->tel()
+                                    ->required(),
+                            ]),
                         FileUpload::make('image')
                             ->label('Foto')
                             ->columnSpan([
@@ -39,29 +54,13 @@ class UserForm
                                 'lg' => 3,
                                 'xl' => 4
                             ])
-                            ->image(),
-                        TextInput::make('email')
-                            ->label('Email')
-                            ->columnSpan([
-                                'md' => 3,
-                                'lg' => 5,
-                                'xl' => 8
-                            ])
-                            ->email()
-                            ->required(),
-                        TextInput::make('telephone')
-                            ->label('Telefone')
-                            ->columnSpan([
-                                'md' => 3,
-                                'lg' => 5,
-                                'xl' => 8
-                            ])
-                            ->tel()
-                            ->required(),
+                            ->image()
+                            ->alignCenter(),
                         TextInput::make('expertise')
                             ->label('Áreas de Expertise')
                             ->columnSpanFull(),
                         TextInput::make('salary')
+                            ->label('Salário')
                             ->columnSpan([
                                 'md' => 2,
                                 'lg' => 4,
