@@ -22,6 +22,13 @@ class Project extends Model
         'manager_id',
     ];
 
+    protected function casts(): array {
+        return [
+            'end_date' => 'date',
+            'start_date' => 'date',
+        ];
+    }
+
     public function manager(): BelongsTo
     {
         return $this->belongsTo(User::class);
