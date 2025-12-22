@@ -2,6 +2,9 @@
 
 namespace Database\Factories;
 
+use App\Models\Profile;
+use App\Models\Role;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Factories\Factory;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Str;
@@ -15,6 +18,8 @@ class UserFactory extends Factory
      * The current password being used by the factory.
      */
     protected static ?string $password;
+    protected static ?Collection $profiles;
+    protected static ?Collection $roles;
 
     /**
      * Define the model's default state.
@@ -23,14 +28,20 @@ class UserFactory extends Factory
      */
     public function definition(): array
     {
+        static::$profiles = Profile::all();
+        static::$roles = Role::all();
         return [
             'name' => fake()->name(),
             'email' => fake()->unique()->safeEmail(),
             'email_verified_at' => now(),
+            'image' => 'https://picsum.photos/seed/' . fake()->uuid() . '/640/480',
             'password' => static::$password ??= Hash::make('password'),
             'salary' => fake()->randomFloat(2, 1000, 10000),
             'telephone' => fake()->phoneNumber(),
             'remember_token' => Str::random(10),
+
+            'role_id' => static::$roles->random(),
+            'profile_id' => static::$profiles->random(),
         ];
     }
 
