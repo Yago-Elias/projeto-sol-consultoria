@@ -39,10 +39,10 @@ class AdminPanelProvider extends PanelProvider
             ->viteTheme('resources/css/filament/admin/theme.css')
             ->brandLogo(asset('images/logo.svg'))
             ->brandLogoHeight('2em')
+            ->globalSearch(false)
             ->renderHook(PanelsRenderHook::TOPBAR_END,
                         fn () => Blade::render('<p class="logo-name">Sol Consultorias</p><span style="width: 2em;"></span>'))
-            ->userMenu(position: UserMenuPosition::Sidebar)
-            ->renderHook(PanelsRenderHook::SIDEBAR_START,
+            ->renderHook(PanelsRenderHook::SIDEBAR_NAV_START,
                         fn () => view('components.sidebar-new-project'))
             ->userMenu(false)
             ->renderHook(PanelsRenderHook::SIDEBAR_FOOTER,
