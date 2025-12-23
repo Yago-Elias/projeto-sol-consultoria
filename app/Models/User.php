@@ -82,4 +82,9 @@ class User extends Authenticatable
     {
         return $this->belongsTo(Role::class);
     }
+
+    public function expertises(): BelongsToMany
+    {
+        return $this->belongsToMany(Expertise::class, 'users_expertises');
+    }
 }
