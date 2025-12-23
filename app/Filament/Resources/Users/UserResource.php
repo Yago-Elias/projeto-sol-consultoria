@@ -27,7 +27,10 @@ class UserResource extends Resource
 
     protected static ?string $modelLabel = 'Consultores';
 
-    protected static string | BackedEnum | null $activeNavigationIcon = Heroicon::OutlinedUserGroup;
+    public static function getNavigationIcon(): string|BackedEnum|Htmlable|null
+    {
+        return Heroicon::OutlinedUserGroup;
+    }
 
     public static function form(Schema $schema): Schema
     {

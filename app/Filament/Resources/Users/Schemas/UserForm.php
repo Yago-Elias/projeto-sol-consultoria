@@ -5,6 +5,7 @@ namespace App\Filament\Resources\Users\Schemas;
 use Filament\Forms\Components\DateTimePicker;
 use Filament\Forms\Components\FileUpload;
 use Filament\Forms\Components\Select;
+use Filament\Forms\Components\TagsInput;
 use Filament\Forms\Components\TextInput;
 use Filament\Schemas\Components\Section;
 use Filament\Schemas\Schema;
@@ -56,9 +57,18 @@ class UserForm
                             ])
                             ->image()
                             ->alignCenter(),
-                        TextInput::make('expertise')
+                        Select::make('expertise')
                             ->label('Áreas de Expertise')
-                            ->columnSpanFull(),
+                            ->columnSpanFull()
+                            ->multiple()
+                            ->relationship('expertises', 'expertise')
+                            ->searchable()
+                            ->preload()
+                            ->createOptionForm([
+                                TextInput::make('name')
+                                    ->required()
+                                    ->unique(ignoreRecord: true),
+                            ]),
                         TextInput::make('salary')
                             ->label('Salário')
                             ->columnSpan([
@@ -75,7 +85,7 @@ class UserForm
                                 'lg' => 4,
                                 'xl' => 4
                             ])
-                            ->relationship('role', 'id'),
+                            ->relationship('role', 'role'),
                         Select::make('profile_id')
                             ->label('Perfil')
                             ->columnSpan([
@@ -83,7 +93,7 @@ class UserForm
                                 'lg' => 4,
                                 'xl' => 4
                             ])
-                            ->relationship('profile', 'id'),
+                            ->relationship('profile', 'profile'),
                     ])
             ]);
     }
