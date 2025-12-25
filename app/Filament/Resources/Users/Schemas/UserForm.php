@@ -36,15 +36,18 @@ class UserForm
                                 TextInput::make('name')
                                     ->label('Nome')
                                     ->columnSpanFull()
+                                    ->placeholder('Nome')
                                     ->required(),
                                 TextInput::make('email')
                                     ->label('Email')
                                     ->columnSpanFull()
+                                    ->placeholder('Email')
                                     ->email()
                                     ->required(),
                                 TextInput::make('telephone')
                                     ->label('Telefone')
                                     ->columnSpanFull()
+                                    ->placeholder('Telefone')
                                     ->tel()
                                     ->required(),
                             ]),
@@ -65,7 +68,7 @@ class UserForm
                             ->searchable()
                             ->preload()
                             ->createOptionForm([
-                                TextInput::make('name')
+                                TextInput::make('expertise')
                                     ->required()
                                     ->unique(ignoreRecord: true),
                             ]),
@@ -77,7 +80,9 @@ class UserForm
                                 'xl' => 4
                             ])
                             ->required()
-                            ->numeric(),
+                            ->prefix('R$')
+                            ->numeric()
+                            ->placeholder('00,00'),
                         Select::make('role_id')
                             ->label('Cargo')
                             ->columnSpan([
