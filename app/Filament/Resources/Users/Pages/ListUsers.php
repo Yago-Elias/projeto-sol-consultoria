@@ -3,8 +3,14 @@
 namespace App\Filament\Resources\Users\Pages;
 
 use App\Filament\Resources\Users\UserResource;
+use App\Models\Role;
 use Filament\Actions\CreateAction;
+use Filament\Forms\Components\TextInput;
 use Filament\Resources\Pages\ListRecords;
+use Filament\Schemas\Components\Tabs\Tab;
+use Filament\Schemas\Components\View;
+use Filament\Schemas\Schema;
+use Illuminate\Database\Eloquent\Builder;
 
 class ListUsers extends ListRecords
 {
@@ -13,7 +19,33 @@ class ListUsers extends ListRecords
     protected function getHeaderActions(): array
     {
         return [
-            CreateAction::make(),
+            CreateAction::make()
+                ->label('Cadastrar')
+                ->color('escuro-1'),
         ];
+    }
+
+    public function getTabs(): array
+    {
+        $roles = Role::query()->get(['id', 'role'])->all();
+        $tabs = ['all' => Tab::make('Todos')];
+
+        foreach ($roles as $role)
+            $tabs[$role['role']] = Tab::make($role['role'])
+                ->modifyQueryUsing(fn (Builder $query) => $query->where('role_id', $role['id']));
+
+        return $tabs;
+    }
+
+    public function content(Schema $schema): Schema
+    {
+        return $schema
+            ->components([
+                $this->getTabsContentComponent(),
+                View::make('filament.resources.users.pages.list-users')
+                    ->viewData([
+                        'users' => $this->getFilteredTableQuery()->get()
+                    ]),
+            ]);
     }
 }
