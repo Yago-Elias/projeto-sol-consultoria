@@ -1,24 +1,28 @@
 <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
     @forelse($users as $user)
         <x-filament::section>
-            <a class="flex flex-row justify-between" href="/users/{{ $user['id'] }}">
-                <aside class="flex flex-row gap-x-4">
-                    <x-filament::avatar
-                        :src="$user['image']"
-                        :alt="'imagem de '.$user['name']"
-                        :attributes="
-                            \Filament\Support\prepare_inherited_attributes($attributes)
-                                ->class(['fi-user-avatar'])
-                        "
-                    />
-                    <span class="my-auto text-base font-semibold">{{ $user['name'] }}</span>
-                </aside>
-                <div class="flex flex-row gap-2">
-                    @foreach($user['expertises'] as $expertise)
-                        <x-filament::badge class="my-auto">{{ $expertise['expertise'] }}</x-filament::badge>
-                    @endforeach
+            <a href="/users/{{ $user['id'] }}">
+                <div class="flex flex-row justify-between my-auto">
+                    <aside class="flex flex-row gap-x-4 my-auto">
+                        <x-filament::avatar
+                            :src="$user['image']"
+                            :alt="'imagem de '.$user['name']"
+                            :attributes="
+                                \Filament\Support\prepare_inherited_attributes($attributes)
+                                    ->class(['fi-user-avatar'])
+                            "
+                        />
+                        <span class="my-auto text-base font-semibold">{{ $user['name'] }}</span>
+                    </aside>
+                    <div class="flex flex-col gap-2">
+                        <span class="my-auto">{{ count($user['projects']) }} Projetos Ativos</span>
+                        <div class="flex flex-row gap-2 justify-end">
+                            @foreach($user['expertises'] as $expertise)
+                                <x-filament::badge class="my-auto">{{ $expertise['expertise'] }}</x-filament::badge>
+                            @endforeach
+                        </div>
+                    </div>
                 </div>
-                <span class="my-auto">{{ count($user['projects']) }} Projetos Ativos</span>
             </a>
         </x-filament::section>
     @empty
