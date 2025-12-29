@@ -5,8 +5,9 @@
                 <div class="flex flex-row justify-between my-auto">
                     <aside class="flex flex-row gap-x-4 my-auto">
                         <x-filament::avatar
-                            :src="$user['image']"
+                            :src="filament()->getUserAvatarUrl($user)"
                             :alt="'imagem de '.$user['name']"
+                            :size="'lg'"
                             :attributes="
                                 \Filament\Support\prepare_inherited_attributes($attributes)
                                     ->class(['fi-user-avatar'])

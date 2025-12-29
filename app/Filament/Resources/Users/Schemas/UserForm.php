@@ -59,6 +59,7 @@ class UserForm
                                 'xl' => 4
                             ])
                             ->image()
+                            ->disk('public')
                             ->alignCenter(),
                         Select::make('expertise')
                             ->label('Áreas de Expertise')
