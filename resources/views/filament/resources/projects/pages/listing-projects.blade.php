@@ -33,7 +33,7 @@
                 </div>
                 <hr class="border border-gray-900/30">
                 <div class="flex grid grid-flow-col grid-rows-3 my-4 gap-x-4">
-                    
+
                     {{-- Badge Tarefas Pendentes --}}
                     <div class="flex grid-cols-3 rounded-lg border border-warning-800 row-span-3 p-2 bg-warning-100">
                         <div class="grid col-span-2 content-center text-center">
