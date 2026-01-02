@@ -5,7 +5,6 @@ namespace App\Filament\Resources\Users\Pages;
 use App\Filament\Resources\Users\UserResource;
 use App\Models\Role;
 use Filament\Actions\CreateAction;
-use Filament\Forms\Components\TextInput;
 use Filament\Resources\Pages\ListRecords;
 use Filament\Schemas\Components\Tabs\Tab;
 use Filament\Schemas\Components\View;
@@ -43,9 +42,6 @@ class ListUsers extends ListRecords
             ->components([
                 $this->getTabsContentComponent(),
                 View::make('filament.resources.users.pages.list-users')
-                    ->viewData([
-                        'users' => $this->getFilteredTableQuery()->get()
-                    ]),
             ]);
     }
 }
