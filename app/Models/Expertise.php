@@ -11,8 +11,10 @@ class Expertise extends Model
         'expertise'
     ];
 
-   public function users(): BelongsToMany
-   {
-       return $this->belongsToMany(User::class, 'users_expertises');
-   }
+    public $timestamps = false;
+
+    public function users(): BelongsToMany
+    {
+        return $this->belongsToMany(User::class, 'users_expertises');
+    }
 }
