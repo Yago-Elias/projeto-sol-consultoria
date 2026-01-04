@@ -4,9 +4,9 @@ namespace App\Filament\Resources\Users\Pages;
 
 use App\Filament\Resources\Users\UserResource;
 use App\Models\Role;
+use Filament\Actions\Action;
 use Filament\Actions\CreateAction;
 use Filament\Resources\Pages\ListRecords;
-use Filament\Schemas\Components\Tabs;
 use Filament\Schemas\Components\Tabs\Tab;
 use Filament\Schemas\Components\View;
 use Filament\Schemas\Schema;
@@ -19,6 +19,8 @@ class ListUsers extends ListRecords
     protected function getHeaderActions(): array
     {
         return [
+            Action::make('search')
+                ->view('filament.resources.users.partials.search-bar'),
             CreateAction::make()
                 ->label('Cadastrar')
                 ->color('escuro-1'),
