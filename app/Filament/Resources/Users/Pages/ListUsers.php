@@ -10,6 +10,7 @@ use Filament\Resources\Pages\ListRecords;
 use Filament\Schemas\Components\Tabs\Tab;
 use Filament\Schemas\Components\View;
 use Filament\Schemas\Schema;
+use Filament\Support\Icons\Heroicon;
 use Illuminate\Database\Eloquent\Builder;
 
 class ListUsers extends ListRecords
@@ -23,7 +24,8 @@ class ListUsers extends ListRecords
                 ->view('filament.resources.users.partials.search-bar'),
             CreateAction::make()
                 ->label('Cadastrar')
-                ->color('escuro-1'),
+                ->color('escuro-3')
+                ->icon(Heroicon::OutlinedUserPlus),
         ];
     }
 
