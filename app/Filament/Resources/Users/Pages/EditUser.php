@@ -6,6 +6,7 @@ use App\Filament\Resources\Users\UserResource;
 use App\Models\User;
 use Filament\Actions\DeleteAction;
 use Filament\Actions\ViewAction;
+use Filament\Notifications\Notification;
 use Filament\Resources\Pages\EditRecord;
 
 class EditUser extends EditRecord
@@ -16,7 +17,12 @@ class EditUser extends EditRecord
     {
         return [
             ViewAction::make(),
-            DeleteAction::make(),
+            DeleteAction::make()
+                ->disabled(fn (User $record): bool =>
+                    count($record['managedProjects']) + count($record['projects']) > 0)
+                ->before(function (User $record): void {
+                    $record->expertises()->detach();
+                }),
         ];
     }
 
