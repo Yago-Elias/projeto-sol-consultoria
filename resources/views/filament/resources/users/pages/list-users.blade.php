@@ -19,7 +19,7 @@
                     <span class="my-auto text-base font-semibold">{{ $user['name'] }}</span>
                 </aside>
                 <div class="flex flex-col gap-2">
-                    <span class="my-auto">{{ count($user['projects']) + count($user['managedProjects']) }} Projetos Ativos</span>
+                    <span class="my-auto text-right">{{ count($user['projects']) + count($user['managedProjects']) }} Projetos Ativos</span>
                     <div class="flex flex-row gap-2 justify-end">
                         @foreach($user['expertises'] as $expertise)
                             <x-filament::badge class="my-auto">{{ $expertise['expertise'] }}</x-filament::badge>
