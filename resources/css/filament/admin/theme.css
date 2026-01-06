@@ -61,7 +61,7 @@
     background-color: var(--claro-2);
 }
 
-.fi-sidebar-item.fi-active>.fi-sidebar-item-btn {
+.fi-sidebar-item>.fi-sidebar-item-btn {
     background-color: var(--color-gray-50);
 }
 
@@ -73,10 +73,10 @@
 #new-project {
     display: flex;
     flex-direction: row;
-    width: 50%;
+    width: 60%;
     font-size: .875em;
     padding: 16px 16px;
-    margin: 16px auto;
+    margin: 0 auto;
     background-color: var(--claro-2);
     color: var(--escuro-3);
     box-shadow: var(--neutro-2) 1px 1px 2px;
