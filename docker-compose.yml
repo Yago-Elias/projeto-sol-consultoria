@@ -17,6 +17,7 @@ services:
       - laravel
     depends_on:
       - db
+      - mailhog
       - redis
     environment:
       - APP_ENV=${APP_ENV}
@@ -28,6 +29,9 @@ services:
       - DB_USERNAME=${DB_USERNAME}
       - DB_PASSWORD=${DB_PASSWORD}
       - REDIS_HOST=redis
+      - MAIL_MAILER=${MAIL_MAILER}
+      - MAIL_HOST=${MAIL_HOST}
+      - MAIL_PORT=${MAIL_PORT}
 
   nginx:
     image: nginx:alpine
@@ -78,6 +82,15 @@ services:
     restart: unless-stopped
     ports:
       - "6379:6379"
+    networks:
+      - laravel
+  
+  mailhog:
+    image: mailhog/mailhog
+    container_name: mailhog
+    ports:
+      - "1025:1025"
+      - "8025:8025"
     networks:
       - laravel
 

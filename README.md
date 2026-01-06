@@ -42,6 +42,7 @@ Aplicação web desenvolvida com **Laravel 12**, **Filament 4.x** e **Docker**, 
 | `db` | Banco de dados MySQL | 3306 |
 | `PHPMyAdmin` | Interface web para o banco | 8080 |
 | `redis` | Cache e filas | 6379 |
+| `Mailhog` | Serviço de e-mail | 8025 |
 
 ---
 
@@ -99,6 +100,7 @@ php artisan migrate --seed
 |---|---|---|
 | Aplicação Laravel / Filament | <http://localhost:8000> | conforme usuários seed |
 | phpMyAdmin | <http://localhost:8080> | Usuário: root / Senha: root |
+| Mailhog | <http://localhost:8025> | Acesso aberto |
 
 ---
 
