@@ -3,6 +3,7 @@
 namespace App\Filament\Resources\Projects\Schemas;
 
 use App\Models\Project;
+use App\Models\User;
 use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\FileUpload;
 use Filament\Forms\Components\Select;
@@ -11,11 +12,15 @@ use Filament\Forms\Components\Textarea;
 use Filament\Schemas\Components\Section;
 use Filament\Schemas\Schema;
 use Filament\Actions\Action;
+use Filament\Forms\Components\Hidden;
 use Filament\Support\Icons\Heroicon;
 use Filament\Forms\Components\ViewField;
+use Filament\Schemas\Components\Utilities\Get;
+use Filament\Schemas\Components\Utilities\Set;
 use Filament\Schemas\Components\View;
+use Livewire\Component;
 
-class ProjectForm
+class ProjectForm extends Component
 {
     public static function configure(Schema $schema): Schema
     {
@@ -159,21 +164,56 @@ class ProjectForm
                         Action::make('add_consultant')
                             ->label('Adiconar Consultor')
                             ->icon(Heroicon::Plus)
-                    ])
-                    ->schema([
-                        ViewField::make('selected_consultants')
-                            ->view('filament.resources.projects.partials.list-consultants-project')
-                            ->viewData(function (?Project $record, $operation) {
-                                if ($operation === 'edit') {
-                                    return [
-                                        'consultants' => $record
-                                            ->collaborators()
-                                            ->get()
-                                            ->all()
-                                    ];
-                                }
-                                return ['consultants' => []];
+                            ->schema([
+                                Select::make('consultores')
+                                    ->label('Buscar Consultor')
+                                    ->placeholder('Busque pelo nome ou especialidade do consultor')
+                                    ->multiple()
+                                    ->searchable()
+                                    ->preload()
+                                    ->options(function () {
+                                        return User::query()->pluck('name', 'id');
+                                    })
+                                    ->getSearchResultsUsing(function (string $search) {
+                                        return User::query()
+                                            ->where('name', 'like', "%{$search}%")
+                                            ->limit(10)
+                                            ->pluck('name', 'id');
+                                    })
+                            ])
+                            ->action(function (array $data, Set $set, Get $get) {
+                                $atual = $get('consultores_selecionados');
+                                $novos = $data['consultores'] ?? [];
+
+                                $total = array_unique(array_merge($atual, $novos));
+                                $set('consultores_selecionados', $total);
                             })
+                            ->modalSubmitActionLabel('Adicionar')
+                            ->modalCancelActionLabel('Cancelar')
+                        ])
+                    ->schema([
+                            Hidden::make('consultores_selecionados')
+                                ->default([]),
+                            ViewField::make('selected_consultants')
+                                ->view('filament.resources.projects.partials.list-consultants-project')
+                                ->viewData(function (?Project $record, $operation, Get $get) {
+                                    if ($operation === 'edit') {
+                                        return [
+                                            'consultants' => $record
+                                                ->collaborators()
+                                                ->get()
+                                                ->all()
+                                        ];
+                                    }
+                                    $ids_consultants = $get('consultores_selecionados');
+                                    $consultants = User::query()
+                                        ->with('role:id,role')
+                                        ->findMany($ids_consultants, ['name', 'image', 'role_id'])
+                                        ->all();
+
+                                    return ['consultants' => $consultants];
+                                })
+                                ->live(debounce:500)
                     ])
             ]);
     }
