@@ -57,13 +57,34 @@
         </div>
     </x-filament::section>
 
-    <h1 class="text-xl font-bold my-6">Projetos como gerente</h1>
-    @foreach($user['managedProjects'] as $project)
-        <p>{{ $project['name'] }}</p>
-    @endforeach
+    @if(count($user['managedProjects']) > 0)
+        <h1 class="text-2xl font-bold mt-8">Projetos como gerente</h1>
+        <div class="grid grid-cols-12">
+            @foreach($user['managedProjects'] as $project)
+                <x-project-card :project="$project"/>
+            @endforeach
+        </div>
 
-    <h1 class="text-xl font-bold my-6">Outros projetos</h1>
-    @foreach($user['projects'] as $project)
-        <p>{{ $project['name'] }}</p>
-    @endforeach
+        <h1 class="text-2xl font-bold mt-6">Outros projetos</h1>
+    @else
+        <h1 class="text-2xl font-bold mt-6">Projetos</h1>
+    @endif
+
+    @if(count($user['projects']) > 0)
+        <div class="grid grid-cols-12">
+            @foreach($user['projects'] as $project)
+                <x-project-card :project="$project"/>
+            @endforeach
+        </div>
+    @else
+        <x-filament::empty-state class="mt-6">
+            <x-slot name="heading">
+                Sem Projetos
+            </x-slot>
+            <x-slot name="description">
+                {{ $user['name'] }} ainda não está participando de nenhum projeto.
+            </x-slot>
+        </x-filament::empty-state>
+
+    @endif
 </div>
