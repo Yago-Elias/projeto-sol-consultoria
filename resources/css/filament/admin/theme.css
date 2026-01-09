@@ -3,6 +3,10 @@
 @source '../../../../app/Filament/**/*';
 @source '../../../../resources/views/filament/**/*';
 
+/* Escanear os componentes customizados */
+@source '../../../../app/View/Components/**/*.php';
+@source '../../../views/components/**/*.blade.php';
+
 /* Cores básicas */
 
 :root {
