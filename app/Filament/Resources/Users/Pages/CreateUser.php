@@ -3,9 +3,13 @@
 namespace App\Filament\Resources\Users\Pages;
 
 use App\Filament\Resources\Users\UserResource;
+use App\Mail\NewUserPassword;
 use Filament\Actions\Action;
 use Filament\Resources\Pages\CreateRecord;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Str;
 
 class CreateUser extends CreateRecord
 {
@@ -19,15 +23,16 @@ class CreateUser extends CreateRecord
             ->label('Cadastrar');
     }
 
-    protected function mutateFormDataBeforeCreate(array $data): array
+    protected function handleRecordCreation(array $data): Model
     {
-//        TO-DO:
-//        - gerar senha aleatória
-//        - enviar senha por email
-//
-        $randomPassword = 'password';
-        $data['password'] = Hash::make($randomPassword);
+        srand(now()->getTimestamp());
 
-        return $data;
+        $data['password'] = Hash::make(Str::random());
+        $newUser = static::getModel()::create($data);
+
+        Mail::to($newUser)
+            ->send(new NewUserPassword($newUser));
+
+        return $newUser;
     }
 }
