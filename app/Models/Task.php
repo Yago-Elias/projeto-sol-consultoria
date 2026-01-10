@@ -22,7 +22,8 @@ class Task extends Model
         'assigned_to',
     ];
 
-    public function casts(): array {
+    public function casts(): array
+    {
         return [
             'due_date' => 'datetime',
             'conclusion_date' => 'datetime',
@@ -34,7 +35,8 @@ class Task extends Model
         return $this->belongsTo(Board::class);
     }
 
-    public function assignedTo(): BelongsTo {
+    public function assignedTo(): BelongsTo
+    {
         return $this->belongsTo(User::class, 'assigned_to');
     }
 }

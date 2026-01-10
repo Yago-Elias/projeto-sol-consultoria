@@ -26,7 +26,8 @@ class Project extends Model
         'manager_id',
     ];
 
-    protected function casts(): array {
+    protected function casts(): array
+    {
         return [
             'end_date' => 'date',
             'start_date' => 'date',
