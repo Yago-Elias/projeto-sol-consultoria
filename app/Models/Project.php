@@ -7,6 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasManyThrough;
 
 class Project extends Model
 {
@@ -49,6 +50,11 @@ class Project extends Model
 
     public function boards(): HasMany
     {
-        return $this->hasMany(Board::class);
+        return $this->hasMany(Board::class, 'project_id');
+    }
+
+    public function tasks(): HasManyThrough
+    {
+        return $this->through('boards')->has('tasks');
     }
 }
