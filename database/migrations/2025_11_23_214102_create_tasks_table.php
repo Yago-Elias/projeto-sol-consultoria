@@ -22,8 +22,8 @@ return new class extends Migration
 
             $table->enum('status', ['PENDENTE', 'APROVADA', 'EM_APROVACAO', 'ATRASADA', 'FINALIZADA_COM_ATRASO'])->default('pendente');
 
-            $table->foreignId('board_id')->constrained('boards');
-            $table->foreignId('assigned_to')->constrained('users');
+            $table->foreignId('board_id')->nullable()->constrained('boards');
+            $table->foreignId('assigned_to')->nullable()->constrained('users');
 
             $table->timestamps();
         });
