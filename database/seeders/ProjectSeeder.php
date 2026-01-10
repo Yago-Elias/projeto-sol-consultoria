@@ -2,7 +2,9 @@
 
 namespace Database\Seeders;
 
+use App\Models\Board;
 use App\Models\Project;
+use App\Models\Task;
 use App\Models\User;
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Eloquent\Collection;
@@ -21,10 +23,36 @@ class ProjectSeeder extends Seeder
         Project::factory(3)
             ->for(User::find(1), 'manager')
             ->hasAttached(static::$users->random(5), [], 'collaborators')
-            ->create();
+            ->has(
+                Board::factory(3)
+                    ->has(Task::factory(5), 'tasks'),
+                'boards'
+            )
+            ->create()
+            ->each(function (Project $project) {
+                $collaboratorIds = $project->collaborators->pluck('id');
+                $project->boards->each(function (Board $board) use ($collaboratorIds) {
+                    $board->tasks->each(function (Task $task) use ($collaboratorIds) {
+                        $task->update(['assigned_to' => $collaboratorIds->random()]);
+                    });
+                });
+            });
 
         Project::factory(10)
             ->hasAttached(static::$users->random(5), [], 'collaborators')
-            ->create();
+            ->has(
+                Board::factory(3)
+                    ->has(Task::factory(5), 'tasks'),
+                'boards'
+            )
+            ->create()
+            ->each(function (Project $project) {
+                $collaboratorIds = $project->collaborators->pluck('id');
+                $project->boards->each(function (Board $board) use ($collaboratorIds) {
+                    $board->tasks->each(function (Task $task) use ($collaboratorIds) {
+                        $task->update(['assigned_to' => $collaboratorIds->random()]);
+                    });
+                });
+            });
     }
 }
