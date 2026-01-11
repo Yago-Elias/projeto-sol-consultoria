@@ -13,7 +13,8 @@ class ProjectLayout extends Component
      * Create a new component instance.
      */
     public function __construct(
-        public string $activeTab
+        public string $activeTab,
+        public array $urls
     )
     {
         //

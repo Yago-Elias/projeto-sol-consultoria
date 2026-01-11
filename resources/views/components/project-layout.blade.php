@@ -1,29 +1,29 @@
 <x-filament-panels::page>
     <x-filament::tabs>
         <x-filament::tabs.item
-            :active="$activeTab === 'tab1'"
-            :href="'#'"
+            :active="$activeTab === 'tarefas'"
+            :href="$urls['tarefas']"
             tag="a"
         >
             Tarefas
         </x-filament::tabs.item>
         <x-filament::tabs.item
-            :active="$activeTab === 'tab1'"
-            :href="'#'"
+            :active="$activeTab === 'aprovacao'"
+            :href="$urls['aprovacao']"
             tag="a"
         >
             Em Aprovação
         </x-filament::tabs.item>
         <x-filament::tabs.item
-            :active="$activeTab === 'tab1'"
-            :href="'#'"
+            :active="$activeTab === 'financeiro'"
+            :href="$urls['financeiro']"
             tag="a"
         >
             Financeiro
         </x-filament::tabs.item>
         <x-filament::tabs.item
-            :active="$activeTab === 'tab1'"
-            :href="'#'"
+            :active="$activeTab === 'detalhes'"
+            :href="$urls['detalhes']"
             tag="a"
         >
             Detalhes

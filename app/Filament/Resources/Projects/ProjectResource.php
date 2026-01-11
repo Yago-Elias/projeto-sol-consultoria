@@ -4,7 +4,10 @@ namespace App\Filament\Resources\Projects;
 
 use App\Filament\Resources\Projects\Pages\CreateProject;
 use App\Filament\Resources\Projects\Pages\EditProject;
+use App\Filament\Resources\Projects\Pages\ProjectFinances;
 use App\Filament\Resources\Projects\Pages\ListProjects;
+use App\Filament\Resources\Projects\Pages\ProjectDetails;
+use App\Filament\Resources\Projects\Pages\UnderApprovalTasks;
 use App\Filament\Resources\Projects\Pages\ViewProject;
 use App\Filament\Resources\Projects\Schemas\ProjectForm;
 use App\Filament\Resources\Projects\Schemas\ProjectInfolist;
@@ -55,6 +58,9 @@ class ProjectResource extends Resource
             'create' => CreateProject::route('/create'),
             'view' => ViewProject::route('/{record}'),
             'edit' => EditProject::route('/{record}/edit'),
+            'aprovacao' => UnderApprovalTasks::route('/{record}/aprovacao'),
+            'financeiro' => ProjectFinances::route('/{record}/financeiro'),
+            'detalhes' => ProjectDetails::route('/{record}/detalhes'),
         ];
     }
 }

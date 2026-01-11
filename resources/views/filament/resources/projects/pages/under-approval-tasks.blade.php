@@ -1,3 +1,3 @@
 <x-project-layout activeTab="{{ $activeTab }}" :urls="$urls">
-    Listagem de tarefas
+    Tarefas em aprovação
 </x-project-layout>

@@ -158,3 +158,14 @@
     width: fit-content;
     margin: auto;
 }
+
+
+.fi-header {
+    &.fi-header-has-breadcrumbs {
+        & .fi-header-actions-ctn {
+            @media (width >= 40rem) {
+                margin-top: calc(var(--spacing) * 0);
+            }
+        }
+    }
+}
