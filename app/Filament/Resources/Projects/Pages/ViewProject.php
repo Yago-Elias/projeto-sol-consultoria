@@ -4,18 +4,14 @@ namespace App\Filament\Resources\Projects\Pages;
 
 use App\Filament\Resources\Projects\ProjectResource;
 use Filament\Actions\Action;
-use Filament\Actions\EditAction;
-use Filament\Resources\Concerns\HasTabs;
 use Filament\Resources\Pages\ViewRecord;
-use Filament\Schemas\Components\Tabs\Tab;
-use Filament\Schemas\Schema;
 use Illuminate\Contracts\Support\Htmlable;
 
 class ViewProject extends ViewRecord
 {
-    use HasTabs;
-
     protected static string $resource = ProjectResource::class;
+    protected string $view = 'filament.resources.projects.pages.list-tasks';
+    protected string $activeTab = 'tasks';
 
     protected function getHeaderActions(): array
     {
@@ -34,22 +30,11 @@ class ViewProject extends ViewRecord
         return $this->record['name'];
     }
 
-    public function getTabs(): array
+    protected function getViewData(): array
     {
         return [
-            'tarefas' => Tab::make('Tarefas'),
-            'aprovacao' => Tab::make('Em Aprovação'),
-            'financeiro' => Tab::make('Financeiro'),
-            'detailhes' => Tab::make('Detalhes'),
+            'project' => $this->record,
+            'activeTab' => $this->activeTab
         ];
-    }
-
-    public function content(Schema $schema): Schema
-    {
-        $content = [];
-        return $schema
-            ->components([
-                $this->getTabsContentComponent()
-            ]);
     }
 }
