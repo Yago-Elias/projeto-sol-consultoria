@@ -15,16 +15,16 @@
                 {{ $consultant['name'] }}
             </span>
             <span class="font-xs text-gray-600">
-                {{ $consultant['position'] ?? 'Consultor' }}
+                {{ $consultant['role']['role']}}
             </span>
         </div>
         <div class="flex min-w-10 h-10 items-center justify-center rounded-full hover:bg-red-100 transition duration-500">
-            <a href="#">
+            <div>
                 <x-filament::icon
                     icon="heroicon-o-trash"
                     color="red"
                 />
-            </a>
+            </div>
         </div>
     </div>
     @empty
