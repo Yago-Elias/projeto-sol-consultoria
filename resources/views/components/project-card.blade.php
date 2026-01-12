@@ -1,5 +1,5 @@
 <x-filament::section class="col-span-6 w-100 m-6">
-    <a href="{{ route('filament.admin.resources.projects.edit', $project->id) }}">
+    <a href="{{ route('filament.admin.resources.projects.view', $project->id) }}">
         <div class="flex justify-between my-4">
             <div class="text-xl font-bold">
                 {{ $project->name }}
