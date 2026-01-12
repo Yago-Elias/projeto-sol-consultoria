@@ -36,6 +36,7 @@ class ProjectForm extends Component
                     ->columnSpanFull()
                     ->schema([
                         View::make('filament.schemas.components.layout-create-project')
+                            ->columnSpanFull()
                             ->schema([
                                 TextInput::make('name')
                                     ->columnSpan([
@@ -75,9 +76,7 @@ class ProjectForm extends Component
                                     ->required()
                                     ->label('E-mail')
                                     ->placeholder('E-mail'),
-                            
-                            ])
-                            ->columnSpanFull(),
+                            ]),
                         
                         Textarea::make('description')
                             ->columnSpanFull()
@@ -156,6 +155,17 @@ class ProjectForm extends Component
                                 'parcelado_4x' => '4x',
                             ])
                             ->disabled(fn ($operation) => $operation === 'edit'),
+                        Select::make('manager_id')
+                            ->columnSpan([
+                                'sm' => 2,
+                                'md' => 3,
+                                'lg' => 4,
+                                'xl' => 4,
+                            ])
+                            ->label('Gerente do projeto')
+                            ->required()
+                            ->options(fn () => User::query()->pluck('name', 'id'))
+                            ->searchable()
                     ]),
                 
                 Section::make('Consultores')
@@ -185,11 +195,12 @@ class ProjectForm extends Component
                                 $atual = $get('consultores_selecionados');
                                 $novos = $data['consultores'] ?? [];
 
-                                $total = array_unique(array_merge($atual, $novos));
+                                $total = array_unique(array_merge($atual ?? [], $novos));
                                 $set('consultores_selecionados', $total);
                             })
                             ->modalSubmitActionLabel('Adicionar')
                             ->modalCancelActionLabel('Cancelar')
+                            ->closeModalByClickingAway(false)
                         ])
                     ->schema([
                             Hidden::make('consultores_selecionados')
@@ -214,6 +225,9 @@ class ProjectForm extends Component
                                     return ['consultants' => $consultants];
                                 })
                                 ->live(debounce:500)
+                                ->after(function (?Project $project, $get) {
+                                    $project?->collaborators()->attach($get('consultores_selecionados'));
+                                })
                     ])
             ]);
     }
