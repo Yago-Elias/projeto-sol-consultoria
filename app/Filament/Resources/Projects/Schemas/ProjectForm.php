@@ -18,6 +18,7 @@ use Filament\Forms\Components\ViewField;
 use Filament\Schemas\Components\Utilities\Get;
 use Filament\Schemas\Components\Utilities\Set;
 use Filament\Schemas\Components\View;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Livewire\Component;
 
 class ProjectForm extends Component
@@ -212,16 +213,27 @@ class ProjectForm extends Component
                                         return [
                                             'consultants' => $record
                                                 ->collaborators()
-                                                ->get()
+                                                ->with(['role:id,role'])
+                                                ->get(['name', 'image', 'role_id'])
+                                                ->map(fn ($user) => [
+                                                    'name' => $user->name,
+                                                    'image' => filament()->getUserAvatarUrl($user),
+                                                    'role' => $user->role->role,
+                                                ])
                                                 ->all()
                                         ];
                                     }
                                     $ids_consultants = $get('consultores_selecionados');
                                     $consultants = User::query()
                                         ->with('role:id,role')
-                                        ->findMany($ids_consultants, ['name', 'image', 'role_id'])
+                                        ->findMany($ids_consultants)
+                                        ->map(fn ($user) => [
+                                            'name' => $user->name,
+                                            'image' => filament()->getUserAvatarUrl($user),
+                                            'image2' => $user->image,
+                                            'role' => $user->role->role,
+                                        ])
                                         ->all();
-
                                     return ['consultants' => $consultants];
                                 })
                                 ->live(debounce:500)
