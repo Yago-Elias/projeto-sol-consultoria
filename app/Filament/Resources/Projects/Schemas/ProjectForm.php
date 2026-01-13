@@ -18,7 +18,9 @@ use Filament\Forms\Components\ViewField;
 use Filament\Schemas\Components\Utilities\Get;
 use Filament\Schemas\Components\Utilities\Set;
 use Filament\Schemas\Components\View;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Support\Facades\DB;
 use Livewire\Component;
 
 class ProjectForm extends Component
@@ -182,7 +184,17 @@ class ProjectForm extends Component
                                     ->multiple()
                                     ->searchable()
                                     ->preload()
-                                    ->options(function () {
+                                    ->options(function (?Project $record) {
+                                        if ($record) {
+                                            $projectId = $record->id;
+                                            return User::query()
+                                                ->whereDoesntHave('projects', function ($q) use ($projectId) {
+                                                    $q->where('projects.id', $projectId);
+                                                })
+                                                ->get()
+                                                ->pluck('name', 'id');
+                                        }
+
                                         return User::query()->pluck('name', 'id');
                                     })
                                     ->getSearchResultsUsing(function (string $search) {
@@ -240,8 +252,12 @@ class ProjectForm extends Component
                                     return ['consultants' => $consultants];
                                 })
                                 ->live(debounce:500)
-                                ->after(function (?Project $project, Get $get) {
-                                    $project?->collaborators()->attach($get('selected_consultants'));
+                                ->after(function (?Project $project, Get $get, Set $set) {
+                                    $consultantsIds = $get('selected_consultants') ?? [];
+                                    if ($consultantsIds) {
+                                        $project?->collaborators()->attach($consultantsIds);
+                                        $set('selected_consultants', []);
+                                    }
                                 })
                     ])
             ]);
