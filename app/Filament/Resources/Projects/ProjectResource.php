@@ -58,4 +58,26 @@ class ProjectResource extends Resource
             'edit' => EditProject::route('/{record}/edit'),
         ];
     }
+
+    public static function searchConsultants(array $ids): array
+    {
+        if ($ids)
+            return User::query()
+                ->with('role:id,role')
+                ->findMany($ids, ['id', 'name', 'image', 'role_id'])
+                ->map(fn ($user) => [
+                    'id' => $user->id,
+                    'name' => $user->name,
+                    'image' => filament()->getUserAvatarUrl($user),
+                    'role' => $user->role->role,
+                ])
+                ->all();
+        return [];
+    }
+
+    public static function removeConsultant(int $id, ?Project $record=null): void
+    {
+        if ($record)
+            $record->collaborators()->detach($id);
+    }
 }
