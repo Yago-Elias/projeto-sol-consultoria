@@ -24,9 +24,4 @@ class EditProject extends EditRecord
     {
         return ProjectResource::searchConsultants($ids);
     }
-
-    public function removeConsultant(int $id): void
-    {
-        ProjectResource::removeConsultant($id, $this->record);
-    }
 }

@@ -74,10 +74,4 @@ class ProjectResource extends Resource
                 ->all();
         return [];
     }
-
-    public static function removeConsultant(int $id, ?Project $record=null): void
-    {
-        if ($record)
-            $record->collaborators()->detach($id);
-    }
 }

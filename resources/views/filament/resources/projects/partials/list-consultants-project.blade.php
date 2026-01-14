@@ -1,12 +1,17 @@
 <div x-data="{
     consultants: @js($consultants),
     consultantsIds: @entangle('data.selected_consultants').live,
+    removeConsultantIds: @entangle('data.remove_consultants').live,
     manager_id: @entangle('data.manager_id').live,
 
     init() {
         if (!this.consultantsIds) {
             this.consultantsIds = [];
         }
+        if (!this.removeConsultantIds) {
+            this.removeConsultantIds = [];
+        }
+
         this.$watch('consultantsIds', async (newIds) => {
             if (newIds?.length) {
                 const consultants = await $wire.searchConsultants(newIds);
@@ -18,7 +23,8 @@
     deleteConsultant(id) {
         this.consultants = this.consultants.filter(c => c.id !== id);
         this.consultantsIds = this.consultantsIds.filter(cId => cId !== id);
-        $wire.removeConsultant(id);
+        this.removeConsultantIds.push(id);
+        console.log(this.removeConsultantIds);
     },
     }"
     x-on:delete-consultant.window="deleteConsultant($event.detail.id)"
@@ -38,18 +44,18 @@
                     <span x-text="consultant.role" class="font-xs text-gray-600">
                     </span>
                 </div>
+                <template x-if="consultant.id != manager_id">
                 <div x-data>
                     <div class="flex min-w-10 h-10 items-center justify-center rounded-full hover:bg-red-100 transition duration-500">
                         <div @click="$dispatch('delete-consultant', {id: consultant.id})">
-                            <template x-if="consultant.id != manager_id">
                             <x-filament::icon
                                 icon="heroicon-o-trash"
                                 color="red"
                             />
-                            </template>
                         </div>
                     </div>
                 </div>
+                </template>
             </div>
             </template>
         </template>

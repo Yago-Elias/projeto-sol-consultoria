@@ -218,6 +218,8 @@ class ProjectForm extends Component
                     ->schema([
                             Hidden::make('selected_consultants')
                                 ->default([]),
+                            Hidden::make('remove_consultants')
+                                ->default([]),
                             ViewField::make('consultants')
                                 ->view('filament.resources.projects.partials.list-consultants-project')
                                 ->viewData(function (?Project $record, $operation, Set $set, Get $get) {
@@ -237,7 +239,8 @@ class ProjectForm extends Component
                                         $set('consultants', $consultants);
                                         return ['consultants' => $consultants];
                                     }
-                                    $ids_consultants = $get('selected_consultants');
+                                    $ids_consultants = $get('selected_consultants') ?? [];
+                                    array_push($ids_consultants, $get('manager_id'));
                                     $consultants = User::query()
                                         ->with('role:id,role')
                                         ->findMany($ids_consultants, ['id', 'name', 'image', 'role_id'])
@@ -254,9 +257,14 @@ class ProjectForm extends Component
                                 ->live(debounce:500)
                                 ->after(function (?Project $project, Get $get, Set $set) {
                                     $consultantsIds = $get('selected_consultants') ?? [];
+                                    $removeConsultantsIds = $get('remove_consultants') ?? [];
                                     if ($consultantsIds) {
                                         $project?->collaborators()->attach($consultantsIds);
                                         $set('selected_consultants', []);
+                                    }
+                                    if ($removeConsultantsIds) {
+                                        $project?->collaborators()->detach($removeConsultantsIds);
+                                        $set('remove_consultants', []);
                                     }
                                 })
                     ])

@@ -12,6 +12,5 @@ class CreateProject extends CreateRecord
     public function searchConsultants(array $ids): array
     {
         return ProjectResource::searchConsultants($ids);
-
     }
 }
