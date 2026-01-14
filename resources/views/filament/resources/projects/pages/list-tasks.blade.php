@@ -1,3 +1,6 @@
 <x-project-layout activeTab="{{ $activeTab }}" :urls="$urls">
-    Listagem de tarefas
+    @livewire(\App\Filament\Resources\Projects\RelationManagers\TasksRelationManager::class, [
+        'ownerRecord' => $record,
+        'pageClass' => static::class
+    ])
 </x-project-layout>
