@@ -25,6 +25,7 @@ use Filament\Schemas\Components\Section;
 use Filament\Schemas\Components\View;
 use Filament\Schemas\Schema;
 use Filament\Support\Enums\Alignment;
+use Filament\Support\Enums\IconSize;
 use Filament\Support\Enums\Width;
 use Filament\Support\Icons\Heroicon;
 use Filament\Support\View\Components\BadgeComponent;
@@ -74,38 +75,79 @@ class TasksRelationManager extends RelationManager
         return $schema
             ->components([
                 Section::make()
-                    ->columns()
-                    ->heading(fn (Task $record) =>
-                        'Tarefa '. strtolower(str_replace('_', ' ', $record['status'])))
+                    ->columns([
+                        'sm' => 3
+                    ])
+                    ->heading(fn (Task $record): string => $record['assignedTo']['name'])
                     ->headerActions([
+                        Action::make('avatar')
+                            ->icon(fn (Task $record): string => filament()->getUserAvatarUrl($record['assignedTo']))
+                            ->url(fn (Task $record): string => '/users/' . $record['assigned_to'], true)
+                            ->extraAttributes([
+                                'class' => '[clip-path:circle(50%_at_50%_50%)] rounded-full border border-(--neutro-3)'
+                            ], true)
+                            ->iconButton()
+                            ->iconSize(IconSize::TwoExtraLarge),
                         EditAction::make()
                             ->icon(Heroicon::OutlinedPencil)
+                            ->extraAttributes([
+                                'class' => 'bg-primary-200 rounded-full border border-primary-600'
+                            ])
                             ->iconButton(),
                         DeleteAction::make()
                             ->icon(Heroicon::OutlinedTrash)
+                            ->extraAttributes([
+                                'class' => 'bg-danger-200 rounded-full border border-danger-600'
+                            ])
                             ->iconButton(),
                     ])
                     ->components([
-                        ImageEntry::make('assigned_to')
-                            ->state(fn (Task $record) => filament()->getUserAvatarUrl($record['assignedTo']))
-                            ->label(fn (Task $record) => $record['assignedTo']['name'])
-                            ->belowLabel('Responsável')
-                            ->inlineLabel()
-                            ->circular()
-                            ->imageSize('3em')
-                            ->alignRight()
-                            ->columnSpanFull(),
                         TextEntry::make('predicted_hours')
                             ->label('Duração da tarefa')
                             ->numeric()
-                            ->formatStateUsing(fn ($state) => $state . ' horas'),
+                            ->icon(Heroicon::OutlinedClock)
+                            ->formatStateUsing(fn (string $state): string => $state . ' horas'),
                         TextEntry::make('due_date')
                             ->label('Prazo de conclusão')
+                            ->icon(Heroicon::OutlinedCalendar)
                             ->date(),
+                        TextEntry::make('status')
+                            ->label('Status')
+                            ->badge()
+                            ->color('gray')
+                            ->icon(Heroicon::OutlinedTag)
+                            ->formatStateUsing(fn (string $state): string => str_replace('_', ' ', $state)),
                         TextEntry::make('description')
                             ->label('Descrição')
                             ->placeholder('-')
+                            ->icon(Heroicon::OutlinedBars3BottomLeft)
                             ->columnSpanFull(),
+                    ])
+                    ->footerActions([
+                        Action::make('conclusion')
+                            ->label('Concluir Tarefa')
+                            ->icon(Heroicon::OutlinedCheck)
+                            ->schema([
+                                TextEntry::make('description')
+                                    ->label('Descrição')
+                                    ->placeholder('-')
+                                    ->icon(Heroicon::OutlinedBars3BottomLeft)
+                                    ->columnSpanFull(),
+                                TextInput::make('message')
+                                    ->label('Mensagem de Conclusão')
+                                    ->hidden(fn (Task $record) => filament()->auth()->id() !== $record['assigned_to'])
+                                    ->columnSpanFull()
+                            ])
+                            ->action(function (array $data, Task $record) {
+                                $record['status'] = 'EM_APROVACAO';
+                                $record['conclusion_date'] = now();
+                                $record['conclusion_message'] = $data['message'];
+
+                                $record->save();
+                            })
+                            ->hidden(fn (Task $record) =>
+                                filament()->auth()->id() !== $record['assigned_to'] ||
+                                $record['status'] !== 'PENDENTE')
                     ])
                     ->contained(false)
                     ->columnSpanFull(),
@@ -132,9 +174,7 @@ class TasksRelationManager extends RelationManager
                     ->badge(),
                 TextColumn::make('board.id')
                     ->searchable(),
-                TextColumn::make('assigned_to')
-                    ->numeric()
-                    ->sortable(),
+                TextColumn::make('assignedTo.name'),
                 TextColumn::make('created_at')
                     ->dateTime()
                     ->sortable()
@@ -159,12 +199,7 @@ class TasksRelationManager extends RelationManager
             ->recordActions([
                 ViewAction::make()
                     ->modalHeading(fn (Task $record) => $record['title'])
-                    ->modalWidth(Width::Medium)
-                    ->modalFooterActions(fn (Task $record) =>
-                        filament()->auth()->id() === $record['assigned_to'] ?
-                            [Action::make('Concluir')] :
-                            []
-                    ),
+                    ->modalCancelAction(false),
                 EditAction::make(),
                 DeleteAction::make(),
             ])

@@ -169,3 +169,18 @@
         }
     }
 }
+
+.fi-sc {
+    &.fi-sc-has-gap {
+        &.fi-sc-dense {
+            gap: calc(var(--spacing) * 6);
+        }
+    }
+}
+
+.fi-icon {
+    &.fi-size-2xl {
+        width: calc(var(--spacing) * 9);
+        height: calc(var(--spacing) * 9);
+    }
+}
