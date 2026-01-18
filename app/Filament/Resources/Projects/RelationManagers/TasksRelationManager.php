@@ -38,6 +38,7 @@ use Illuminate\Support\Facades\Blade;
 class TasksRelationManager extends RelationManager
 {
     protected static string $relationship = 'tasks';
+    protected string $view = 'filament.resources.tasks.relation';
 
     public function form(Schema $schema): Schema
     {
@@ -115,7 +116,7 @@ class TasksRelationManager extends RelationManager
                             ->label('Status')
                             ->badge()
                             ->color('gray')
-                            ->icon(Heroicon::OutlinedTag)
+//                            ->icon(Heroicon::OutlinedTag)
                             ->formatStateUsing(fn (string $state): string => str_replace('_', ' ', $state)),
                         TextEntry::make('description')
                             ->label('Descrição')
