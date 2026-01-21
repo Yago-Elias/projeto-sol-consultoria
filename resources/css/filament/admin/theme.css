@@ -184,3 +184,13 @@
         height: calc(var(--spacing) * 9);
     }
 }
+
+.hide-header {
+    thead {
+        display: none;
+    }
+}
+
+.fi-ta-header-toolbar > .fi-ta-actions {
+    width: 100%;
+}

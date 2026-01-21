@@ -2,6 +2,9 @@
 
 namespace App\Filament\Resources\Projects\RelationManagers;
 
+use App\Filament\Tables\BoardTable;
+use App\Filament\Widgets\ProgressTable;
+use App\Models\Board;
 use App\Models\Task;
 use Filament\Actions\Action;
 use Filament\Actions\ActionGroup;
@@ -29,10 +32,15 @@ use Filament\Support\Enums\IconSize;
 use Filament\Support\Enums\Width;
 use Filament\Support\Icons\Heroicon;
 use Filament\Support\View\Components\BadgeComponent;
+use Filament\Tables\Columns\IconColumn;
+use Filament\Tables\Columns\ImageColumn;
 use Filament\Tables\Columns\TextColumn;
+use Filament\Tables\Contracts\HasTable;
+use Filament\Tables\Filters\Filter;
 use Filament\Tables\Table;
 use Filament\View\PanelsRenderHook;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Relations\Relation;
 use Illuminate\Support\Facades\Blade;
 
 class TasksRelationManager extends RelationManager
@@ -161,58 +169,84 @@ class TasksRelationManager extends RelationManager
             ->recordTitleAttribute('title')
             ->columns([
                 TextColumn::make('title')
-                    ->searchable(),
-                TextColumn::make('predicted_hours')
-                    ->numeric()
-                    ->sortable(),
-                TextColumn::make('due_date')
-                    ->date()
-                    ->sortable(),
-                TextColumn::make('conclusion_date')
-                    ->date()
-                    ->sortable(),
-                TextColumn::make('status')
-                    ->badge(),
-                TextColumn::make('board.id')
-                    ->searchable(),
-                TextColumn::make('assignedTo.name'),
-                TextColumn::make('created_at')
-                    ->dateTime()
-                    ->sortable()
-                    ->toggleable(isToggledHiddenByDefault: true),
-                TextColumn::make('updated_at')
-                    ->dateTime()
-                    ->sortable()
-                    ->toggleable(isToggledHiddenByDefault: true),
+                    ->icon(Heroicon::OutlinedCheckCircle),
             ])
             ->filters([
                 //
             ])
             ->headerActions([
-                CreateAction::make()
+                'create' => CreateAction::make()
                     ->modalHeading('Nova Tarefa')
                     ->mutateDataUsing(function (array $data): array {
                         $data['board_id'] = 1;
 
                         return $data;
-                    }),
+                    })
+                    ->icon(Heroicon::OutlinedPlus)
+                    ->extraAttributes([
+                        'class' => 'bg-primary-900 rounded-full border border-primary-100 text-primary-100'
+                    ])
+                    ->iconButton(),
+                'edit' => Action::make('edit')
+                    ->icon(Heroicon::OutlinedPencil)
+                    ->extraAttributes([
+                        'class' => 'bg-primary-200 rounded-full border border-primary-600 text-primary-600'
+                    ])
+                    ->iconButton(),
+                'delete' => Action::make('delete')
+                    ->icon(Heroicon::OutlinedTrash)
+                    ->extraAttributes([
+                        'class' => 'bg-danger-200 rounded-full border border-danger-600 text-danger-600'
+                    ])
+                    ->iconButton()
             ])
             ->recordActions([
                 ViewAction::make()
                     ->modalHeading(fn (Task $record) => $record['title'])
-                    ->modalCancelAction(false),
-                EditAction::make(),
-                DeleteAction::make(),
+                    ->modalCancelAction(false)
+                    ->icon(fn (Task $record): string => filament()->getUserAvatarUrl($record['assignedTo']))
+                    ->extraAttributes([
+                        'class' => '[clip-path:circle(50%_at_50%_50%)] rounded-full border border-(--neutro-3)'
+                    ], true)
+                    ->iconButton()
+                    ->iconSize(IconSize::TwoExtraLarge),
             ])
             ->toolbarActions([
-                BulkActionGroup::make([
-                    DeleteBulkAction::make(),
-                ]),
+                Action::make('progress')
+                    ->view('filament.resources.projects.partials.progress')
+                    ->viewData(function () {
+                        return [
+                            'percent' => 50
+                        ];
+                    })
+            ])
+            ->paginated(false)
+            ->searchable(false)
+            ->selectable(false)
+            ->extraAttributes([
+                'class' => 'hide-header'
             ]);
     }
 
     public function isReadOnly(): bool
     {
         return false;
+    }
+
+    public function getTabelas(): array
+    {
+        $boards = [];
+
+        foreach ($this->ownerRecord['boards'] as $board) {
+            $boards[$board['id']] = $this
+                ->table($this->makeTable())
+                ->heading($board['nome']);
+        }
+
+        return $boards;
+    }
+
+    public function getRelationship(): Relation|Builder
+    {
     }
 }
