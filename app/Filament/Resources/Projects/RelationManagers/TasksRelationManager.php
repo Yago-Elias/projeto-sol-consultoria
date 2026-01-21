@@ -2,51 +2,37 @@
 
 namespace App\Filament\Resources\Projects\RelationManagers;
 
-use App\Filament\Tables\BoardTable;
-use App\Filament\Widgets\ProgressTable;
 use App\Models\Board;
 use App\Models\Task;
 use Filament\Actions\Action;
-use Filament\Actions\ActionGroup;
-use Filament\Actions\BulkActionGroup;
 use Filament\Actions\CreateAction;
 use Filament\Actions\DeleteAction;
-use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\EditAction;
 use Filament\Actions\ViewAction;
 use Filament\Forms\Components\DatePicker;
-use Filament\Forms\Components\Placeholder;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Textarea;
-use Filament\Infolists\Components\ImageEntry;
 use Filament\Infolists\Components\TextEntry;
 use Filament\Resources\RelationManagers\RelationManager;
-use Filament\Schemas\Components\Image;
-use Filament\Schemas\Components\RenderHook;
 use Filament\Schemas\Components\Section;
-use Filament\Schemas\Components\View;
 use Filament\Schemas\Schema;
-use Filament\Support\Enums\Alignment;
 use Filament\Support\Enums\IconSize;
-use Filament\Support\Enums\Width;
 use Filament\Support\Icons\Heroicon;
-use Filament\Support\View\Components\BadgeComponent;
-use Filament\Tables\Columns\IconColumn;
-use Filament\Tables\Columns\ImageColumn;
 use Filament\Tables\Columns\TextColumn;
-use Filament\Tables\Contracts\HasTable;
-use Filament\Tables\Filters\Filter;
 use Filament\Tables\Table;
-use Filament\View\PanelsRenderHook;
 use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Database\Eloquent\Relations\Relation;
-use Illuminate\Support\Facades\Blade;
 
 class TasksRelationManager extends RelationManager
 {
+    public Board $board;
     protected static string $relationship = 'tasks';
-    protected string $view = 'filament.resources.tasks.relation';
+
+    public function mount($board = null): void
+    {
+        $this->board = $board;
+        parent::mount();
+    }
 
     public function form(Schema $schema): Schema
     {
@@ -124,7 +110,6 @@ class TasksRelationManager extends RelationManager
                             ->label('Status')
                             ->badge()
                             ->color('gray')
-//                            ->icon(Heroicon::OutlinedTag)
                             ->formatStateUsing(fn (string $state): string => str_replace('_', ' ', $state)),
                         TextEntry::make('description')
                             ->label('Descrição')
@@ -166,6 +151,12 @@ class TasksRelationManager extends RelationManager
     public function table(Table $table): Table
     {
         return $table
+            ->modifyQueryUsing(function (Builder $query) {
+                if (isset($this->board))
+                    return $query->where('board_id', $this->board['id']);
+                return $query;
+            })
+            ->heading($this->board['nome'])
             ->recordTitleAttribute('title')
             ->columns([
                 TextColumn::make('title')
@@ -178,7 +169,7 @@ class TasksRelationManager extends RelationManager
                 'create' => CreateAction::make()
                     ->modalHeading('Nova Tarefa')
                     ->mutateDataUsing(function (array $data): array {
-                        $data['board_id'] = 1;
+                        $data['board_id'] = $this->board['id'];
 
                         return $data;
                     })
@@ -231,22 +222,5 @@ class TasksRelationManager extends RelationManager
     public function isReadOnly(): bool
     {
         return false;
-    }
-
-    public function getTabelas(): array
-    {
-        $boards = [];
-
-        foreach ($this->ownerRecord['boards'] as $board) {
-            $boards[$board['id']] = $this
-                ->table($this->makeTable())
-                ->heading($board['nome']);
-        }
-
-        return $boards;
-    }
-
-    public function getRelationship(): Relation|Builder
-    {
     }
 }
