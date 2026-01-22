@@ -152,6 +152,7 @@ class TasksRelationManager extends RelationManager
     public function table(Table $table): Table
     {
         return $table
+            ->defaultSort('due_date')
             ->modifyQueryUsing(function (Builder $query) {
                 if (isset($this->board))
                     return $query
@@ -159,10 +160,11 @@ class TasksRelationManager extends RelationManager
                             ->where('status', '!=', 'EM_APROVACAO');
                 return $query;
             })
-            ->heading($this->board['nome'])
+            ->heading($this->board['name'])
             ->recordTitleAttribute('title')
             ->columns([
                 TextColumn::make('title')
+                    ->wrap()
                     ->icon(function (Task $task) {
                         if ($task['status'] === 'ATRASADA')
                             return Heroicon::OutlinedExclamationCircle;
@@ -188,7 +190,11 @@ class TasksRelationManager extends RelationManager
             ->groups([
                 Group::make('status')
                     ->getTitleFromRecordUsing(function (Task $task) {
-                        return str_replace('_', ' ', ucfirst(strtolower($task['status']))) . 's';
+                        if ($task['status'] === 'ATRASADA' || $task['status'] === 'PENDENTE')
+                            return 'Pendentes';
+                        if ($task['status'] === 'FINALIZADA_COM_ATRASO' || $task['status'] === 'APROVADA')
+                            return 'Concluídas';
+                        return '';
                     })
                     ->titlePrefixedWithLabel(false)
                     ->collapsible()

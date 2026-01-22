@@ -50,7 +50,6 @@ class ProjectResource extends Resource
     {
         return [
             TasksRelationManager::class,
-            BoardsRelationManager::class,
         ];
     }
 

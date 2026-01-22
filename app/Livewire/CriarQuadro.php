@@ -29,13 +29,12 @@ class CriarQuadro extends Component implements HasActions, HasSchemas
         return CreateAction::make()
             ->label('Criar Quadro')
             ->schema([
-                TextInput::make('nome')
+                TextInput::make('name')
                     ->label('Nome do Quadro')
             ])
             ->modalWidth('md')
             ->mutateDataUsing(function (array $data) {
                 $data['project_id'] = $this->projectId;
-                dd($data);
                 return $data;
             })
             ->model(Board::class);
