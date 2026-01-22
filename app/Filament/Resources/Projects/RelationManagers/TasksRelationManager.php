@@ -15,6 +15,7 @@ use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Textarea;
 use Filament\Infolists\Components\TextEntry;
 use Filament\Resources\RelationManagers\RelationManager;
+use Filament\Tables\Grouping\Group;
 use Filament\Schemas\Components\Section;
 use Filament\Schemas\Schema;
 use Filament\Support\Enums\IconSize;
@@ -153,20 +154,49 @@ class TasksRelationManager extends RelationManager
         return $table
             ->modifyQueryUsing(function (Builder $query) {
                 if (isset($this->board))
-                    return $query->where('board_id', $this->board['id']);
+                    return $query
+                            ->where('board_id', $this->board['id'], 'and')
+                            ->where('status', '!=', 'EM_APROVACAO');
                 return $query;
             })
             ->heading($this->board['nome'])
             ->recordTitleAttribute('title')
             ->columns([
                 TextColumn::make('title')
-                    ->icon(Heroicon::OutlinedCheckCircle),
+                    ->icon(function (Task $task) {
+                        if ($task['status'] === 'ATRASADA')
+                            return Heroicon::OutlinedExclamationCircle;
+                        if ($task['status'] === 'EM_APROVACAO')
+                            return Heroicon::OutlinedClock;
+                        return Heroicon::OutlinedCheckCircle;
+                    })
+                    ->iconColor(function (Task $task) {
+                        if ($task['status'] === 'PENDENTE')
+                            return 'gray';
+                        if ($task['status'] === 'EM_APROVACAO')
+                            return 'warning';
+                        if ($task['status'] === 'APROVADA')
+                            return 'success';
+                        return 'danger';
+                    })
+                    ->description(function (Task $task) {
+                        if ($task['status'] !== 'APROVADA' && $task['status'] !== 'FINALIZADA_COM_ATRASO')
+                            return 'Até ' . date_format($task['due_date'], 'd/m/Y');
+                        return null;
+                    }),
             ])
-            ->filters([
-                //
+            ->groups([
+                Group::make('status')
+                    ->getTitleFromRecordUsing(function (Task $task) {
+                        return str_replace('_', ' ', ucfirst(strtolower($task['status']))) . 's';
+                    })
+                    ->titlePrefixedWithLabel(false)
+                    ->collapsible()
             ])
+            ->defaultGroup('status')
+            ->groupingSettingsHidden()
             ->headerActions([
-                'create' => CreateAction::make()
+                CreateAction::make()
                     ->modalHeading('Nova Tarefa')
                     ->mutateDataUsing(function (array $data): array {
                         $data['board_id'] = $this->board['id'];
@@ -178,13 +208,30 @@ class TasksRelationManager extends RelationManager
                         'class' => 'bg-primary-900 rounded-full border border-primary-100 text-primary-100'
                     ])
                     ->iconButton(),
-                'edit' => Action::make('edit')
+                EditAction::make('edit')
+                    ->schema([
+                        TextInput::make('nome')
+                            ->label('Nome do quadro')
+                    ])
+                    ->after(function (array $data, Board $record) {
+                        $record['nome'] = $data['nome'];
+                        $record->save();;
+                    })
+                    ->record($this->board)
                     ->icon(Heroicon::OutlinedPencil)
                     ->extraAttributes([
                         'class' => 'bg-primary-200 rounded-full border border-primary-600 text-primary-600'
                     ])
                     ->iconButton(),
-                'delete' => Action::make('delete')
+                DeleteAction::make('delete')
+                    ->record($this->board)
+                    ->before(function (Board $record) {
+                        foreach ($record['tasks'] as $task) {
+                            $task->delete();
+                        }
+                    })
+                    ->modalHeading('Excluir Quadro?')
+                    ->modalDescription('Essa ação apagará todas as tarefas do quadro')
                     ->icon(Heroicon::OutlinedTrash)
                     ->extraAttributes([
                         'class' => 'bg-danger-200 rounded-full border border-danger-600 text-danger-600'
@@ -206,8 +253,12 @@ class TasksRelationManager extends RelationManager
                 Action::make('progress')
                     ->view('filament.resources.projects.partials.progress')
                     ->viewData(function () {
+                        $finished = count(array_filter($this->board['tasks']->toarray(),
+                            fn ($item) => $item['status'] == 'APROVADA' || $item['status'] == 'FINALIZADA_COM_ATRASO'));
+                        $total = count($this->board['tasks']);
+
                         return [
-                            'percent' => 50
+                            'percent' => $total > 0 ? round(100 * $finished / $total) : 0
                         ];
                     })
             ])

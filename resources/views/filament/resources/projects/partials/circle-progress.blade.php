@@ -15,7 +15,7 @@
                 cx="50%"
                 cy="50%"
                 r="35"
-                stroke-width="10"
+                stroke-width="7"
                 class="fill-none stroke-(--claro-3)"
             />
 
@@ -24,7 +24,7 @@
                 cx="50%"
                 cy="50%"
                 r="35"
-                stroke-width="10"
+                stroke-width="7"
                 stroke-dasharray="{{ $circumference }}"
                 stroke-dashoffset="{{ $offset }}"
                 stroke-linecap="round"
