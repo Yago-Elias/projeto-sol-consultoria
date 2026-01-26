@@ -15,6 +15,7 @@ use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Textarea;
 use Filament\Infolists\Components\TextEntry;
 use Filament\Resources\RelationManagers\RelationManager;
+use Filament\Tables\Actions\HeaderActionsPosition;
 use Filament\Tables\Grouping\Group;
 use Filament\Schemas\Components\Section;
 use Filament\Schemas\Schema;
@@ -248,6 +249,7 @@ class TasksRelationManager extends RelationManager
                     ])
                     ->iconButton()
             ])
+            ->headerActionsPosition(HeaderActionsPosition::Adaptive)
             ->recordActions([
                 ViewAction::make()
                     ->modalHeading(fn (Task $record) => $record['title'])

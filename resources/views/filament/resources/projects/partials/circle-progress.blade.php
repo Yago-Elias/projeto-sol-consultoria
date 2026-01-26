@@ -33,7 +33,7 @@
         </svg>
 
         <div class="absolute inset-0 flex items-center justify-center">
-            <span class="text-xl font-bold text-(--neutro-3)">{{ $percentage }}%</span>
+            <span class="text-xl font-bold text-(--neutro-3)">{{ round($percentage) }}%</span>
         </div>
     </div>
     <div class="my-auto flex flex-col gap-4">
