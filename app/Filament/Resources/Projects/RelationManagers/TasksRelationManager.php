@@ -215,13 +215,16 @@ class TasksRelationManager extends RelationManager
                     ])
                     ->iconButton(),
                 EditAction::make('edit')
+                    ->modalHeading('Editar quadro')
+                    ->modalWidth('md')
                     ->schema([
-                        TextInput::make('nome')
+                        TextInput::make('name')
                             ->label('Nome do quadro')
                     ])
-                    ->after(function (array $data, Board $record) {
-                        $record['nome'] = $data['nome'];
-                        $record->save();;
+                    ->after(function (array $data, Board $record, $livewire) {
+                        $record['name'] = $data['name'];
+                        $record->save();
+                        $livewire->resetTable();
                     })
                     ->record($this->board)
                     ->icon(Heroicon::OutlinedPencil)
@@ -232,9 +235,10 @@ class TasksRelationManager extends RelationManager
                 DeleteAction::make('delete')
                     ->record($this->board)
                     ->before(function (Board $record) {
-                        foreach ($record['tasks'] as $task) {
-                            $task->delete();
-                        }
+                        $record['tasks']->each->delete();
+                    })
+                    ->after(function () {
+                        $this->redirect("/projects/{$this->ownerRecord['id']}");
                     })
                     ->modalHeading('Excluir Quadro?')
                     ->modalDescription('Essa ação apagará todas as tarefas do quadro')

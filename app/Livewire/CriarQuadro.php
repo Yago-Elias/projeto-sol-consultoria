@@ -2,6 +2,7 @@
 
 namespace App\Livewire;
 
+use App\Filament\Resources\Projects\Pages\ViewProject;
 use App\Models\Board;
 use Filament\Actions\Action;
 use Filament\Actions\Concerns\InteractsWithActions;
@@ -37,6 +38,10 @@ class CriarQuadro extends Component implements HasActions, HasSchemas
                 $data['project_id'] = $this->projectId;
                 return $data;
             })
-            ->model(Board::class);
+            ->model(Board::class)
+            ->after(function () {
+                $this->redirect("/projects/{$this->projectId}");
+            })
+            ->postToUrl();
     }
 }
