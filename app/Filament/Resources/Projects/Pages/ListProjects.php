@@ -5,6 +5,7 @@ namespace App\Filament\Resources\Projects\Pages;
 use App\Filament\Resources\Projects\ProjectResource;
 use App\Models\Project;
 use Filament\Resources\Pages\ListRecords;
+use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 
 class ListProjects extends ListRecords
 {
@@ -12,20 +13,23 @@ class ListProjects extends ListRecords
 
     protected string $view = 'filament.resources.projects.pages.listing-projects';
 
-    public $projects;
+    public $search = '';
 
-    public function mount(): void
-    {
-        $this->projects = Project::with([
-                'manager:id,name',
-            ])
-            ->get(['id', 'name', 'description', 'end_date', 'manager_id']);
-    }
+    public int $perPage = 8;
 
-    public function getViewData(): array
+    public function getProjects(): LengthAwarePaginator
     {
-        return [
-            'projects' => $this->projects,
-        ];
+        $query = Project::query()
+            ->with('tasks')
+            ->select(['id', 'name', 'description', 'end_date', 'manager_id']);
+        
+        if ($this->search) {
+            $query->where(function ($q) {
+                    $q->where('name', 'like', "%{$this->search}%")
+                      ->orWhere('description', 'like', "%{$this->search}%");
+                });
+        }
+
+        return $query->paginate($this->perPage);
     }
 }
