@@ -41,7 +41,6 @@ class CriarQuadro extends Component implements HasActions, HasSchemas
             ->model(Board::class)
             ->after(function () {
                 $this->redirect("/projects/{$this->projectId}");
-            })
-            ->postToUrl();
+            });
     }
 }

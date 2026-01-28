@@ -38,13 +38,13 @@
     </div>
     <div class="my-auto flex flex-col gap-4">
         <x-filament::badge
-            color="success"
-            icon="heroicon-o-check"
+            color="{{ $endDate < now() ? 'danger' : 'success'}}"
+            icon="{{ $endDate < now() ? 'heroicon-o-clock' : 'heroicon-o-check'}}"
             icon-position="after"
             class="w-fit"
             font-size="lg"
         >
-            Em dia
+            {{ $endDate < now() ? 'Atrasado' : 'Em dia'}}
         </x-filament::badge>
         <h1 class="font-semibold text-xl text-(--neutro-3)">Prazo Final: {{ date_format($endDate, 'd/m/Y') }}</h1>
     </div>

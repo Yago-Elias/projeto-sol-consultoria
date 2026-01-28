@@ -111,12 +111,29 @@ class TasksRelationManager extends RelationManager
                         TextEntry::make('status')
                             ->label('Status')
                             ->badge()
-                            ->color('gray')
+                            ->color(function (Task $task) {
+                                if ($task['status'] === 'APROVADA')
+                                    return 'success';
+                                if ($task['status'] === 'EM_APROVACAO')
+                                    return 'warning';
+                                return 'gray';
+                            })
                             ->formatStateUsing(fn (string $state): string => str_replace('_', ' ', $state)),
                         TextEntry::make('description')
                             ->label('Descrição')
                             ->placeholder('-')
                             ->icon(Heroicon::OutlinedBars3BottomLeft)
+                            ->columnSpanFull(),
+                        TextEntry::make('conclusion_date')
+                            ->label('Data de conclusão')
+                            ->icon(Heroicon::OutlinedCalendar)
+                            ->date()
+                            ->hidden(fn (Task $task) => $task['status'] !== 'APROVADA'),
+                        TextEntry::make('conclusion_message')
+                            ->label('Mensagem de conclusão')
+                            ->placeholder('-')
+                            ->icon(Heroicon::OutlinedBars3BottomLeft)
+                            ->hidden(fn (Task $task) => $task['status'] !== 'APROVADA')
                             ->columnSpanFull(),
                     ])
                     ->footerActions([
@@ -157,8 +174,7 @@ class TasksRelationManager extends RelationManager
             ->modifyQueryUsing(function (Builder $query) {
                 if (isset($this->board))
                     return $query
-                            ->where('board_id', $this->board['id'], 'and')
-                            ->where('status', '!=', 'EM_APROVACAO');
+                            ->where('board_id', $this->board['id']);
                 return $query;
             })
             ->heading($this->board['name'])
@@ -195,7 +211,7 @@ class TasksRelationManager extends RelationManager
                             return 'Pendentes';
                         if ($task['status'] === 'FINALIZADA_COM_ATRASO' || $task['status'] === 'APROVADA')
                             return 'Concluídas';
-                        return '';
+                        return 'Em Aprovação';
                     })
                     ->titlePrefixedWithLabel(false)
                     ->collapsible()
