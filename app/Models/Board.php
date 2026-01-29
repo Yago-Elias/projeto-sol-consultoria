@@ -16,8 +16,6 @@ class Board extends Model
         'project_id',
     ];
 
-    public $timestamps = false;
-
     public function casts(): array
     {
         return [

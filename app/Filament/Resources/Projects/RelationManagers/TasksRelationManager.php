@@ -15,6 +15,7 @@ use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Textarea;
 use Filament\Infolists\Components\TextEntry;
 use Filament\Resources\RelationManagers\RelationManager;
+use Filament\Schemas\Components\View;
 use Filament\Tables\Actions\HeaderActionsPosition;
 use Filament\Tables\Grouping\Group;
 use Filament\Schemas\Components\Section;
@@ -116,9 +117,19 @@ class TasksRelationManager extends RelationManager
                                     return 'success';
                                 if ($task['status'] === 'EM_APROVACAO')
                                     return 'warning';
+                                if ($task['due_date'] < now())
+                                    return 'danger';
                                 return 'gray';
                             })
-                            ->formatStateUsing(fn (string $state): string => str_replace('_', ' ', $state)),
+                            ->formatStateUsing(function (string $state, Task $task) {
+                                if ($state === 'APROVADA')
+                                    return 'Concluída';
+                                if ($state === 'EM_APROVACAO')
+                                    return 'Esperando Aprovação';
+                                if ($task['due_date'] < now())
+                                    return 'Atrasada';
+                                return 'Pendente';
+                            }),
                         TextEntry::make('description')
                             ->label('Descrição')
                             ->placeholder('-')
@@ -183,23 +194,23 @@ class TasksRelationManager extends RelationManager
                 TextColumn::make('title')
                     ->wrap()
                     ->icon(function (Task $task) {
-                        if ($task['status'] === 'ATRASADA')
+                        if ($task['status'] === 'PENDENTE' && $task['due_date'] < now())
                             return Heroicon::OutlinedExclamationCircle;
                         if ($task['status'] === 'EM_APROVACAO')
                             return Heroicon::OutlinedClock;
                         return Heroicon::OutlinedCheckCircle;
                     })
                     ->iconColor(function (Task $task) {
-                        if ($task['status'] === 'PENDENTE')
-                            return 'gray';
-                        if ($task['status'] === 'EM_APROVACAO')
-                            return 'warning';
                         if ($task['status'] === 'APROVADA')
                             return 'success';
+                        if ($task['status'] === 'EM_APROVACAO')
+                            return 'warning';
+                        if ($task['due_date'] >= now())
+                            return 'gray';
                         return 'danger';
                     })
                     ->description(function (Task $task) {
-                        if ($task['status'] !== 'APROVADA' && $task['status'] !== 'FINALIZADA_COM_ATRASO')
+                        if ($task['status'] !== 'APROVADA')
                             return 'Até ' . date_format($task['due_date'], 'd/m/Y');
                         return null;
                     }),
@@ -207,9 +218,9 @@ class TasksRelationManager extends RelationManager
             ->groups([
                 Group::make('status')
                     ->getTitleFromRecordUsing(function (Task $task) {
-                        if ($task['status'] === 'ATRASADA' || $task['status'] === 'PENDENTE')
+                        if ($task['status'] === 'PENDENTE')
                             return 'Pendentes';
-                        if ($task['status'] === 'FINALIZADA_COM_ATRASO' || $task['status'] === 'APROVADA')
+                        if ($task['status'] === 'APROVADA')
                             return 'Concluídas';
                         return 'Em Aprovação';
                     })
@@ -219,7 +230,7 @@ class TasksRelationManager extends RelationManager
             ->defaultGroup('status')
             ->groupingSettingsHidden()
             ->headerActions([
-                CreateAction::make()
+                CreateAction::make('Criar Tarefa')
                     ->modalHeading('Nova Tarefa')
                     ->mutateDataUsing(function (array $data): array {
                         $data['board_id'] = $this->board['id'];
@@ -232,7 +243,7 @@ class TasksRelationManager extends RelationManager
                     ])
                     ->iconButton(),
                 EditAction::make('edit')
-                    ->modalHeading('Editar quadro')
+                    ->modalHeading('Editar Quadro')
                     ->modalWidth('md')
                     ->schema([
                         TextInput::make('name')
@@ -249,7 +260,7 @@ class TasksRelationManager extends RelationManager
                         'class' => 'bg-primary-200 rounded-full border border-primary-600 text-primary-600'
                     ])
                     ->iconButton(),
-                DeleteAction::make('delete')
+                DeleteAction::make('Deletar Quadro')
                     ->record($this->board)
                     ->before(function (Board $record) {
                         $record['tasks']->each->delete();
@@ -281,8 +292,7 @@ class TasksRelationManager extends RelationManager
                 Action::make('progress')
                     ->view('filament.resources.projects.partials.progress')
                     ->viewData(function () {
-                        $finished = count(array_filter($this->board['tasks']->toarray(),
-                            fn ($item) => $item['status'] == 'APROVADA' || $item['status'] == 'FINALIZADA_COM_ATRASO'));
+                        $finished = count(($this->board['tasks']->groupBy('status'))['APROVADA'] ?? []);
                         $total = count($this->board['tasks']);
 
                         return [
@@ -290,6 +300,8 @@ class TasksRelationManager extends RelationManager
                         ];
                     })
             ])
+            ->emptyStateHeading('Sem Tarefas')
+            ->emptyStateDescription('Crie uma tarefa nova no menu acima')
             ->paginated(false)
             ->searchable(false)
             ->selectable(false)
