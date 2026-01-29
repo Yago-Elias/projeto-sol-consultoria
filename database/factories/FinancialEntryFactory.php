@@ -38,7 +38,7 @@ class FinancialEntryFactory extends Factory
             'total_amount' => $this->faker->randomFloat(2, 100, 50000),
             'total_installments' => $this->faker->numberBetween(1, 12),
             'due_date' => $dueDate,
-            'payment_date' => $this->faker->boolean(30) ? $this->faker->dateTimeBetween($dueDate, '+30 days') : null,
+            'payment_date' => $this->faker->boolean(30) ? $this->faker->dateTimeBetween('-30 days', $dueDate) : null,
             'project_id' => static::$projects->random(),
             'type' => static::$types->random(),
             'nature' => static::$natures->random(),
