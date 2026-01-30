@@ -1,3 +1,3 @@
-<x-project-layout activeTab="{{ $activePageTab }}" :urls="$urls">
+<x-filament-panels::page>
     Detalhes
-</x-project-layout>
+</x-filament-panels::page>

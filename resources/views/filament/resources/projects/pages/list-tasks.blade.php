@@ -1,4 +1,4 @@
-<x-project-layout activeTab="{{ $activePageTab }}" :urls="$urls">
+<x-filament-panels::page>
     <livewire:criar-quadro :project="$record"/>
 
     <div class="flex gap-4 flex-nowrap overflow-x-auto p-1">
@@ -68,4 +68,4 @@
             </div>
         </div>
     </div>
-</x-project-layout>
+</x-filament-panels::page>

@@ -2,8 +2,15 @@
 
 namespace App\Filament\Resources\Projects\Pages;
 
-class UnderApprovalTasks extends ViewProject
+use App\Filament\Resources\Projects\ProjectResource;
+use BackedEnum;
+use Filament\Resources\Pages\ViewRecord;
+use Filament\Support\Icons\Heroicon;
+
+class UnderApprovalTasks extends ViewRecord
 {
-    public string $activePageTab = 'aprovacao';
+    protected static string $resource = ProjectResource::class;
+    protected static ?string $navigationLabel = 'Aprovação';
+    protected static string | BackedEnum | null $navigationIcon = Heroicon::OutlinedClock;
     protected string $view = 'filament.resources.projects.pages.under-approval-tasks';
 }
