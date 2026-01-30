@@ -6,6 +6,6 @@ use App\Filament\Resources\Projects\Pages\ViewProject;
 
 class ProjectDetails extends ViewProject
 {
-    protected string $activeTab = 'detalhes';
+    public string $activePageTab = 'detalhes';
     protected string $view = 'filament.resources.projects.pages.project-details';
 }

@@ -15,7 +15,9 @@ use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Textarea;
 use Filament\Infolists\Components\TextEntry;
 use Filament\Resources\RelationManagers\RelationManager;
-use Filament\Schemas\Components\View;
+use Filament\Schemas\Components\EmbeddedTable;
+use Filament\Schemas\Components\RenderHook;
+use Filament\Schemas\Components\Tabs\Tab;
 use Filament\Tables\Actions\HeaderActionsPosition;
 use Filament\Tables\Grouping\Group;
 use Filament\Schemas\Components\Section;
@@ -24,10 +26,15 @@ use Filament\Support\Enums\IconSize;
 use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
+use Filament\View\PanelsRenderHook;
 use Illuminate\Database\Eloquent\Builder;
+use Livewire\Attributes\On;
+use Livewire\Attributes\Url;
 
 class TasksRelationManager extends RelationManager
 {
+    #[Url(as: 'consultor')]
+    public ?string $activeTab = null;
     public Board $board;
     protected static string $relationship = 'tasks';
 
@@ -313,5 +320,32 @@ class TasksRelationManager extends RelationManager
     public function isReadOnly(): bool
     {
         return false;
+    }
+
+    public function getTabs(): array
+    {
+        $tabs = ['all' => Tab::make('Todos')];
+
+        foreach ($this->ownerRecord['collaborators'] as $user)
+            $tabs[$user['name']] = Tab::make($user['name'])
+                ->modifyQueryUsing(fn (Builder $query) => $query->where('assigned_to', $user['id']));
+
+        return $tabs;
+    }
+
+    public function content(Schema $schema): Schema
+    {
+        return $schema
+            ->components([
+                RenderHook::make(PanelsRenderHook::RESOURCE_RELATION_MANAGER_BEFORE),
+                EmbeddedTable::make(),
+                RenderHook::make(PanelsRenderHook::RESOURCE_RELATION_MANAGER_AFTER),
+            ]);
+    }
+
+    #[On('user-filter')]
+    public function userFilter($user): void
+    {
+        $this->activeTab = $user;
     }
 }

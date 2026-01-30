@@ -1,7 +1,5 @@
-<x-project-layout activeTab="{{ $activeTab }}" :urls="$urls">
-    <div class="flex justify-between">
-        @livewire('criar-quadro', ['projectId' => $record['id']])
-    </div>
+<x-project-layout activeTab="{{ $activePageTab }}" :urls="$urls">
+    <livewire:criar-quadro :project="$record"/>
 
     <div class="flex gap-4 flex-nowrap overflow-x-auto p-1">
         @foreach($record['boards']->sortBy('created_at') as $board)

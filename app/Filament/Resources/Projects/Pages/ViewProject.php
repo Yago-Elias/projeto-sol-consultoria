@@ -11,7 +11,7 @@ class ViewProject extends ViewRecord
 {
     protected static string $resource = ProjectResource::class;
     protected string $view = 'filament.resources.projects.pages.list-tasks';
-    protected string $activeTab = 'tarefas';
+    public string $activePageTab = 'tarefas';
 
     protected function getHeaderActions(): array
     {
@@ -37,8 +37,6 @@ class ViewProject extends ViewRecord
     protected function getViewData(): array
     {
         return [
-            'project' => $this->record,
-            'activeTab' => $this->activeTab,
             'urls' => [
                 'tarefas' => ProjectResource::getUrl('view', ['record' => $this->record]),
                 'aprovacao' => ProjectResource::getUrl('aprovacao', ['record' => $this->record]),

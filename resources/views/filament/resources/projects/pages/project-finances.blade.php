@@ -1,3 +1,3 @@
-<x-project-layout activeTab="{{ $activeTab }}" :urls="$urls">
+<x-project-layout activeTab="{{ $activePageTab }}" :urls="$urls">
     Financeiro
 </x-project-layout>
