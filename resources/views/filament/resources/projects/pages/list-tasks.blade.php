@@ -22,49 +22,49 @@
                 ->filter(fn (\App\Models\Task $task) => $task['due_date'] < now());
     @endphp
 
-    <div class="grid lg:grid-cols-4 md:grid-cols-2 gap-4">
-        <div class="flex flex-row gap-2 rounded-lg border border-gray-800 p-2 bg-gray-100 items-center justify-center">
-            <div class="content-center text-center">
-                <div class="text-2xl font-bold text-gray-900">
-                    {{ count($tasks_status['PENDENTE'] ?? []) }}
-                </div>
-                <div class="text-gray-800 text-sm">Tarefas Pendentes</div>
+    <div  class="grid lg:grid-cols-4 md:grid-cols-2 gap-4">
+        <div class="text-center gap-2 rounded-lg border border-gray-800 p-2 bg-gray-100 items-center justify-center">
+            <div class="text-2xl font-bold text-gray-900">
+                {{ count($tasks_status['PENDENTE'] ?? []) }}
             </div>
-            <div class="text-gray-400">
-                <x-filament::icon icon="heroicon-o-check-circle" />
-            </div>
-        </div>
-        <div class="flex flex-row gap-2 rounded-lg border border-warning-800 p-2 bg-warning-100 items-center justify-center">
-            <div class="content-center text-center">
-                <div class="text-2xl font-bold text-primary-900">
-                    {{ count($tasks_status['EM_APROVACAO'] ?? []) }}
-                </div>
-                <div class="text-primary-800 text-sm">Tarefas em Aprovação</div>
-            </div>
-            <div class="text-primary-900">
-                <x-filament::icon icon="heroicon-o-clock" />
+            <div class="flex flex-row gap-2 content-center w-fit mx-auto">
+                <p class="text-gray-800 text-sm">Tarefas Pendentes</p>
+                <span class="text-gray-400">
+                    <x-filament::icon icon="heroicon-o-check-circle" />
+                </span>
             </div>
         </div>
-        <div class="flex flex-row gap-2 rounded-lg border border-danger-800 p-2 bg-danger-100 items-center justify-center">
-            <div class="content-center text-center">
-                <div class="text-2xl font-bold text-danger-900">
-                    {{ count($late_tasks) }}
-                </div>
-                <div class="text-danger-800 text-sm">Tarefas Atrasadas</div>
+        <div class="text-center gap-2 rounded-lg border border-warning-800 p-2 bg-warning-100 items-center justify-center">
+            <div class="text-2xl font-bold text-primary-900">
+                {{ count($tasks_status['EM_APROVACAO'] ?? []) }}
             </div>
-            <div class="text-danger-900">
-                <x-filament::icon icon="heroicon-o-exclamation-circle" />
+            <div class="flex flex-row gap-2 content-center w-fit mx-auto">
+                <p class="text-primary-800 text-sm">Tarefas em Aprovação</p>
+                <span class="text-primary-900">
+                    <x-filament::icon icon="heroicon-o-clock" />
+                </span>
             </div>
         </div>
-        <div class="flex flex-row gap-2 rounded-lg border border-success-800 p-2 bg-success-100 items-center justify-center">
-            <div class="content-center text-center">
-                <div class="text-2xl font-bold text-success-900">
-                    {{ count($tasks_status['APROVADA'] ?? []) }}
-                </div>
-                <div class="text-success-800 text-sm">Tarefas Concluídas</div>
+        <div class="text-center gap-2 rounded-lg border border-danger-800 p-2 bg-danger-100 items-center justify-center">
+            <div class="text-2xl font-bold text-danger-900">
+                {{ count($late_tasks) }}
             </div>
-            <div class="text-success-900">
-                <x-filament::icon icon="heroicon-o-check-circle" />
+            <div class="flex flex-row gap-2 content-center w-fit mx-auto">
+                <p class="text-danger-800 text-sm">Tarefas Atrasadas</p>
+                <span class="text-danger-900">
+                    <x-filament::icon icon="heroicon-o-exclamation-circle" />
+                </span>
+            </div>
+        </div>
+        <div class="text-center gap-2 rounded-lg border border-success-800 p-2 bg-success-100 items-center justify-center">
+            <div class="text-2xl font-bold text-success-900">
+                {{ count($tasks_status['APROVADA'] ?? []) }}
+            </div>
+            <div class="flex flex-row gap-2 content-center w-fit mx-auto">
+                <p class="text-success-800 text-sm">Tarefas Concluídas</p>
+                <span class="text-success-900">
+                    <x-filament::icon icon="heroicon-o-check-circle" />
+                </span>
             </div>
         </div>
     </div>
