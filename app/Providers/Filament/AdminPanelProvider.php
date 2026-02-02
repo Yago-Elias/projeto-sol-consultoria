@@ -4,11 +4,8 @@ namespace App\Providers\Filament;
 
 use App\Filament\Pages\DashboardPage;
 use App\Filament\Pages\LoginPage;
-use App\Filament\Widgets\FinanceTable;
 use App\Filament\Widgets\InfoBox;
-use App\Filament\Widgets\ProgressChart;
 use App\Filament\Widgets\ProgressTable;
-use Filament\Enums\UserMenuPosition;
 use Filament\Http\Middleware\Authenticate;
 use Filament\Http\Middleware\AuthenticateSession;
 use Filament\Http\Middleware\DisableBladeIconComponents;
@@ -42,6 +39,7 @@ class AdminPanelProvider extends PanelProvider
             ->globalSearch(false)
             ->renderHook(PanelsRenderHook::TOPBAR_END,
                         fn () => Blade::render('<p class="logo-name">Sol Consultorias</p><span style="width: 2em;"></span>'))
+            ->sidebarWidth('17em')
             ->renderHook(PanelsRenderHook::SIDEBAR_NAV_START,
                         fn () => view('components.sidebar-new-project'))
             ->userMenu(false)

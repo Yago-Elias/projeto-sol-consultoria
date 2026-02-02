@@ -9,11 +9,14 @@ use App\Filament\Resources\Projects\Pages\ListProjects;
 use App\Filament\Resources\Projects\Pages\ProjectDetails;
 use App\Filament\Resources\Projects\Pages\UnderApprovalTasks;
 use App\Filament\Resources\Projects\Pages\ViewProject;
+use App\Filament\Resources\Projects\RelationManagers\TasksRelationManager;
 use App\Filament\Resources\Projects\Schemas\ProjectForm;
 use App\Filament\Resources\Projects\Schemas\ProjectInfolist;
 use App\Filament\Resources\Projects\Tables\ProjectsTable;
 use App\Models\Project;
 use BackedEnum;
+use Filament\Pages\Enums\SubNavigationPosition;
+use Filament\Resources\Pages\Page;
 use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
 use Filament\Support\Icons\Heroicon;
@@ -28,6 +31,8 @@ class ProjectResource extends Resource
     protected static ?string $recordTitleAttribute = 'Projeto';
 
     protected static ?string $modelLabel = 'Projeto';
+
+    protected static ?SubNavigationPosition $subNavigationPosition = SubNavigationPosition::Top;
 
     public static function form(Schema $schema): Schema
     {
@@ -47,7 +52,7 @@ class ProjectResource extends Resource
     public static function getRelations(): array
     {
         return [
-            //
+            TasksRelationManager::class,
         ];
     }
 
@@ -62,5 +67,15 @@ class ProjectResource extends Resource
             'financeiro' => ProjectFinances::route('/{record}/financeiro'),
             'detalhes' => ProjectDetails::route('/{record}/detalhes'),
         ];
+    }
+
+    public static function getRecordSubNavigation(Page $page): array
+    {
+        return $page->generateNavigationItems([
+            ViewProject::class,
+            UnderApprovalTasks::class,
+            ProjectFinances::class,
+            ProjectDetails::class,
+        ]);
     }
 }
