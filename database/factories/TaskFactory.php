@@ -25,23 +25,23 @@ class TaskFactory extends Factory
         static::$boards ??= Board::all();
         static::$users ??= User::all();
 
-        return [
+        $newRecord = [
             'title' => fake()->sentence(5),
             'description' => fake()->paragraph(),
             'predicted_hours' => fake()->numberBetween(3, 10),
             'due_date' => fake()->dateTimeThisMonth(),
             'conclusion_date' => fake()->optional()->dateTimeThisMonth(),
-            'conclusion_message' => fake()->optional()->sentence(),
-            'status' => fake()
-                ->randomElement([
-                    'PENDENTE',
-                    'APROVADA',
-                    'EM_APROVACAO',
-                    'ATRASADA',
-                    'FINALIZADA_COM_ATRASO'
-                ]),
+            'conclusion_message' => null,
+            'status' => 'PENDENTE',
             'board_id' => static::$boards->random(),
             'assigned_to' => static::$users->random(),
         ];
+
+        if ($newRecord['conclusion_date'] != null) {
+            $newRecord['status'] = fake()->randomElement(['EM_APROVACAO', 'APROVADA']);
+            $newRecord['conclusion_message'] = fake()->optional()->sentence();
+        }
+
+        return $newRecord;
     }
 }
