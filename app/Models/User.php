@@ -97,8 +97,9 @@ class User extends Authenticatable implements HasAvatar
 
     public function getFilamentAvatarUrl(): ?string
     {
-        if ($this->image == null || filter_var($this->image, FILTER_VALIDATE_URL))
+        if ($this->image == null || filter_var($this->image, FILTER_VALIDATE_URL)) {
             return $this->image;
+        }
 
         return Storage::disk('public')->url($this->image);
     }
