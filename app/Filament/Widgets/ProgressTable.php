@@ -3,6 +3,8 @@
 namespace App\Filament\Widgets;
 
 use App\Filament\Tables\Columns\ProgressBar;
+use App\Models\Project;
+use App\Models\Task;
 use Filament\Actions\BulkActionGroup;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
@@ -15,28 +17,42 @@ class ProgressTable extends TableWidget
     public function table(Table $table): Table
     {
         return $table
-//            ->query(fn (): Builder => Model::query())
-            ->records(fn () : array => [
-                1 => ['Projeto' => 'Projeto 1', 'Progresso' => 95, 'Tempo restante' => '1 semana', 'Custos' => 'R$ 00,00', 'Receita' => 'R$ 00,00', 'Lucro' => 'R$ 00,00'],
-                2 => ['Projeto' => 'Projeto 2', 'Progresso' => 80, 'Tempo restante' => '1 semana', 'Custos' => 'R$ 00,00', 'Receita' => 'R$ 00,00', 'Lucro' => 'R$ 00,00'],
-                3 => ['Projeto' => 'Projeto 3', 'Progresso' => 70, 'Tempo restante' => '1 semana', 'Custos' => 'R$ 00,00', 'Receita' => 'R$ 00,00', 'Lucro' => 'R$ 00,00'],
-                4 => ['Projeto' => 'Projeto 4', 'Progresso' => 50, 'Tempo restante' => '1 semana', 'Custos' => 'R$ 00,00', 'Receita' => 'R$ 00,00', 'Lucro' => 'R$ 00,00'],
-                5 => ['Projeto' => 'Projeto 5', 'Progresso' => 30, 'Tempo restante' => '1 semana', 'Custos' => 'R$ 00,00', 'Receita' => 'R$ 00,00', 'Lucro' => 'R$ 00,00'],
-                6 => ['Projeto' => 'Projeto 6', 'Progresso' => 15, 'Tempo restante' => '1 semana', 'Custos' => 'R$ 00,00', 'Receita' => 'R$ 00,00', 'Lucro' => 'R$ 00,00'],
-                7 => ['Projeto' => 'Projeto 7', 'Progresso' => 35, 'Tempo restante' => '1 semana', 'Custos' => 'R$ 00,00', 'Receita' => 'R$ 00,00', 'Lucro' => 'R$ 00,00'],
-                8 => ['Projeto' => 'Projeto 8', 'Progresso' => 20, 'Tempo restante' => '1 semana', 'Custos' => 'R$ 00,00', 'Receita' => 'R$ 00,00', 'Lucro' => 'R$ 00,00'],
-            ])
+            ->query(fn (): Builder => Project::query())
             ->heading('Andamento dos Projetos')
             ->columns([
-                TextColumn::make('Projeto'),
+                TextColumn::make('name')
+                    ->label('Projeto')
+                    ->url(fn (Project $record) => "/projects/{$record['id']}"),
                 ProgressBar::make('Progresso')
+                    ->viewData(function (Project $record) {
+                        $total = $record['tasks']->count();
+                        $approved = $record['tasks']->where('status', 'APROVADA')->count();
+                        return ['percent' => $total > 0 ? round($approved / $total * 100) : 0];
+                    })
                     ->width('25%'),
-                TextColumn::make('Tempo restante'),
+                TextColumn::make('Tempo restante')
+                    ->state(function (Project $record) {
+                        if (now() > $record['end_date'])
+                            return 'Atrasado';
+
+                        $diff = now()->diff($record['end_date']);
+
+                        if ($diff->y > 0)
+                            return $diff->y . ' anos';
+                        if ($diff->m > 0)
+                            return $diff->m . ' meses';
+                        if ($diff->d > 7)
+                            return round($diff->d / 7) . ' semanas';
+                        return "{$diff->y} anos";
+                    }),
                 TextColumn::make('Custos')
+                    ->state('R$00,00')
                     ->color('danger'),
                 TextColumn::make('Receita')
+                    ->state('R$00,00')
                     ->color('success'),
-                TextColumn::make('Lucro'),
+                TextColumn::make('Lucro')
+                    ->state('R$00,00'),
             ]);
     }
 }
