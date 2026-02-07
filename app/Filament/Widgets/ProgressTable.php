@@ -18,6 +18,7 @@ class ProgressTable extends TableWidget
     {
         return $table
             ->query(fn (): Builder => Project::query())
+            ->defaultSort('end_date')
             ->heading('Andamento dos Projetos')
             ->columns([
                 TextColumn::make('name')
@@ -43,16 +44,34 @@ class ProgressTable extends TableWidget
                             return $diff->m . ' meses';
                         if ($diff->d > 7)
                             return round($diff->d / 7) . ' semanas';
-                        return "{$diff->y} anos";
+                        return $diff->y . ' anos';
                     }),
                 TextColumn::make('Custos')
-                    ->state('R$00,00')
+                    ->state(fn (Project $record) =>
+                        'R$ ' . number_format($record['financialEntries']
+                            ->whereNotNull('payment_date')
+                            ->where('financialType.type', 'Expense')
+                            ->sum('total_amount'), 2, ',', '.')
+                    )
                     ->color('danger'),
                 TextColumn::make('Receita')
-                    ->state('R$00,00')
+                    ->state(fn (Project $record) =>
+                        'R$ ' . number_format($record['financialEntries']
+                            ->whereNotNull('payment_date')
+                            ->where('financialType.type', 'Payment')
+                            ->sum('total_amount'), 2, ',', '.')
+                    )
                     ->color('success'),
                 TextColumn::make('Lucro')
-                    ->state('R$00,00'),
+                    ->state(fn (Project $record) =>
+                        'R$ ' . number_format($record['financialEntries']
+                            ->whereNotNull('payment_date')
+                            ->where('financialType.type', 'Payment')
+                            ->sum('total_amount') - $record['financialEntries']
+                            ->whereNotNull('payment_date')
+                            ->where('financialType.type', 'Expense')
+                            ->sum('total_amount'), 2, ',', '.')
+                    )
             ]);
     }
 }
