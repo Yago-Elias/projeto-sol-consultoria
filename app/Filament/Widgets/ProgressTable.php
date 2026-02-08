@@ -39,12 +39,12 @@ class ProgressTable extends TableWidget
                         $diff = now()->diff($record['end_date']);
 
                         if ($diff->y > 0)
-                            return $diff->y . ' anos';
+                            return $diff->y . ' ano' . ($diff->m > 1 ? 's' : '');
                         if ($diff->m > 0)
-                            return $diff->m . ' meses';
+                            return $diff->m . ($diff->m > 1 ? ' meses' : ' mês');
                         if ($diff->d > 7)
-                            return round($diff->d / 7) . ' semanas';
-                        return $diff->y . ' anos';
+                            return round($diff->d / 7) . ' semana' . ($diff->d >= 14 ? 's' : '');
+                        return $diff->d . ' dia' . ($diff->d > 1 ? 's' : '');
                     }),
                 TextColumn::make('Custos')
                     ->state(fn (Project $record) =>
