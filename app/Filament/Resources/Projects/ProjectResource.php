@@ -4,8 +4,8 @@ namespace App\Filament\Resources\Projects;
 
 use App\Filament\Resources\Projects\Pages\CreateProject;
 use App\Filament\Resources\Projects\Pages\EditProject;
-use App\Filament\Resources\Projects\Pages\ProjectFinances;
 use App\Filament\Resources\Projects\Pages\ListProjects;
+use App\Filament\Resources\Projects\Pages\ManageFinance;
 use App\Filament\Resources\Projects\Pages\ProjectDetails;
 use App\Filament\Resources\Projects\Pages\UnderApprovalTasks;
 use App\Filament\Resources\Projects\Pages\ViewProject;
@@ -64,7 +64,7 @@ class ProjectResource extends Resource
             'view' => ViewProject::route('/{record}'),
             'edit' => EditProject::route('/{record}/edit'),
             'aprovacao' => UnderApprovalTasks::route('/{record}/aprovacao'),
-            'financeiro' => ProjectFinances::route('/{record}/financeiro'),
+            'financeiro' => ManageFinance::route('/{record}/financeiro'),
             'detalhes' => ProjectDetails::route('/{record}/detalhes'),
         ];
     }
@@ -74,7 +74,7 @@ class ProjectResource extends Resource
         return $page->generateNavigationItems([
             ViewProject::class,
             UnderApprovalTasks::class,
-            ProjectFinances::class,
+            ManageFinance::class,
             ProjectDetails::class,
         ]);
     }
