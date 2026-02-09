@@ -35,6 +35,8 @@ class ManageFinance extends ManageRelatedRecords
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedRectangleStack;
 
+    protected static ?string $navigationLabel = 'Financeiro';
+
     public function getTitle(): string|Htmlable
     {
         return $this->record['name'];
