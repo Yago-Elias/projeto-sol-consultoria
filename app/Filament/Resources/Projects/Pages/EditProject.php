@@ -3,6 +3,7 @@
 namespace App\Filament\Resources\Projects\Pages;
 
 use App\Filament\Resources\Projects\ProjectResource;
+use App\Models\User;
 use Filament\Actions\DeleteAction;
 use Filament\Actions\ViewAction;
 use Filament\Resources\Pages\EditRecord;
@@ -20,6 +21,11 @@ class EditProject extends EditRecord
         ];
     }
 
+<<<<<<< HEAD
+    public function searchConsultants(array $ids): array
+    {
+        return ProjectResource::searchConsultants($ids);
+=======
     public function content(Schema $schema): Schema
     {
         return $schema
@@ -31,5 +37,6 @@ class EditProject extends EditRecord
     public function getSubNavigation(): array
     {
         return [];
+>>>>>>> f83eedf414fb54585d8eef0e726c0e67dbf67ffc
     }
 }

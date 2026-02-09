@@ -14,6 +14,7 @@ use App\Filament\Resources\Projects\Schemas\ProjectForm;
 use App\Filament\Resources\Projects\Schemas\ProjectInfolist;
 use App\Filament\Resources\Projects\Tables\ProjectsTable;
 use App\Models\Project;
+use App\Models\User;
 use BackedEnum;
 use Filament\Pages\Enums\SubNavigationPosition;
 use Filament\Resources\Pages\Page;
@@ -77,5 +78,21 @@ class ProjectResource extends Resource
             ManageFinance::class,
             ProjectDetails::class,
         ]);
+    }
+
+    public static function searchConsultants(array $ids): array
+    {
+        if ($ids)
+            return User::query()
+                ->with('role:id,role')
+                ->findMany($ids, ['id', 'name', 'image', 'role_id'])
+                ->map(fn ($user) => [
+                    'id' => $user->id,
+                    'name' => $user->name,
+                    'image' => filament()->getUserAvatarUrl($user),
+                    'role' => $user->role->role,
+                ])
+                ->all();
+        return [];
     }
 }

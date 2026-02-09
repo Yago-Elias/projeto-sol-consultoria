@@ -18,6 +18,9 @@ use Filament\Forms\Components\ViewField;
 use Filament\Schemas\Components\Utilities\Get;
 use Filament\Schemas\Components\Utilities\Set;
 use Filament\Schemas\Components\View;
+use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Support\Facades\DB;
 use Livewire\Component;
 
 class ProjectForm extends Component
@@ -36,6 +39,7 @@ class ProjectForm extends Component
                     ->columnSpanFull()
                     ->schema([
                         View::make('filament.schemas.components.layout-create-project')
+                            ->columnSpanFull()
                             ->schema([
                                 TextInput::make('name')
                                     ->columnSpan([
@@ -75,9 +79,7 @@ class ProjectForm extends Component
                                     ->required()
                                     ->label('E-mail')
                                     ->placeholder('E-mail'),
-                            
-                            ])
-                            ->columnSpanFull(),
+                            ]),
                         
                         Textarea::make('description')
                             ->columnSpanFull()
@@ -156,6 +158,17 @@ class ProjectForm extends Component
                                 'parcelado_4x' => '4x',
                             ])
                             ->disabled(fn ($operation) => $operation === 'edit'),
+                        Select::make('manager_id')
+                            ->columnSpan([
+                                'sm' => 2,
+                                'md' => 3,
+                                'lg' => 4,
+                                'xl' => 4,
+                            ])
+                            ->label('Gerente do projeto')
+                            ->required()
+                            ->options(fn () => User::query()->pluck('name', 'id'))
+                            ->searchable()
                     ]),
                 
                 Section::make('Consultores')
@@ -165,13 +178,23 @@ class ProjectForm extends Component
                             ->label('Adiconar Consultor')
                             ->icon(Heroicon::Plus)
                             ->schema([
-                                Select::make('consultores')
+                                Select::make('select_consultant')
                                     ->label('Buscar Consultor')
                                     ->placeholder('Busque pelo nome ou especialidade do consultor')
                                     ->multiple()
                                     ->searchable()
                                     ->preload()
-                                    ->options(function () {
+                                    ->options(function (?Project $record) {
+                                        if ($record) {
+                                            $projectId = $record->id;
+                                            return User::query()
+                                                ->whereDoesntHave('projects', function ($q) use ($projectId) {
+                                                    $q->where('projects.id', $projectId);
+                                                })
+                                                ->get()
+                                                ->pluck('name', 'id');
+                                        }
+
                                         return User::query()->pluck('name', 'id');
                                     })
                                     ->getSearchResultsUsing(function (string $search) {
@@ -182,38 +205,68 @@ class ProjectForm extends Component
                                     })
                             ])
                             ->action(function (array $data, Set $set, Get $get) {
-                                $atual = $get('consultores_selecionados');
-                                $novos = $data['consultores'] ?? [];
+                                $current = $get('selected_consultants');
+                                $new = $data['select_consultant'] ?? [];
 
-                                $total = array_unique(array_merge($atual, $novos));
-                                $set('consultores_selecionados', $total);
+                                $merge = array_unique(array_merge($current ?? [], $new));
+                                $set('selected_consultants', $merge);
                             })
                             ->modalSubmitActionLabel('Adicionar')
                             ->modalCancelActionLabel('Cancelar')
+                            ->closeModalByClickingAway(false)
                         ])
                     ->schema([
-                            Hidden::make('consultores_selecionados')
+                            Hidden::make('selected_consultants')
                                 ->default([]),
-                            ViewField::make('selected_consultants')
+                            Hidden::make('remove_consultants')
+                                ->default([]),
+                            ViewField::make('consultants')
                                 ->view('filament.resources.projects.partials.list-consultants-project')
-                                ->viewData(function (?Project $record, $operation, Get $get) {
+                                ->viewData(function (?Project $record, $operation, Set $set, Get $get) {
                                     if ($operation === 'edit') {
-                                        return [
-                                            'consultants' => $record
-                                                ->collaborators()
-                                                ->get()
-                                                ->all()
-                                        ];
+                                        $consultants = $record
+                                            ->collaborators()
+                                            ->with(['role:id,role'])
+                                            ->get(['id', 'name', 'image', 'role_id'])
+                                            ->map(fn (User $user) => [
+                                                'id' => $user->id,
+                                                'name' => $user->name,
+                                                'image' => filament()->getUserAvatarUrl($user),
+                                                'role' => $user->role->role,
+                                            ])
+                                            ->all();
+                                        
+                                        $set('consultants', $consultants);
+                                        return ['consultants' => $consultants];
                                     }
-                                    $ids_consultants = $get('consultores_selecionados');
+                                    $ids_consultants = $get('selected_consultants') ?? [];
+                                    array_push($ids_consultants, $get('manager_id'));
                                     $consultants = User::query()
                                         ->with('role:id,role')
-                                        ->findMany($ids_consultants, ['name', 'image', 'role_id'])
+                                        ->findMany($ids_consultants, ['id', 'name', 'image', 'role_id'])
+                                        ->map(fn ($user) => [
+                                            'id' => $user->id,
+                                            'name' => $user->name,
+                                            'image' => filament()->getUserAvatarUrl($user),
+                                            'role' => $user->role->role,
+                                        ])
                                         ->all();
-
+                                    
                                     return ['consultants' => $consultants];
                                 })
                                 ->live(debounce:500)
+                                ->after(function (?Project $project, Get $get, Set $set) {
+                                    $consultantsIds = $get('selected_consultants') ?? [];
+                                    $removeConsultantsIds = $get('remove_consultants') ?? [];
+                                    if ($consultantsIds) {
+                                        $project?->collaborators()->attach($consultantsIds);
+                                        $set('selected_consultants', []);
+                                    }
+                                    if ($removeConsultantsIds) {
+                                        $project?->collaborators()->detach($removeConsultantsIds);
+                                        $set('remove_consultants', []);
+                                    }
+                                })
                     ])
             ]);
     }
