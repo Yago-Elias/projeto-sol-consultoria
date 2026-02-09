@@ -2,10 +2,12 @@
 
 namespace App\Filament\Resources\Projects\Pages;
 
-use App\Filament\Resources\Projects\Pages\ViewProject;
+use BackedEnum;
+use Filament\Support\Icons\Heroicon;
 
 class ProjectDetails extends ViewProject
 {
-    protected string $activeTab = 'detalhes';
+    protected static ?string $navigationLabel = 'Detalhes';
+    protected static string | BackedEnum | null $navigationIcon = Heroicon::ListBullet;
     protected string $view = 'filament.resources.projects.pages.project-details';
 }

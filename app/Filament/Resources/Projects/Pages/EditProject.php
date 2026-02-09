@@ -6,6 +6,7 @@ use App\Filament\Resources\Projects\ProjectResource;
 use Filament\Actions\DeleteAction;
 use Filament\Actions\ViewAction;
 use Filament\Resources\Pages\EditRecord;
+use Filament\Schemas\Schema;
 
 class EditProject extends EditRecord
 {
@@ -17,5 +18,18 @@ class EditProject extends EditRecord
             ViewAction::make(),
             DeleteAction::make(),
         ];
+    }
+
+    public function content(Schema $schema): Schema
+    {
+        return $schema
+            ->components([
+                $this->getFormContentComponent(),
+            ]);
+    }
+
+    public function getSubNavigation(): array
+    {
+        return [];
     }
 }
