@@ -1,6 +1,16 @@
 {{-- @dd($record) --}}
 
 <x-filament-panels::page>
+    @if(filament()->auth()->user()['profile']['project_manager'] & \App\Permissions::EDIT)
+        <div>
+            {{\Filament\Actions\Action::make('Editar Projeto')
+                ->url("/projects/{$this->record['id']}/edit")
+                ->icon(\Filament\Support\Icons\Heroicon::OutlinedPencilSquare)
+                ->extraAttributes([
+                    'class' => 'w-fit'
+            ])}}
+        </div>
+    @endif
     <x-filament::section>
         <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
             <div class="flex items-start">
@@ -65,5 +75,4 @@
             @endforelse
         </div>
     </x-filament::section>
-
 </x-filament-panels::page>
