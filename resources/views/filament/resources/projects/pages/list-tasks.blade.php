@@ -2,7 +2,7 @@
     <livewire:criar-quadro :project="$record"/>
 
     <div class="flex gap-4 flex-nowrap overflow-x-auto p-1">
-        @foreach($record['boards']->sortBy('created_at') as $board)
+        @forelse($record['boards']->sortBy('created_at') as $board)
             <div class="min-w-xs max-w-sm">
                 @livewire(\App\Filament\Resources\Projects\RelationManagers\TasksRelationManager::class, [
                     'ownerRecord' => $record,
@@ -10,7 +10,16 @@
                     'board' => $board
                 ])
             </div>
-        @endforeach
+        @empty
+            <x-filament::empty-state>
+                <x-slot name="heading">
+                    Projeto Vazio
+                </x-slot>
+                <x-slot name="description">
+                    Crie um quadro para começar a criar tarefas
+                </x-slot>
+            </x-filament::empty-state>
+        @endforelse
     </div>
 
     @php
