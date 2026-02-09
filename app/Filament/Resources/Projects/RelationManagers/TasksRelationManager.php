@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources\Projects\RelationManagers;
 
+use App\Filament\Resources\Projects\Pages\UnderApprovalTasks;
 use App\Models\Board;
 use App\Models\Task;
 use Filament\Actions\Action;
@@ -27,6 +28,7 @@ use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
 use Filament\View\PanelsRenderHook;
+use http\Client\Request;
 use Illuminate\Database\Eloquent\Builder;
 use Livewire\Attributes\On;
 use Livewire\Attributes\Url;
@@ -146,12 +148,12 @@ class TasksRelationManager extends RelationManager
                             ->label('Data de conclusão')
                             ->icon(Heroicon::OutlinedCalendar)
                             ->date()
-                            ->hidden(fn (Task $task) => $task['status'] !== 'APROVADA'),
+                            ->hidden(fn (Task $task) => $task['status'] === 'PENDENTE'),
                         TextEntry::make('conclusion_message')
                             ->label('Mensagem de conclusão')
                             ->placeholder('-')
                             ->icon(Heroicon::OutlinedBars3BottomLeft)
-                            ->hidden(fn (Task $task) => $task['status'] !== 'APROVADA')
+                            ->hidden(fn (Task $task) => $task['status'] === 'PENDENTE')
                             ->columnSpanFull(),
                     ])
                     ->footerActions([
@@ -178,7 +180,32 @@ class TasksRelationManager extends RelationManager
                             })
                             ->hidden(fn (Task $record) =>
                                 filament()->auth()->id() !== $record['assigned_to'] ||
-                                $record['status'] !== 'PENDENTE')
+                                $record['status'] !== 'PENDENTE'),
+                        Action::make('approve')
+                            ->label('Aprovar Tarefa')
+                            ->icon(Heroicon::OutlinedCheck)
+                            ->color('success')
+                            ->action(function (Task $record) {
+                                $record['status'] = 'APROVADA';
+                                $record->save();
+
+                                $this->redirect("/projects/{$this->ownerRecord['id']}/aprovacao");
+                            })
+                            ->hidden(fn () => $this->pageClass !== UnderApprovalTasks::class),
+                        Action::make('deny')
+                            ->label('Reprovar Tarefa')
+                            ->icon(Heroicon::OutlinedXMark)
+                            ->color('danger')
+                            ->action(function (Task $record) {
+                                $record['status'] = 'PENDENTE';
+                                $record['conclusion_date'] = null;
+                                $record['conclusion_message'] = null;
+
+                                $record->save();
+
+                                $this->redirect("/projects/{$this->ownerRecord['id']}/aprovacao");
+                            })
+                            ->hidden(fn () => $this->pageClass !== UnderApprovalTasks::class)
                     ])
                     ->contained(false)
                     ->columnSpanFull(),
@@ -190,9 +217,12 @@ class TasksRelationManager extends RelationManager
         return $table
             ->defaultSort('due_date')
             ->modifyQueryUsing(function (Builder $query) {
-                if (isset($this->board))
-                    return $query
-                            ->where('board_id', $this->board['id']);
+                if (isset($this->board)) {
+                    $query = $query->where('board_id', $this->board['id']);
+                }
+                if ($this->pageClass === UnderApprovalTasks::class) {
+                    $query = $query->where('status', 'EM_APROVACAO');
+                }
                 return $query;
             })
             ->heading($this->board['name'])
@@ -234,7 +264,7 @@ class TasksRelationManager extends RelationManager
                     ->titlePrefixedWithLabel(false)
                     ->collapsible()
             ])
-            ->defaultGroup('status')
+            ->defaultGroup(fn () => $this->pageClass !== UnderApprovalTasks::class ? 'status' : null)
             ->groupingSettingsHidden()
             ->headerActions([
                 CreateAction::make('Criar Tarefa')
@@ -248,7 +278,8 @@ class TasksRelationManager extends RelationManager
                     ->extraAttributes([
                         'class' => 'bg-primary-900 rounded-full border border-primary-100 text-primary-100'
                     ])
-                    ->iconButton(),
+                    ->iconButton()
+                    ->hidden(fn () => $this->pageClass === UnderApprovalTasks::class),
                 EditAction::make('edit')
                     ->modalHeading('Editar Quadro')
                     ->modalWidth('md')
@@ -266,7 +297,8 @@ class TasksRelationManager extends RelationManager
                     ->extraAttributes([
                         'class' => 'bg-primary-200 rounded-full border border-primary-600 text-primary-600'
                     ])
-                    ->iconButton(),
+                    ->iconButton()
+                    ->hidden(fn () => $this->pageClass === UnderApprovalTasks::class),
                 DeleteAction::make('Deletar Quadro')
                     ->record($this->board)
                     ->before(function (Board $record) {
@@ -282,6 +314,7 @@ class TasksRelationManager extends RelationManager
                         'class' => 'bg-danger-200 rounded-full border border-danger-600 text-danger-600'
                     ])
                     ->iconButton()
+                    ->hidden(fn () => $this->pageClass === UnderApprovalTasks::class)
             ])
             ->headerActionsPosition(HeaderActionsPosition::Adaptive)
             ->recordActions([
