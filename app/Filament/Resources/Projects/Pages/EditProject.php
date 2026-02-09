@@ -3,6 +3,7 @@
 namespace App\Filament\Resources\Projects\Pages;
 
 use App\Filament\Resources\Projects\ProjectResource;
+use App\Models\User;
 use Filament\Actions\DeleteAction;
 use Filament\Actions\ViewAction;
 use Filament\Resources\Pages\EditRecord;
@@ -20,16 +21,8 @@ class EditProject extends EditRecord
         ];
     }
 
-    public function content(Schema $schema): Schema
+    public function searchConsultants(array $ids): array
     {
-        return $schema
-            ->components([
-                $this->getFormContentComponent(),
-            ]);
-    }
-
-    public function getSubNavigation(): array
-    {
-        return [];
+        return ProjectResource::searchConsultants($ids);
     }
 }

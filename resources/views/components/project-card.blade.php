@@ -1,17 +1,29 @@
 <x-filament::section class="col-span-6 w-100 m-6">
     <a href="{{ route('filament.admin.resources.projects.view', $project->id) }}">
-        <div class="flex justify-between my-4">
-            <div class="text-xl font-bold">
+        <div class="grid grid-cols-4 my-4">
+            <div class="col-span-3 text-xl font-bold">
                 {{ $project->name }}
             </div>
-            <div>
+            <div class="col-span min-w-22">
+            @if ($project->overdue > 0)
                 <x-filament::badge
-                    color="success"
-                    icon="heroicon-o-check"
+                    color="danger"
+                    icon="heroicon-o-exclamation-circle"
                     icon-position="after"
                 >
-                    Em dia
+                    Atrasado
                 </x-filament::badge>
+            @else
+                <div class="justify-self-end">
+                    <x-filament::badge
+                        color="success"
+                        icon="heroicon-o-check"
+                        icon-position="after"
+                    >
+                        Em dia
+                    </x-filament::badge>
+                </div>
+            @endif
             </div>
         </div>
         <hr class="border border-gray-900/30">
@@ -27,10 +39,8 @@
                 <strong>Gerente:</strong> {{ $project->manager->name }}
             </span>
         </div>
-        <div class="flex flex-row my-4 text-gray-600 text-md gap-2">
-            <span>Progresso</span>
-            @include('filament.resources.projects.partials.progress', ['percent' => 30])
-            <span>30%</span>
+        <div class="my-4">
+            @include('filament.resources.projects.partials.progress', ['percent' => $project->progress])
         </div>
         <hr class="border border-gray-900/30 my-4">
         <div class="grid grid-cols-3 gap-4">
@@ -39,7 +49,7 @@
             <div class="grid grid-cols-4 rounded-lg border border-warning-800 p-2 bg-warning-100">
                 <div class="col-span-3 content-center text-center">
                     <div class="text-2xl font-bold text-primary-900">
-                        8
+                        {{ $project->pendingTasks }}
                     </div>
                     <div class="text-primary-800 text-sm">Tarefas Pendentes</div>
                 </div>
@@ -52,7 +62,7 @@
             <div class="grid grid-cols-4 rounded-lg border border-danger-800 p-2 bg-danger-100">
                 <div class="col-span-3 content-center text-center">
                     <div class="text-2xl font-bold text-danger-900">
-                        1
+                        {{ $project->overdueTasks }}
                     </div>
                     <div class="text-danger-800 text-sm">Tarefas Atrasadas</div>
                 </div>
@@ -61,13 +71,13 @@
                 </div>
             </div>
 
-            {{-- Badge Margen de Lucro --}}
+            {{-- Badge Margem de Lucro --}}
             <div class="grid grid-cols-4 rounded-lg border border-success-800 p-2 bg-success-100">
                 <div class="col-span-3 content-center text-center">
                     <div class="text-2xl font-bold text-success-900">
                         1
                     </div>
-                    <div class="text-success-800 text-sm">Tarefas Atrasadas</div>
+                    <div class="text-success-800 text-sm">Margem de Lucro</div>
                 </div>
                 <div class="col-span-1 text-success-900">
                     <x-filament::icon icon="heroicon-s-chart-bar" />

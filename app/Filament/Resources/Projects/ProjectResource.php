@@ -4,8 +4,8 @@ namespace App\Filament\Resources\Projects;
 
 use App\Filament\Resources\Projects\Pages\CreateProject;
 use App\Filament\Resources\Projects\Pages\EditProject;
-use App\Filament\Resources\Projects\Pages\ProjectFinances;
 use App\Filament\Resources\Projects\Pages\ListProjects;
+use App\Filament\Resources\Projects\Pages\ManageFinance;
 use App\Filament\Resources\Projects\Pages\ProjectDetails;
 use App\Filament\Resources\Projects\Pages\UnderApprovalTasks;
 use App\Filament\Resources\Projects\Pages\ViewProject;
@@ -14,6 +14,7 @@ use App\Filament\Resources\Projects\Schemas\ProjectForm;
 use App\Filament\Resources\Projects\Schemas\ProjectInfolist;
 use App\Filament\Resources\Projects\Tables\ProjectsTable;
 use App\Models\Project;
+use App\Models\User;
 use BackedEnum;
 use Filament\Pages\Enums\SubNavigationPosition;
 use Filament\Resources\Pages\Page;
@@ -64,7 +65,7 @@ class ProjectResource extends Resource
             'view' => ViewProject::route('/{record}'),
             'edit' => EditProject::route('/{record}/edit'),
             'aprovacao' => UnderApprovalTasks::route('/{record}/aprovacao'),
-            'financeiro' => ProjectFinances::route('/{record}/financeiro'),
+            'financeiro' => ManageFinance::route('/{record}/financeiro'),
             'detalhes' => ProjectDetails::route('/{record}/detalhes'),
         ];
     }
@@ -74,8 +75,24 @@ class ProjectResource extends Resource
         return $page->generateNavigationItems([
             ViewProject::class,
             UnderApprovalTasks::class,
-            ProjectFinances::class,
+            ManageFinance::class,
             ProjectDetails::class,
         ]);
+    }
+
+    public static function searchConsultants(array $ids): array
+    {
+        if ($ids)
+            return User::query()
+                ->with('role:id,role')
+                ->findMany($ids, ['id', 'name', 'image', 'role_id'])
+                ->map(fn ($user) => [
+                    'id' => $user->id,
+                    'name' => $user->name,
+                    'image' => filament()->getUserAvatarUrl($user),
+                    'role' => $user->role->role,
+                ])
+                ->all();
+        return [];
     }
 }

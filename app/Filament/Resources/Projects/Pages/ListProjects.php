@@ -4,8 +4,8 @@ namespace App\Filament\Resources\Projects\Pages;
 
 use App\Filament\Resources\Projects\ProjectResource;
 use App\Models\Project;
-use App\Permissions;
 use Filament\Resources\Pages\ListRecords;
+use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 
 class ListProjects extends ListRecords
 {
@@ -13,28 +13,28 @@ class ListProjects extends ListRecords
 
     protected string $view = 'filament.resources.projects.pages.listing-projects';
 
-    public $projects;
+    public $search = '';
 
-    public function mount(): void
+    public int $perPage = 8;
+
+    public function getProjects(): LengthAwarePaginator
     {
-        $user = filament()->auth()->user();
+        $query = Project::query()
+            ->with('tasks')
+            ->select(['id', 'name', 'description', 'end_date', 'manager_id']);
 
-        if ($user['profile']['global_access'] ||
-            $user['profile']['manage_projects'] & Permissions::LIST) {
-            $this->projects = Project::with([
-                    'manager:id,name',
-                ])
-                ->get(['id', 'name', 'description', 'end_date', 'manager_id']);
+        if ($this->search) {
+            $query->where(function ($q) {
+                    $q->where('name', 'like', "%{$this->search}%")
+                      ->orWhere('description', 'like', "%{$this->search}%");
+                });
         }
-        else {
-            $this->projects = $user['managedProjects']->merge($user['projects']);
-        }
+
+        return $query->paginate($this->perPage);
     }
 
-    public function getViewData(): array
+    public function countProjects(): int
     {
-        return [
-            'projects' => $this->projects,
-        ];
+        return Project::query()->count();
     }
 }
