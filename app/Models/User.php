@@ -95,6 +95,16 @@ class User extends Authenticatable implements HasAvatar
         return $this->belongsToMany(Expertise::class, 'users_expertises');
     }
 
+    public function project_attribution(Project $project): BelongsToMany
+    {
+        return $this->belongsToMany(
+            ProjectAttribution::class,
+            'projects_users',
+            'user_id',
+            'attribution_id'
+        )->wherePivot('project_id', $project->id);
+    }
+
     public function getFilamentAvatarUrl(): ?string
     {
         if ($this->image == null || filter_var($this->image, FILTER_VALIDATE_URL)) {

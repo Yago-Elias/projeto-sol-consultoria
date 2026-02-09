@@ -1,0 +1,17 @@
+<?php
+
+namespace App;
+
+enum Permissions: int
+{
+    const NONE             = 0;
+    const CREATE           = 1 << 0;
+    const EDIT             = 1 << 1;
+    const REMOVE           = 1 << 2;
+    const LIST             = 1 << 3;
+    const APROVE_TASKS     = 1 << 4;
+    const FINANCIAL_ACCESS = 1 << 5;
+
+    const LIST_ALL_PROJECTS    = 1 << 6 | Permissions::LIST;
+    const FINANCIAL_ACCESS_ALL = 1 << 7 | Permissions::FINANCIAL_ACCESS;
+}

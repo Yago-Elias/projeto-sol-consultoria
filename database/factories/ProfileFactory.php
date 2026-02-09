@@ -2,6 +2,7 @@
 
 namespace Database\Factories;
 
+use App\Permissions;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
@@ -20,7 +21,10 @@ class ProfileFactory extends Factory
         // quando for implementado a bitmask
         return [
             'profile' => fake()->word(),
-            'permissions' => fake()->randomNumber(3)
+            'manage_users' => Permissions::NONE,
+            'manage_projects' => Permissions::LIST | Permissions::CREATE,
+            'system_config' => false,
+            'global_access' => false,
         ];
     }
 }
