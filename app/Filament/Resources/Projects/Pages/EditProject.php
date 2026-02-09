@@ -7,6 +7,7 @@ use App\Models\User;
 use Filament\Actions\DeleteAction;
 use Filament\Actions\ViewAction;
 use Filament\Resources\Pages\EditRecord;
+use Filament\Schemas\Schema;
 
 class EditProject extends EditRecord
 {
@@ -20,8 +21,22 @@ class EditProject extends EditRecord
         ];
     }
 
+<<<<<<< HEAD
     public function searchConsultants(array $ids): array
     {
         return ProjectResource::searchConsultants($ids);
+=======
+    public function content(Schema $schema): Schema
+    {
+        return $schema
+            ->components([
+                $this->getFormContentComponent(),
+            ]);
+    }
+
+    public function getSubNavigation(): array
+    {
+        return [];
+>>>>>>> f83eedf414fb54585d8eef0e726c0e67dbf67ffc
     }
 }
