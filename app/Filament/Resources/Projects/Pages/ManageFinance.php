@@ -3,8 +3,6 @@
 namespace App\Filament\Resources\Projects\Pages;
 
 use App\Filament\Resources\Projects\ProjectResource;
-use App\Filament\Resources\Projects\Widgets\Cost;
-use App\Filament\Resources\Projects\Widgets\Revenue;
 use App\Models\FinancialNature;
 use App\Models\FinancialType;
 use App\Models\Provider;
@@ -22,6 +20,7 @@ use Filament\Forms\Components\Textarea;
 use Filament\Resources\Pages\ManageRelatedRecords;
 use Filament\Schemas\Schema;
 use Filament\Support\Icons\Heroicon;
+use Filament\Tables\Columns\Summarizers\Sum;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Grouping\Group;
@@ -44,14 +43,6 @@ class ManageFinance extends ManageRelatedRecords
     public function getBreadcrumb(): string
     {
         return 'Visualizar';
-    }
-
-    public function getHeaderWidgets(): array
-    {
-        return [
-            Revenue::class,
-            Cost::class,
-        ];
     }
 
     protected function getHeaderActions(): array
@@ -91,8 +82,7 @@ class ManageFinance extends ManageRelatedRecords
                     ->label('Data de vencimento')
                     ->required(),
                 DatePicker::make('payment_date')
-                    ->label('Data de pagamento')
-                    ->required(),
+                    ->label('Data de pagamento'),
                 Select::make('type')
                     ->label('Tipo de pagamento')
                     ->required()
@@ -154,14 +144,22 @@ class ManageFinance extends ManageRelatedRecords
             ->recordTitleAttribute('description')
             ->groups([
                 Group::make('financialNature.nature')
-                    ->label('Natureza'),
+                    ->label('Natureza')
+                    ->collapsible(),
                 Group::make('financialType.type')
                     ->label('Tipo de pagamento')
+                    ->collapsible(),
             ])
             ->columns([
                 TextColumn::make('total_amount')
                     ->label('Total')
-                    ->numeric()
+                    ->money('BRL')
+                    ->summarize([
+                        Sum::make()
+                            ->label('Total Receita')
+                            ->money('BRL')
+                            ->prefix('R$')
+                    ])
                     ->sortable(),
                 TextColumn::make('total_installments')
                     ->label('Parcelas')
@@ -206,7 +204,7 @@ class ManageFinance extends ManageRelatedRecords
             ->headerActions([
                 CreateAction::make()
                     ->label('Criar entrada financeira')
-                    ->modalHeading('Criar entrada financeira')
+                    ->modalHeading('Criar entrada financeira'),
             ])
             ->recordActions([
                 ActionGroup::make([
