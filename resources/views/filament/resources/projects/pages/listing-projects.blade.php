@@ -1,8 +1,31 @@
 <x-filament-panels::page>
+    <div class="flex mb-4 justify-center">
+        <div class="w-lg">
+            <x-filament::input.wrapper>
+                <x-filament::input
+                    type="text"
+                    wire:model.live.debounce.400ms="search"
+                    placeholder="Buscar projetos..."
+                />
+            </x-filament::input.wrapper>
+        </div>
+    </div>
     <div class="grid grid-cols-12">
-        @forelse ($projects as $project)
+        @forelse ($this->getProjects() as $project)
         <x-project-card :project="$project"/>
         @empty
+        @if ($this->countProjects())
+        <div class="col-span-full">
+            <x-filament::empty-state>
+                <x-slot name="heading">
+                    Nenhum projeto encontrado
+                </x-slot>
+                <x-slot name="description">
+                    Nenhum projeto corresponde com sua busca. Busque por outras palavra-chaves.
+                </x-slot>
+            </x-filament::empty-state>
+        </div>
+        @else
         <div class="col-span-full">
             <x-filament::empty-state>
                 <x-slot name="heading">
@@ -13,6 +36,14 @@
                 </x-slot>
             </x-filament::empty-state>
         </div>
+        @endif
         @endforelse
+    </div>
+    <div class="mt-6">
+        <x-filament::pagination 
+            :paginator="$this->getProjects()"
+            :page-options="[8, 14, 20, 30, 50]"
+            current-page-option-property="perPage"
+        />
     </div>
 </x-filament-panels::page>
