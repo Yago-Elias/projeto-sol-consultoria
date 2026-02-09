@@ -13,7 +13,14 @@ class Profile extends Model
 
     protected $fillable = [
         'profile',
-        'permissions'
+        'manage_projects',
+        'manage_users',
+        'system_config',
+        'global_access',
+    ];
+
+    protected $casts = [
+
     ];
 
     public function users(): HasMany
