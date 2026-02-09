@@ -58,4 +58,9 @@ class Project extends Model
     {
         return $this->through('boards')->has('tasks');
     }
+
+    public function financialEntries(): HasMany
+    {
+        return $this->hasMany(FinancialEntry::class, 'project_id');
+    }
 }
