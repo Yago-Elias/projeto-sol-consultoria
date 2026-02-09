@@ -27,8 +27,10 @@
                 <strong>Gerente:</strong> {{ $project->manager->name }}
             </span>
         </div>
-        <div class="my-4">
+        <div class="flex flex-row my-4 text-gray-600 text-md gap-2">
+            <span>Progresso</span>
             @include('filament.resources.projects.partials.progress', ['percent' => 30])
+            <span>30%</span>
         </div>
         <hr class="border border-gray-900/30 my-4">
         <div class="grid grid-cols-3 gap-4">
