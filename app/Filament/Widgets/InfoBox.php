@@ -14,18 +14,31 @@ class InfoBox extends StatsOverviewWidget
     protected ?string $pollingInterval = null;
     protected function getStats(): array
     {
-        $projects = Project::query()->get();
-        $tasks = Task::query()->get();
+        $user = filament()->auth()->user();
+        $projects = [];
+        $tasks = [];
+
+        if ($user['profile']['global_access']) {
+            $projects = Project::query()->get();
+            $tasks = Task::query()->get();
+        }
+        else {
+            $projects = $user['managedProjects']->merge($user['projects']);
+            $tasks = $projects->flatMap(fn (Project $project) => $project['tasks']);
+        }
 
         $totalTasks = $tasks->count();
         $approvedTasks = $tasks->where('status', 'APROVADA')->count();
         $percentage = $totalTasks > 0 ? round($approvedTasks / $totalTasks * 100, 1) : 0;
 
-        $avgProfit = FinancialEntry::query()
-                ->whereNotNull('payment_date')
-                ->get()
-                ->avg(fn (FinancialEntry $entry) =>
-                    $entry['total_amount'] * ($entry['financialType']['type'] === 'Expense' ? -1 : 1)) ?? 0;
+        $avgProfit = 0;
+        if ($user['profile']['global_access']) {
+            $avgProfit = FinancialEntry::query()
+                    ->whereNotNull('payment_date')
+                    ->get()
+                    ->avg(fn (FinancialEntry $entry) =>
+                        $entry['total_amount'] * ($entry['financialType']['type'] === 'Expense' ? -1 : 1)) ?? 0;
+        }
 
         $lateProjects = $projects->where('end_date', '<', now())->count();
 
@@ -42,12 +55,14 @@ class InfoBox extends StatsOverviewWidget
                 ->icon(Heroicon::OutlinedCheckCircle),
             Stat::make('Lucro Médio', 'R$ ' . round($avgProfit, 2))
                 ->description('Lucro médio dos projetos')
+                ->hidden(!$user['profile']['global_access'])
                 ->icon(Heroicon::OutlinedArrowTrendingUp),
             Stat::make('Atrasados', $lateProjects)
                 ->description('Total de projetos atrasados')
                 ->icon(Heroicon::OutlinedExclamationCircle),
             Stat::make('Risco de Atraso', $dangeredProjects)
                 ->description('Total de projetos com tarefas atrasadas')
+                ->hidden(!$user['profile']['global_access'])
                 ->icon(Heroicon::OutlinedExclamationTriangle),
         ];
     }
