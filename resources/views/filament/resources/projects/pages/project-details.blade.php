@@ -1,36 +1,36 @@
-{{-- @dd($project) --}}
+{{-- @dd($record) --}}
 
-<x-project-layout activeTab="{{ $activeTab }}" :urls="$urls">
+<x-filament-panels::page>
     <x-filament::section>
         <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
             <div class="flex items-start">
-                <div class="w-full max-w-md bg-gray-200 rounded-lg overflow-hidden aspect-video">
-                    @if($project->image)
-                        <img class="w-full h-full object-cover" src="{{ $project->image }}" alt="imagem projeto">
+                <div class="w-full max-w-md mx-auto bg-gray-200 rounded-lg overflow-hidden aspect-video">
+                    @if($record->image)
+                        <img class="w-full h-full object-cover" src="{{ $record->image }}" alt="imagem projeto">
                     @endif
                 </div>
             </div>
 
             <div class="flex flex-col space-y-6">
                 <div>
-                    <h2 class="text-2xl font-bold text-gray-900 mb-1">{{ $project->company_name }}</h2>
-                    <span class="text-gray-500">{{ $project->company_email }}</span>
+                    <h2 class="text-2xl font-bold text-gray-900 mb-1">{{ $record->company_name }}</h2>
+                    <span class="text-gray-500">{{ $record->company_email }}</span>
                 </div>
 
-                @if($project->description)
+                @if($record->description)
                     <div class="text-gray-600 leading-relaxed">
-                        <span>{{ $project->description }}</span>
+                        <span>{{ $record->description }}</span>
                     </div>
                 @endif
 
                 <div class="space-y-2">
                     <div>
                         <span class="text-gray-700">Data de Início:</span>
-                        <span class="text-gray-900 ml-2">{{ $project->start_date }}</span>
+                        <span class="text-gray-900 ml-2">{{ $record->start_date }}</span>
                     </div>
                     <div>
                         <span class="text-gray-700">Prazo final:</span>
-                        <span class="text-gray-900 ml-2">{{ $project->end_date }}</span>
+                        <span class="text-gray-900 ml-2">{{ $record->end_date }}</span>
                     </div>
                 </div>
             </div>
@@ -39,7 +39,7 @@
 
     <x-filament::section class="mt-6">
         <div class="grid gird-cols-2 md:grid-cols-4 gap-6">
-            @forelse ($project->collaborators as $user)
+            @forelse ($record->collaborators as $user)
                 <div class="flex items-center space-x-3">
                     <div class="flex-shrink-0">
                         <div class="w-12 h-12 rounded-full gb-gray-200 overflow-hidden flex items-center justify-center">
@@ -66,4 +66,4 @@
         </div>
     </x-filament::section>
 
-</x-project-layout>
+</x-filament-panels::page>
