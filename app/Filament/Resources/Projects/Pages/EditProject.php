@@ -25,4 +25,12 @@ class EditProject extends EditRecord
     {
         return ProjectResource::searchConsultants($ids);
     }
+
+    public function content(Schema $schema): Schema
+    {
+        return $schema
+            ->components([
+                $this->getFormContentComponent(),
+            ]);
+    }
 }

@@ -80,7 +80,7 @@ class ProjectForm extends Component
                                     ->label('E-mail')
                                     ->placeholder('E-mail'),
                             ]),
-                        
+
                         Textarea::make('description')
                             ->columnSpanFull()
                             ->label('Descrição do Projeto')
@@ -95,7 +95,7 @@ class ProjectForm extends Component
                             ->required()
                             ->label('Data de Início')
                             ->disabled(fn ($operation) => $operation === 'edit'),
-                        
+
                         DatePicker::make('end_date')
                             ->columnSpan([
                                 'sm' => 2,
@@ -170,12 +170,12 @@ class ProjectForm extends Component
                             ->options(fn () => User::query()->pluck('name', 'id'))
                             ->searchable()
                     ]),
-                
+
                 Section::make('Consultores')
                     ->columnSpanFull()
                     ->headerActions([
                         Action::make('add_consultant')
-                            ->label('Adiconar Consultor')
+                            ->label('Adicionar Consultor')
                             ->icon(Heroicon::Plus)
                             ->schema([
                                 Select::make('select_consultant')
@@ -216,57 +216,64 @@ class ProjectForm extends Component
                             ->closeModalByClickingAway(false)
                         ])
                     ->schema([
-                            Hidden::make('selected_consultants')
-                                ->default([]),
-                            Hidden::make('remove_consultants')
-                                ->default([]),
-                            ViewField::make('consultants')
-                                ->view('filament.resources.projects.partials.list-consultants-project')
-                                ->viewData(function (?Project $record, $operation, Set $set, Get $get) {
-                                    if ($operation === 'edit') {
-                                        $consultants = $record
-                                            ->collaborators()
-                                            ->with(['role:id,role'])
-                                            ->get(['id', 'name', 'image', 'role_id'])
-                                            ->map(fn (User $user) => [
-                                                'id' => $user->id,
-                                                'name' => $user->name,
-                                                'image' => filament()->getUserAvatarUrl($user),
-                                                'role' => $user->role->role,
-                                            ])
-                                            ->all();
-                                        
-                                        $set('consultants', $consultants);
-                                        return ['consultants' => $consultants];
-                                    }
-                                    $ids_consultants = $get('selected_consultants') ?? [];
-                                    array_push($ids_consultants, $get('manager_id'));
-                                    $consultants = User::query()
-                                        ->with('role:id,role')
-                                        ->findMany($ids_consultants, ['id', 'name', 'image', 'role_id'])
-                                        ->map(fn ($user) => [
+                        Hidden::make('selected_consultants')
+                            ->default([]),
+                        Hidden::make('remove_consultants')
+                            ->default([]),
+                        ViewField::make('consultants')
+                            ->view('filament.resources.projects.partials.list-consultants-project')
+                            ->viewData(function (?Project $record, $operation, Set $set, Get $get) {
+                                if ($operation === 'edit') {
+                                    $consultants = $record
+                                        ->collaborators()
+                                        ->with(['role:id,role'])
+                                        ->get(['id', 'name', 'image', 'role_id'])
+                                        ->map(fn (User $user) => [
                                             'id' => $user->id,
                                             'name' => $user->name,
                                             'image' => filament()->getUserAvatarUrl($user),
                                             'role' => $user->role->role,
                                         ])
                                         ->all();
-                                    
+
+                                    $set('consultants', $consultants);
                                     return ['consultants' => $consultants];
-                                })
-                                ->live(debounce:500)
-                                ->after(function (?Project $project, Get $get, Set $set) {
-                                    $consultantsIds = $get('selected_consultants') ?? [];
-                                    $removeConsultantsIds = $get('remove_consultants') ?? [];
-                                    if ($consultantsIds) {
-                                        $project?->collaborators()->attach($consultantsIds);
-                                        $set('selected_consultants', []);
-                                    }
-                                    if ($removeConsultantsIds) {
-                                        $project?->collaborators()->detach($removeConsultantsIds);
-                                        $set('remove_consultants', []);
-                                    }
-                                })
+                                }
+                                $ids_consultants = $get('selected_consultants') ?? [];
+                                array_push($ids_consultants, $get('manager_id'));
+                                $consultants = User::query()
+                                    ->with('role:id,role')
+                                    ->findMany($ids_consultants, ['id', 'name', 'image', 'role_id'])
+                                    ->map(fn ($user) => [
+                                        'id' => $user->id,
+                                        'name' => $user->name,
+                                        'image' => filament()->getUserAvatarUrl($user),
+                                        'role' => $user->role->role,
+                                    ])
+                                    ->all();
+
+                                return ['consultants' => $consultants];
+                            })
+                            ->live(debounce:500)
+                            ->after(function (?Project $project, Get $get, Set $set, $operation) {
+                                $consultantsIds = $get('selected_consultants') ?? [];
+                                $removeConsultantsIds = $get('remove_consultants') ?? [];
+                                if ($consultantsIds) {
+                                    if ($operation === 'create')
+                                        $set('collaborators', $consultantsIds);
+                                    $project?->collaborators()->attach($consultantsIds);
+                                    $set('selected_consultants', []);
+                                }
+                                if ($removeConsultantsIds) {
+                                    $project?->collaborators()->detach($removeConsultantsIds);
+                                    $set('remove_consultants', []);
+                                }
+                            }),
+                        Select::make('collaborators')
+                            ->multiple()
+                            ->relationship('collaborators', 'name')
+                            ->preload()
+                            ->hidden()
                     ])
             ]);
     }
