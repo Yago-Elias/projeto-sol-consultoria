@@ -33,4 +33,9 @@ class EditProject extends EditRecord
                 $this->getFormContentComponent(),
             ]);
     }
+
+    public function getSubNavigation(): array
+    {
+        return [];
+    }
 }

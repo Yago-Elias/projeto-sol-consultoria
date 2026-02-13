@@ -2,10 +2,12 @@
 
 namespace App\Filament\Resources\Projects\Schemas;
 
+use App\Filament\Forms\Components\Consultants;
 use App\Models\Project;
 use App\Models\User;
 use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\FileUpload;
+use Filament\Forms\Components\Repeater;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Textarea;
@@ -104,6 +106,7 @@ class ProjectForm extends Component
                                 'xl' => 4,
                             ])
                             ->required()
+                            ->minDate(now())
                             ->label('Data de Término'),
                         TextInput::make('estimated_cost')
                             ->columnSpan([
@@ -114,18 +117,6 @@ class ProjectForm extends Component
                             ])
                             ->numeric()
                             ->label('Previsão de Custos')
-                            ->prefix('R$')
-                            ->placeholder('0,00')
-                            ->disabled(fn ($operation) => $operation === 'edit'),
-                        TextInput::make('estimated_price')
-                            ->columnSpan([
-                                'sm' => 2,
-                                'md' => 3,
-                                'lg' => 4,
-                                'xl' => 4,
-                            ])
-                            ->numeric()
-                            ->label('Previsão de Lucro')
                             ->prefix('R$')
                             ->placeholder('0,00')
                             ->disabled(fn ($operation) => $operation === 'edit'),
@@ -184,7 +175,7 @@ class ProjectForm extends Component
                                     ->multiple()
                                     ->searchable()
                                     ->preload()
-                                    ->options(function (?Project $record) {
+                                    ->options(function (?Project $record, Get $get) {
                                         if ($record) {
                                             $projectId = $record->id;
                                             return User::query()
@@ -259,21 +250,12 @@ class ProjectForm extends Component
                                 $consultantsIds = $get('selected_consultants') ?? [];
                                 $removeConsultantsIds = $get('remove_consultants') ?? [];
                                 if ($consultantsIds) {
-                                    if ($operation === 'create')
-                                        $set('collaborators', $consultantsIds);
                                     $project?->collaborators()->attach($consultantsIds);
-                                    $set('selected_consultants', []);
                                 }
                                 if ($removeConsultantsIds) {
                                     $project?->collaborators()->detach($removeConsultantsIds);
-                                    $set('remove_consultants', []);
                                 }
                             }),
-                        Select::make('collaborators')
-                            ->multiple()
-                            ->relationship('collaborators', 'name')
-                            ->preload()
-                            ->hidden()
                     ])
             ]);
     }
