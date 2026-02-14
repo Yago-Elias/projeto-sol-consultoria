@@ -22,7 +22,7 @@ class ProfileFactory extends Factory
         return [
             'profile' => fake()->word(),
             'manage_users' => Permissions::NONE,
-            'manage_projects' => Permissions::LIST | Permissions::CREATE,
+            'manage_projects' => Permissions::LIST | Permissions::CREATE | Permissions::MANAGE_PROJECTS,
             'system_config' => false,
             'global_access' => false,
         ];

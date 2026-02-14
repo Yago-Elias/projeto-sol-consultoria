@@ -5,6 +5,7 @@ namespace App\Filament\Resources\Projects\Schemas;
 use App\Filament\Forms\Components\Consultants;
 use App\Models\Project;
 use App\Models\User;
+use App\Permissions;
 use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\FileUpload;
 use Filament\Forms\Components\Repeater;
@@ -149,17 +150,6 @@ class ProjectForm extends Component
                                 'parcelado_4x' => '4x',
                             ])
                             ->disabled(fn ($operation) => $operation === 'edit'),
-                        Select::make('manager_id')
-                            ->columnSpan([
-                                'sm' => 2,
-                                'md' => 3,
-                                'lg' => 4,
-                                'xl' => 4,
-                            ])
-                            ->label('Gerente do projeto')
-                            ->required()
-                            ->options(fn () => User::query()->pluck('name', 'id'))
-                            ->searchable()
                     ]),
 
                 Section::make('Consultores')
@@ -252,6 +242,27 @@ class ProjectForm extends Component
                                     $project?->collaborators()->detach($removeConsultantsIds);
                                 }
                             }),
+                        Select::make('manager_id')
+                            ->columnSpanFull()
+                            ->label('Gerente do projeto')
+                            ->required()
+                            ->preload()
+                            ->relationship('manager', 'name')
+                            ->options(function (?Project $project, Get $get, $operation) {
+                                $consultants = $get('selected_consultants') ?? [];
+
+                                if ($operation === 'edit')
+                                    $consultants = array_merge($consultants, $project->collaborators()->pluck('id')->toArray());
+
+
+
+                                return User::query()
+                                    ->findMany($consultants)
+                                    ->whereNotIn('id', $get('remove_consultants') ?? [])
+                                    ->filter(fn (User $user) => $user['profile']['manage_projects'] & Permissions::MANAGE_PROJECTS)
+                                    ->pluck('name', 'id');
+                            })
+                            ->searchable()
                     ])
             ]);
     }
