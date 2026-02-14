@@ -214,24 +214,20 @@ class ProjectForm extends Component
                         ViewField::make('consultants')
                             ->view('filament.resources.projects.partials.list-consultants-project')
                             ->viewData(function (?Project $record, $operation, Set $set, Get $get) {
-                                if ($operation === 'edit') {
-                                    $consultants = $record
-                                        ->collaborators()
-                                        ->with(['role:id,role'])
-                                        ->get(['id', 'name', 'image', 'role_id'])
-                                        ->map(fn (User $user) => [
-                                            'id' => $user->id,
-                                            'name' => $user->name,
-                                            'image' => filament()->getUserAvatarUrl($user),
-                                            'role' => $user->role->role,
-                                        ])
-                                        ->all();
-
-                                    $set('consultants', $consultants);
-                                    return ['consultants' => $consultants];
-                                }
                                 $ids_consultants = $get('selected_consultants') ?? [];
-                                array_push($ids_consultants, $get('manager_id'));
+
+                                if ($operation === 'edit') {
+                                    $savedIds = $record
+                                        ->collaborators()
+                                        ->whereNotIn('id', $get('remove_consultants') ?? [])
+                                        ->pluck('id')
+                                        ->toArray();
+
+                                    $ids_consultants = array_merge($ids_consultants, $savedIds);
+                                }
+
+                                $ids_consultants[] = $get('manager_id');
+
                                 $consultants = User::query()
                                     ->with('role:id,role')
                                     ->findMany($ids_consultants, ['id', 'name', 'image', 'role_id'])
