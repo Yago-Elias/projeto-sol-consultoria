@@ -3,6 +3,7 @@
 namespace App\Filament\Resources\Projects\Schemas;
 
 use App\Filament\Forms\Components\Consultants;
+use App\Models\FinancialType;
 use App\Models\Project;
 use App\Models\User;
 use App\Permissions;
@@ -109,18 +110,6 @@ class ProjectForm extends Component
                             ->required()
                             ->minDate(now())
                             ->label('Data de Término'),
-                        TextInput::make('estimated_cost')
-                            ->columnSpan([
-                                'sm' => 2,
-                                'md' => 3,
-                                'lg' => 4,
-                                'xl' => 4,
-                            ])
-                            ->numeric()
-                            ->label('Previsão de Custos')
-                            ->prefix('R$')
-                            ->placeholder('0,00')
-                            ->disabled(fn ($operation) => $operation === 'edit'),
                         TextInput::make('project_price')
                             ->columnSpan([
                                 'sm' => 2,
@@ -134,6 +123,18 @@ class ProjectForm extends Component
                             ->prefix('R$')
                             ->placeholder('0,00')
                             ->disabled(fn ($operation) => $operation === 'edit'),
+                        TextInput::make('estimated_cost')
+                            ->columnSpan([
+                                'sm' => 2,
+                                'md' => 3,
+                                'lg' => 4,
+                                'xl' => 4,
+                            ])
+                            ->numeric()
+                            ->label('Previsão de Custos')
+                            ->prefix('R$')
+                            ->placeholder('0,00')
+                            ->disabled(fn ($operation) => $operation === 'edit'),
                         Select::make('payment')
                             ->columnSpan([
                                 'sm' => 2,
@@ -143,13 +144,23 @@ class ProjectForm extends Component
                             ])
                             ->label('Pagamento')
                             ->options([
-                                'a_vista' => 'Á vista',
-                                'parcelado_1x' => '1x',
-                                'parcelado_2x' => '2x',
-                                'parcelado_3x' => '3x',
-                                'parcelado_4x' => '4x',
+                                '1' => 'Á vista',
+                                '2' => '2x',
+                                '3' => '3x',
+                                '4' => '4x',
                             ])
                             ->disabled(fn ($operation) => $operation === 'edit'),
+                        Select::make('payment_type')
+                            ->columnSpan([
+                                'sm' => 2,
+                                'md' => 3,
+                                'lg' => 4,
+                                'xl' => 4,
+                            ])
+                            ->label('Tipo de Pagamento')
+                            ->options(fn () => FinancialType::query()->pluck('type', 'id'))
+                            ->disabled(fn ($operation) => $operation === 'edit'),
+
                     ]),
 
                 Section::make('Consultores')
@@ -253,8 +264,6 @@ class ProjectForm extends Component
 
                                 if ($operation === 'edit')
                                     $consultants = array_merge($consultants, $project->collaborators()->pluck('id')->toArray());
-
-
 
                                 return User::query()
                                     ->findMany($consultants)
