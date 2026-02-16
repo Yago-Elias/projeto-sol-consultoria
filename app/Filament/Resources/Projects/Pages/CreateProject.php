@@ -23,7 +23,7 @@ class CreateProject extends CreateRecord
         $newProject = parent::handleRecordCreation($data);
         $newProject->collaborators()->attach($data['selected_consultants']);
 
-        $projectPayment = new FinancialEntry([
+        $projectPayment = FinancialEntry::create([
             'description' => 'Pagamento do Projeto',
             'total_amount' => $newProject['project_price'],
             'total_installments' => $data['payment'],
@@ -32,6 +32,7 @@ class CreateProject extends CreateRecord
             'type' => $data['payment_type'],
             'nature' => FinancialNature::query()->where('nature', 'Payment')->pluck('id')->first()
         ]);
+        $projectPayment->create_installments();
         $projectPayment->save();
 
         return $newProject;
