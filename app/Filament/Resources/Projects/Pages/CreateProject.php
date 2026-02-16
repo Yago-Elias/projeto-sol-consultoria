@@ -30,7 +30,7 @@ class CreateProject extends CreateRecord
             'due_date' => $newProject['start_date']->addMonth(),
             'project_id' => $newProject['id'],
             'type' => $data['payment_type'],
-            'nature' => FinancialNature::query()->where('nature', 'Payment')->pluck('id')->first
+            'nature' => FinancialNature::query()->where('nature', 'Payment')->pluck('id')->first()
         ]);
         $projectPayment->save();
 

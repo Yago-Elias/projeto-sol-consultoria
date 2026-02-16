@@ -24,6 +24,7 @@ use Filament\Schemas\Components\Utilities\Set;
 use Filament\Schemas\Components\View;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
 use Livewire\Component;
 
@@ -97,6 +98,7 @@ class ProjectForm extends Component
                                 'xl' => 4,
                             ])
                             ->required()
+                            ->live()
                             ->label('Data de Início')
                             ->disabled(fn ($operation) => $operation === 'edit'),
 
@@ -108,7 +110,7 @@ class ProjectForm extends Component
                                 'xl' => 4,
                             ])
                             ->required()
-                            ->minDate(now())
+                            ->minDate(fn (Get $get) => $get('start_date') ?? now())
                             ->label('Data de Término'),
                         TextInput::make('project_price')
                             ->columnSpan([
@@ -149,6 +151,7 @@ class ProjectForm extends Component
                                 '3' => '3x',
                                 '4' => '4x',
                             ])
+                            ->required()
                             ->disabled(fn ($operation) => $operation === 'edit'),
                         Select::make('payment_type')
                             ->columnSpan([
@@ -158,9 +161,9 @@ class ProjectForm extends Component
                                 'xl' => 4,
                             ])
                             ->label('Tipo de Pagamento')
+                            ->required()
                             ->options(fn () => FinancialType::query()->pluck('type', 'id'))
                             ->disabled(fn ($operation) => $operation === 'edit'),
-
                     ]),
 
                 Section::make('Consultores')
@@ -209,7 +212,12 @@ class ProjectForm extends Component
                         ])
                     ->schema([
                         Hidden::make('selected_consultants')
-                            ->default([]),
+                            ->default(function ($operation) {
+                                $user = filament()->auth()->user();
+                                if ($operation === 'create' && ($user['profile']['manage_projects'] & Permissions::MANAGE_PROJECTS))
+                                    return [$user['id']];
+                                return [];
+                            }),
                         Hidden::make('remove_consultants')
                             ->default([]),
                         ViewField::make('consultants')
@@ -272,6 +280,14 @@ class ProjectForm extends Component
                                     ->pluck('name', 'id');
                             })
                             ->searchable()
+                            ->default(function ($operation) {
+                                $user = filament()->auth()->user();
+                                if ($operation === 'create' && ($user['profile']['manage_projects'] & Permissions::MANAGE_PROJECTS))
+                                    return $user['id'];
+                                return null;
+                            })
+                            ->hint('Apenas usuários com permissão podem gerenciar projetos')
+                            ->hintIcon(Heroicon::OutlinedExclamationCircle)
                     ])
             ]);
     }
