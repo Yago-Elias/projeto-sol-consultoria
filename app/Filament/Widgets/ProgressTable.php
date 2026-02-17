@@ -56,7 +56,7 @@ class ProgressTable extends TableWidget
                     ->state(fn (Project $record) =>
                         'R$ ' . number_format($record['financialEntries']
                             ->whereNotNull('payment_date')
-                            ->where('financialType.type', 'Expense')
+                            ->where('financialNature.nature', 'Expense')
                             ->sum('total_amount'), 2, ',', '.')
                     )
                     ->color('danger'),
@@ -64,7 +64,7 @@ class ProgressTable extends TableWidget
                     ->state(fn (Project $record) =>
                         'R$ ' . number_format($record['financialEntries']
                             ->whereNotNull('payment_date')
-                            ->where('financialType.type', 'Payment')
+                            ->where('financialNature.nature', 'Payment')
                             ->sum('total_amount'), 2, ',', '.')
                     )
                     ->color('success'),
@@ -72,10 +72,10 @@ class ProgressTable extends TableWidget
                     ->state(fn (Project $record) =>
                         'R$ ' . number_format($record['financialEntries']
                             ->whereNotNull('payment_date')
-                            ->where('financialType.type', 'Payment')
+                            ->where('financialNature.nature', 'Payment')
                             ->sum('total_amount') - $record['financialEntries']
                             ->whereNotNull('payment_date')
-                            ->where('financialType.type', 'Expense')
+                            ->where('financialNature.nature', 'Expense')
                             ->sum('total_amount'), 2, ',', '.')
                     )
             ]);
