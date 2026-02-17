@@ -10,13 +10,9 @@
 
         <div class="grid md:grid-cols-4 gap-8">
             <div class="md:col-span-1 my-auto flex flex-col gap-y-2">
-                <x-filament::avatar class="w-40 h-40 mx-auto"
+                <x-filament::avatar class="w-40 h-40 mx-auto fi-user-avatar"
                     :src="filament()->getUserAvatarUrl($user)"
                     :alt="'imagem de '.$user['name']"
-                    :attributes="
-                        \Filament\Support\prepare_inherited_attributes($attributes)
-                            ->class(['fi-user-avatar'])
-                    "
                 />
                 <p class="w-full text-center font-bold">{{ $user['name'] }}</p>
             </div>

@@ -10,7 +10,7 @@
 @endphp
 
 <div class="user-menu" xmlns:x-filament="http://www.w3.org/1999/html">
-    <div class='user-info'>
+    <a href="/my-profile" class='user-info'>
         <aside>
             <x-filament::avatar
                 :src="$src"
@@ -25,7 +25,7 @@
             <p class='user-name'>{{ $name }}</p>
             <p class='user-position'>{{ $role }}</p>
         </div>
-    </div>
+    </a>
     {{ \Filament\Actions\Action::make('logout')
         ->url(filament()->getLogoutUrl())
         ->postToUrl()
