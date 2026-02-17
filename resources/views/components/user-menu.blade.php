@@ -17,7 +17,7 @@
                 :alt="$alt"
                 :attributes="
                     \Filament\Support\prepare_inherited_attributes($attributes)
-                        ->class(['fi-user-avatar'])
+                        ->class(['fi-user-avatar border border-(--neutro-3) min-w-8'])
                 "
             />
         </aside>
