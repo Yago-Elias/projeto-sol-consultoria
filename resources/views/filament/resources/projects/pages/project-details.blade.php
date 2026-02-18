@@ -15,8 +15,8 @@
         <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
             <div class="flex items-start">
                 <div class="w-full max-w-md mx-auto bg-gray-200 rounded-lg overflow-hidden aspect-video">
-                    @if($record->image)
-                        <img class="w-full h-full object-cover" src="{{ $record->image }}" alt="imagem projeto">
+                    @if($record->getFilamentImageUrl())
+                        <img class="w-full h-full object-cover" src="{{ $record->getFilamentImageUrl() }}" alt="imagem projeto">
                     @endif
                 </div>
             </div>
