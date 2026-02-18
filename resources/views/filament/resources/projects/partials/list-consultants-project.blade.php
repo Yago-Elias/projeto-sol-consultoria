@@ -19,7 +19,7 @@
             }
         });
     },
-    
+
     deleteConsultant(id) {
         this.consultants = this.consultants.filter(c => c.id !== id);
         this.consultantsIds = this.consultantsIds.filter(cId => cId !== id);
@@ -30,47 +30,38 @@
     x-on:delete-consultant.window="deleteConsultant($event.detail.id)"
     >
     <div class="flex grid sm:grid-cols-6 md:grid-cols-9 lg:grid-flow-cols-12 gap-3">
-        <template x-if="consultants.length > 0">
-            <template x-for="consultant in consultants" :key="consultant.id">
-            <div class="flex justify-evenly min-w-55 p-2 sm:col-span-3 md:col-span-3 lg:col-span-4 xl:col-span-3 rounded-md shadow-md ">
+        @forelse($consultants as $consultant)
+            <div class="flex gap-4 min-w-55 p-2 sm:col-span-3 md:col-span-3 lg:col-span-4 xl:col-span-3 rounded-md shadow-md ">
                 <div class="min-w-15">
-                    <template x-if="consultant.image">
-                    <img class="rounded-full h-15" :src="consultant.image">
-                    </template>
+                    <img class="rounded-full h-15" src="{{ $consultant['image'] }}">
                 </div>
-                <div class="flex flex-col justify-center">
-                    <span x-text="consultant.name" class="text-base">
-                    </span>
-                    <span x-text="consultant.role" class="font-xs text-gray-600">
-                    </span>
+                <div class="flex flex-col w-full">
+                    <span class="text-base">{{ $consultant['name'] }}</span>
+                    <span class="font-xs text-gray-600">{{ $consultant['role'] }}</span>
                 </div>
-                <template x-if="consultant.id != manager_id">
-                <div x-data>
+                @if($consultant['id'] != $get('manager_id'))
                     <div class="flex min-w-10 h-10 items-center justify-center rounded-full hover:bg-red-100 transition duration-500">
-                        <div @click="$dispatch('delete-consultant', {id: consultant.id})">
+                        <div @click="$dispatch('delete-consultant', {id: {{ $consultant['id'] }}})">
                             <x-filament::icon
                                 icon="heroicon-o-trash"
                                 color="red"
                             />
                         </div>
                     </div>
-                </div>
-                </template>
+                @endif
             </div>
-            </template>
-        </template>
-        <template x-if="consultants.length == 0">
+        @empty
             <div class="flex col-span-full">
-            <x-filament::empty-state class="flex grow">
-                <x-slot name="heading">
-                    Nenhum consultor no projeto
-                </x-slot>
+                <x-filament::empty-state class="flex grow">
+                    <x-slot name="heading">
+                        Nenhum consultor no projeto
+                    </x-slot>
 
-                <x-slot name="description">
-                    Clique no botão <span class="underline text-primary-600">Adicionar Consultor</span> para adicionar os consultores que irão trabalhar nesse projeto.
-                </x-slot>
-            </x-filament::empty-state>
+                    <x-slot name="description">
+                        Clique no botão <span class="underline text-primary-600">Adicionar Consultor</span> para adicionar os consultores que irão trabalhar nesse projeto.
+                    </x-slot>
+                </x-filament::empty-state>
             </div>
-        </template>
+        @endforelse
     </div>
 </div>

@@ -2,10 +2,14 @@
 
 namespace App\Filament\Resources\Projects\Schemas;
 
+use App\Filament\Forms\Components\Consultants;
+use App\Models\FinancialType;
 use App\Models\Project;
 use App\Models\User;
+use App\Permissions;
 use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\FileUpload;
+use Filament\Forms\Components\Repeater;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Textarea;
@@ -20,6 +24,7 @@ use Filament\Schemas\Components\Utilities\Set;
 use Filament\Schemas\Components\View;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
 use Livewire\Component;
 
@@ -80,7 +85,7 @@ class ProjectForm extends Component
                                     ->label('E-mail')
                                     ->placeholder('E-mail'),
                             ]),
-                        
+
                         Textarea::make('description')
                             ->columnSpanFull()
                             ->label('Descrição do Projeto')
@@ -93,9 +98,10 @@ class ProjectForm extends Component
                                 'xl' => 4,
                             ])
                             ->required()
+                            ->live()
                             ->label('Data de Início')
                             ->disabled(fn ($operation) => $operation === 'edit'),
-                        
+
                         DatePicker::make('end_date')
                             ->columnSpan([
                                 'sm' => 2,
@@ -104,31 +110,8 @@ class ProjectForm extends Component
                                 'xl' => 4,
                             ])
                             ->required()
+                            ->minDate(fn (Get $get) => $get('start_date') ?? now())
                             ->label('Data de Término'),
-                        TextInput::make('estimated_cost')
-                            ->columnSpan([
-                                'sm' => 2,
-                                'md' => 3,
-                                'lg' => 4,
-                                'xl' => 4,
-                            ])
-                            ->numeric()
-                            ->label('Previsão de Custos')
-                            ->prefix('R$')
-                            ->placeholder('0,00')
-                            ->disabled(fn ($operation) => $operation === 'edit'),
-                        TextInput::make('estimated_price')
-                            ->columnSpan([
-                                'sm' => 2,
-                                'md' => 3,
-                                'lg' => 4,
-                                'xl' => 4,
-                            ])
-                            ->numeric()
-                            ->label('Previsão de Lucro')
-                            ->prefix('R$')
-                            ->placeholder('0,00')
-                            ->disabled(fn ($operation) => $operation === 'edit'),
                         TextInput::make('project_price')
                             ->columnSpan([
                                 'sm' => 2,
@@ -142,6 +125,18 @@ class ProjectForm extends Component
                             ->prefix('R$')
                             ->placeholder('0,00')
                             ->disabled(fn ($operation) => $operation === 'edit'),
+                        TextInput::make('estimated_cost')
+                            ->columnSpan([
+                                'sm' => 2,
+                                'md' => 3,
+                                'lg' => 4,
+                                'xl' => 4,
+                            ])
+                            ->numeric()
+                            ->label('Previsão de Custos')
+                            ->prefix('R$')
+                            ->placeholder('0,00')
+                            ->disabled(fn ($operation) => $operation === 'edit'),
                         Select::make('payment')
                             ->columnSpan([
                                 'sm' => 2,
@@ -151,31 +146,31 @@ class ProjectForm extends Component
                             ])
                             ->label('Pagamento')
                             ->options([
-                                'a_vista' => 'Á vista',
-                                'parcelado_1x' => '1x',
-                                'parcelado_2x' => '2x',
-                                'parcelado_3x' => '3x',
-                                'parcelado_4x' => '4x',
+                                '1' => 'Á vista',
+                                '2' => '2x',
+                                '3' => '3x',
+                                '4' => '4x',
                             ])
+                            ->required()
                             ->disabled(fn ($operation) => $operation === 'edit'),
-                        Select::make('manager_id')
+                        Select::make('payment_type')
                             ->columnSpan([
                                 'sm' => 2,
                                 'md' => 3,
                                 'lg' => 4,
                                 'xl' => 4,
                             ])
-                            ->label('Gerente do projeto')
+                            ->label('Tipo de Pagamento')
                             ->required()
-                            ->options(fn () => User::query()->pluck('name', 'id'))
-                            ->searchable()
+                            ->options(fn () => FinancialType::query()->pluck('type', 'id'))
+                            ->disabled(fn ($operation) => $operation === 'edit'),
                     ]),
-                
+
                 Section::make('Consultores')
                     ->columnSpanFull()
                     ->headerActions([
                         Action::make('add_consultant')
-                            ->label('Adiconar Consultor')
+                            ->label('Adicionar Consultor')
                             ->icon(Heroicon::Plus)
                             ->schema([
                                 Select::make('select_consultant')
@@ -184,7 +179,7 @@ class ProjectForm extends Component
                                     ->multiple()
                                     ->searchable()
                                     ->preload()
-                                    ->options(function (?Project $record) {
+                                    ->options(function (?Project $record, Get $get) {
                                         if ($record) {
                                             $projectId = $record->id;
                                             return User::query()
@@ -216,57 +211,83 @@ class ProjectForm extends Component
                             ->closeModalByClickingAway(false)
                         ])
                     ->schema([
-                            Hidden::make('selected_consultants')
-                                ->default([]),
-                            Hidden::make('remove_consultants')
-                                ->default([]),
-                            ViewField::make('consultants')
-                                ->view('filament.resources.projects.partials.list-consultants-project')
-                                ->viewData(function (?Project $record, $operation, Set $set, Get $get) {
-                                    if ($operation === 'edit') {
-                                        $consultants = $record
-                                            ->collaborators()
-                                            ->with(['role:id,role'])
-                                            ->get(['id', 'name', 'image', 'role_id'])
-                                            ->map(fn (User $user) => [
-                                                'id' => $user->id,
-                                                'name' => $user->name,
-                                                'image' => filament()->getUserAvatarUrl($user),
-                                                'role' => $user->role->role,
-                                            ])
-                                            ->all();
-                                        
-                                        $set('consultants', $consultants);
-                                        return ['consultants' => $consultants];
-                                    }
-                                    $ids_consultants = $get('selected_consultants') ?? [];
-                                    array_push($ids_consultants, $get('manager_id'));
-                                    $consultants = User::query()
-                                        ->with('role:id,role')
-                                        ->findMany($ids_consultants, ['id', 'name', 'image', 'role_id'])
-                                        ->map(fn ($user) => [
-                                            'id' => $user->id,
-                                            'name' => $user->name,
-                                            'image' => filament()->getUserAvatarUrl($user),
-                                            'role' => $user->role->role,
-                                        ])
-                                        ->all();
-                                    
-                                    return ['consultants' => $consultants];
-                                })
-                                ->live(debounce:500)
-                                ->after(function (?Project $project, Get $get, Set $set) {
-                                    $consultantsIds = $get('selected_consultants') ?? [];
-                                    $removeConsultantsIds = $get('remove_consultants') ?? [];
-                                    if ($consultantsIds) {
-                                        $project?->collaborators()->attach($consultantsIds);
-                                        $set('selected_consultants', []);
-                                    }
-                                    if ($removeConsultantsIds) {
-                                        $project?->collaborators()->detach($removeConsultantsIds);
-                                        $set('remove_consultants', []);
-                                    }
-                                })
+                        Hidden::make('selected_consultants')
+                            ->default(function ($operation) {
+                                $user = filament()->auth()->user();
+                                if ($operation === 'create' && ($user['profile']['manage_projects'] & Permissions::MANAGE_PROJECTS))
+                                    return [$user['id']];
+                                return [];
+                            }),
+                        Hidden::make('remove_consultants')
+                            ->default([]),
+                        ViewField::make('consultants')
+                            ->view('filament.resources.projects.partials.list-consultants-project')
+                            ->viewData(function (?Project $record, $operation, Set $set, Get $get) {
+                                $ids_consultants = $get('selected_consultants') ?? [];
+
+                                if ($operation === 'edit') {
+                                    $savedIds = $record
+                                        ->collaborators()
+                                        ->whereNotIn('id', $get('remove_consultants') ?? [])
+                                        ->pluck('id')
+                                        ->toArray();
+
+                                    $ids_consultants = array_merge($ids_consultants, $savedIds);
+                                }
+
+                                $ids_consultants[] = $get('manager_id');
+
+                                $consultants = User::query()
+                                    ->with('role:id,role')
+                                    ->findMany($ids_consultants, ['id', 'name', 'image', 'role_id'])
+                                    ->map(fn ($user) => [
+                                        'id' => $user->id,
+                                        'name' => $user->name,
+                                        'image' => filament()->getUserAvatarUrl($user),
+                                        'role' => $user->role->role,
+                                    ])
+                                    ->all();
+
+                                return ['consultants' => $consultants];
+                            })
+                            ->live(debounce:500)
+                            ->after(function (?Project $project, Get $get, Set $set, $operation) {
+                                $consultantsIds = $get('selected_consultants') ?? [];
+                                $removeConsultantsIds = $get('remove_consultants') ?? [];
+                                if ($consultantsIds) {
+                                    $project?->collaborators()->attach($consultantsIds);
+                                }
+                                if ($removeConsultantsIds) {
+                                    $project?->collaborators()->detach($removeConsultantsIds);
+                                }
+                            }),
+                        Select::make('manager_id')
+                            ->columnSpanFull()
+                            ->label('Gerente do projeto')
+                            ->required()
+                            ->preload()
+                            ->relationship('manager', 'name')
+                            ->options(function (?Project $project, Get $get, $operation) {
+                                $consultants = $get('selected_consultants') ?? [];
+
+                                if ($operation === 'edit')
+                                    $consultants = array_merge($consultants, $project->collaborators()->pluck('id')->toArray());
+
+                                return User::query()
+                                    ->findMany($consultants)
+                                    ->whereNotIn('id', $get('remove_consultants') ?? [])
+                                    ->filter(fn (User $user) => $user['profile']['manage_projects'] & Permissions::MANAGE_PROJECTS)
+                                    ->pluck('name', 'id');
+                            })
+                            ->searchable()
+                            ->default(function ($operation) {
+                                $user = filament()->auth()->user();
+                                if ($operation === 'create' && ($user['profile']['manage_projects'] & Permissions::MANAGE_PROJECTS))
+                                    return $user['id'];
+                                return null;
+                            })
+                            ->hint('Apenas usuários com permissão podem gerenciar projetos')
+                            ->hintIcon(Heroicon::OutlinedExclamationCircle)
                     ])
             ]);
     }

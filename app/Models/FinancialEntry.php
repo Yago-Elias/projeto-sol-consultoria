@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class FinancialEntry extends Model
 {
@@ -49,5 +50,40 @@ class FinancialEntry extends Model
     public function providerModel(): BelongsTo
     {
         return $this->belongsTo(Provider::class, 'provider');
+    }
+
+    public function installments(): HasMany
+    {
+        return $this->hasMany(Installment::class, 'financial_entry_id');
+    }
+
+    public function create_installments(): void
+    {
+        $start_date = $this['project']['start_date'];
+        $value = round($this['total_amount'] / $this['total_installments'], 2);
+
+        for ($i = 1; $i <= $this['total_installments']; $i++)
+        {
+            if ($i === $this['total_installments'])
+                $value = $this['total_amount'] - $value * ($i - 1);
+
+            $due_date = $start_date->copy()->addMonthsWithoutOverflow($i);
+
+            if ($due_date->isWeekend()) {
+                if ($due_date->copy()->nextWeekDay()->month === $due_date->month)
+                    $due_date->nextWeekday();
+                else
+                    $due_date->previousWeekDay();
+            }
+
+            $installment = Installment::create([
+                'number' => $i,
+                'value' => $value,
+                'due_date' => $due_date,
+                'financial_entry_id' => $this['id'],
+            ]);
+
+            $installment->save();
+        }
     }
 }
