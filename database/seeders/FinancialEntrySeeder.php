@@ -17,8 +17,10 @@ class FinancialEntrySeeder extends Seeder
     public function run(): void
     {
         $types = [
-            ['type' => 'Expense'],
-            ['type' => 'Payment'],
+            ['type' => 'Pix'],
+            ['type' => 'Débito'],
+            ['type' => 'Crédito'],
+            ['type' => 'Boleto'],
         ];
 
         foreach ($types as $type) {
@@ -26,10 +28,8 @@ class FinancialEntrySeeder extends Seeder
         }
 
         $natures = [
-            ['nature' => 'Operating'],
-            ['nature' => 'Capital'],
-            ['nature' => 'Administrative'],
-            ['nature' => 'Research & Development'],
+            ['nature' => 'Payment'],
+            ['nature' => 'Expense'],
         ];
 
         foreach ($natures as $nature) {

@@ -1,7 +1,10 @@
 {{-- @dd($record) --}}
 
 <x-filament-panels::page>
-    @if(filament()->auth()->user()['profile']['project_manager'] & \App\Permissions::EDIT)
+    @php
+        $userProfile = filament()->auth()->user()['profile'];
+    @endphp
+    @if($userProfile['global_access'] || ($userProfile['project_manager'] & \App\Permissions::EDIT))
         <div>
             {{\Filament\Actions\Action::make('Editar Projeto')
                 ->url("/projects/{$this->record['id']}/edit")
