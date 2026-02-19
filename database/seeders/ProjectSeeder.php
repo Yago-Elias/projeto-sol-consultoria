@@ -33,11 +33,7 @@ class ProjectSeeder extends Seeder
         Project::factory(3)
             ->for(User::find(1), 'manager')
             ->hasAttached(static::$users->random(5), [], 'collaborators')
-            ->has(
-                Board::factory(3)
-                    ->has(Task::factory(5), 'tasks'),
-                'boards'
-            )
+            ->has(Task::factory(5), 'tasks')
             ->create()
             ->each(function (Project $project) use ($managerAttribution, $consultantAttribution) {
                 $project->collaborators()->updateExistingPivot($project->manager_id, [
@@ -56,20 +52,14 @@ class ProjectSeeder extends Seeder
 
                 $allCollaboratorIds = $project->collaborators->pluck('id');
 
-                $project->boards->each(function (Board $board) use ($allCollaboratorIds) {
-                    $board->tasks->each(function (Task $task) use ($allCollaboratorIds) {
-                        $task->update(['assigned_to' => $allCollaboratorIds->random()]);
-                    });
+                $project->tasks->each(function (Task $task) use ($allCollaboratorIds) {
+                    $task->update(['assigned_to' => $allCollaboratorIds->random()]);
                 });
             });
 
         Project::factory(10)
             ->hasAttached(static::$users->random(5), [], 'collaborators')
-            ->has(
-                Board::factory(3)
-                    ->has(Task::factory(5), 'tasks'),
-                'boards'
-            )
+            ->has(Task::factory(5), 'tasks')
             ->create()
             ->each(function (Project $project) use ($consultantAttribution, $managerAttribution) {
                 $collaboratorIds = $project->collaborators->pluck('id');
@@ -92,10 +82,8 @@ class ProjectSeeder extends Seeder
                     ]);
                 }
 
-                $project->boards->each(function (Board $board) use ($collaboratorIds) {
-                    $board->tasks->each(function (Task $task) use ($collaboratorIds) {
+                    $project->tasks->each(function (Task $task) use ($collaboratorIds) {
                         $task->update(['assigned_to' => $collaboratorIds->random()]);
-                    });
                 });
             });
     }

@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 
 class Task extends Model
 {
@@ -18,7 +19,6 @@ class Task extends Model
         'conclusion_date',
         'conclusion_message',
         'status',
-        'board_id',
         'assigned_to',
     ];
 
@@ -30,9 +30,9 @@ class Task extends Model
         ];
     }
 
-    public function board(): BelongsTo
+    public function project(): HasOne
     {
-        return $this->belongsTo(Board::class);
+        return $this->hasOne(Project::class);
     }
 
     public function assignedTo(): BelongsTo
