@@ -4,7 +4,6 @@ namespace Database\Seeders;
 
 use App\Models\Board;
 use App\Models\Project;
-use App\Models\ProjectAttribution;
 use App\Models\Task;
 use App\Models\User;
 use App\Permissions;
@@ -20,15 +19,7 @@ class ProjectSeeder extends Seeder
      */
     public function run(): void
     {
-        static::$users ??= User::all();
-        $managerAttribution = ProjectAttribution::factory()->create([
-            'attribution' => 'manager',
-            'task_access' => Permissions::CREATE | Permissions::LIST | Permissions::EDIT | Permissions::REMOVE,
-            'board_access' => Permissions::CREATE | Permissions::LIST | Permissions::EDIT | Permissions::REMOVE,
-            'financial_access' => Permissions::FINANCIAL_ACCESS
-        ]);
-        $consultantAttribution = ProjectAttribution::factory()->create();
-
+        self::$users ??= User::all();
 
         Project::factory(3)
             ->for(User::find(1), 'manager')
@@ -39,26 +30,12 @@ class ProjectSeeder extends Seeder
                 'boards'
             )
             ->create()
-            ->each(function (Project $project) use ($managerAttribution, $consultantAttribution) {
-                $project->collaborators()->updateExistingPivot($project->manager_id, [
-                    'attribution_id' => $managerAttribution->id
-                ]);
+            ->each(function (Project $project) {
+                $collaboratorIds = $project->collaborators->pluck('id');
 
-                $collaboratorIds = $project->collaborators
-                                           ->where('user_id', '!=', $project->manager_id)
-                                           ->pluck('id');
-
-                foreach ($collaboratorIds as $userId) {
-                    $project->collaborators()->updateExistingPivot($userId, [
-                        'attribution_id' => $consultantAttribution->id
-                    ]);
-                }
-
-                $allCollaboratorIds = $project->collaborators->pluck('id');
-
-                $project->boards->each(function (Board $board) use ($allCollaboratorIds) {
-                    $board->tasks->each(function (Task $task) use ($allCollaboratorIds) {
-                        $task->update(['assigned_to' => $allCollaboratorIds->random()]);
+                $project->boards->each(function (Board $board) use ($collaboratorIds) {
+                    $board->tasks->each(function (Task $task) use ($collaboratorIds) {
+                        $task->update(['assigned_to' => $collaboratorIds->random()]);
                     });
                 });
             });
@@ -71,26 +48,11 @@ class ProjectSeeder extends Seeder
                 'boards'
             )
             ->create()
-            ->each(function (Project $project) use ($consultantAttribution, $managerAttribution) {
+            ->each(function (Project $project) {
                 $collaboratorIds = $project->collaborators->pluck('id');
 
-                // Pick a random collaborator as manager
                 $managerId = $collaboratorIds->random();
-
-                // Update project manager
                 $project->update(['manager_id' => $managerId]);
-
-                // Assign manager attribution
-                $project->collaborators()->updateExistingPivot($managerId, [
-                    'attribution_id' => $managerAttribution->id
-                ]);
-
-                // Assign consultant attribution to others
-                foreach ($collaboratorIds->except($managerId) as $userId) {
-                    $project->collaborators()->updateExistingPivot($userId, [
-                        'attribution_id' => $consultantAttribution->id
-                    ]);
-                }
 
                 $project->boards->each(function (Board $board) use ($collaboratorIds) {
                     $board->tasks->each(function (Task $task) use ($collaboratorIds) {

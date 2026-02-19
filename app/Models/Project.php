@@ -70,8 +70,9 @@ class Project extends Model
             get: function () {
                 $total_tasks = $this->tasks()->count();
 
-                if ($total_tasks == 0)
+                if ($total_tasks == 0) {
                     return 0;
+                }
 
                 $completed_tasks = $this->tasks()->where('status', 'APROVADA')->count();
                 return (round($completed_tasks / $total_tasks, 2)) * 100;
