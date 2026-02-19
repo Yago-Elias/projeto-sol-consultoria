@@ -3,6 +3,7 @@
 namespace App\Filament\Resources\Projects\Pages;
 
 use App\Filament\Resources\Projects\ProjectResource;
+use App\Models\Project;
 use App\Models\User;
 use Filament\Actions\DeleteAction;
 use Filament\Actions\ViewAction;
@@ -17,7 +18,9 @@ class EditProject extends EditRecord
     {
         return [
             ViewAction::make(),
-            DeleteAction::make(),
+            DeleteAction::make()
+                ->label('Finalizar projeto')
+                ->hidden(fn (Project $record) => auth()->user()->cannot('delete', $record)),
         ];
     }
 

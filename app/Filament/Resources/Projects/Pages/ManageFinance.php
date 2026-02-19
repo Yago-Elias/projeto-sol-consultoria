@@ -6,6 +6,7 @@ use App\Filament\Resources\Projects\ProjectResource;
 use App\Models\FinancialNature;
 use App\Models\FinancialType;
 use App\Models\Provider;
+use App\Permissions;
 use BackedEnum;
 use Filament\Actions\Action;
 use Filament\Actions\ActionGroup;
@@ -26,6 +27,7 @@ use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Grouping\Group;
 use Filament\Tables\Table;
 use Illuminate\Contracts\Support\Htmlable;
+use Illuminate\Database\Eloquent\Model;
 
 class ManageFinance extends ManageRelatedRecords
 {
@@ -215,5 +217,10 @@ class ManageFinance extends ManageRelatedRecords
                     DeleteAction::make(),
                 ])
             ]);
+    }
+
+    public static function canAccess(array $parameters = []): bool
+    {
+        return auth()->user()->can('finance', $parameters['record']);
     }
 }

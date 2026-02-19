@@ -6,10 +6,8 @@ use App\Filament\Forms\Components\Consultants;
 use App\Models\FinancialType;
 use App\Models\Project;
 use App\Models\User;
-use App\Permissions;
 use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\FileUpload;
-use Filament\Forms\Components\Repeater;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Textarea;
@@ -22,10 +20,6 @@ use Filament\Forms\Components\ViewField;
 use Filament\Schemas\Components\Utilities\Get;
 use Filament\Schemas\Components\Utilities\Set;
 use Filament\Schemas\Components\View;
-use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Database\Eloquent\Relations\BelongsToMany;
-use Illuminate\Support\Carbon;
-use Illuminate\Support\Facades\DB;
 use Livewire\Component;
 
 class ProjectForm extends Component
@@ -64,6 +58,7 @@ class ProjectForm extends Component
                                     ->label('Clique para adicionar uma imagem')
                                     ->image()
                                     ->imageEditor()
+                                    ->disk('public')
                                     ->alignCenter(),
                                 TextInput::make('company_name')
                                     ->columnSpan([
@@ -213,9 +208,8 @@ class ProjectForm extends Component
                     ->schema([
                         Hidden::make('selected_consultants')
                             ->default(function ($operation) {
-                                $user = filament()->auth()->user();
-                                if ($operation === 'create' && ($user['profile']['manage_projects'] & Permissions::MANAGE_PROJECTS))
-                                    return [$user['id']];
+                                if ($operation === 'create' && auth()->user()->can('manageProjects', Project::class))
+                                    return [auth()->id()];
                                 return [];
                             }),
                         Hidden::make('remove_consultants')
@@ -276,14 +270,13 @@ class ProjectForm extends Component
                                 return User::query()
                                     ->findMany($consultants)
                                     ->whereNotIn('id', $get('remove_consultants') ?? [])
-                                    ->filter(fn (User $user) => $user['profile']['manage_projects'] & Permissions::MANAGE_PROJECTS)
+                                    ->filter(fn (User $user) => $user->can('manageProjects', Project::class))
                                     ->pluck('name', 'id');
                             })
                             ->searchable()
                             ->default(function ($operation) {
-                                $user = filament()->auth()->user();
-                                if ($operation === 'create' && ($user['profile']['manage_projects'] & Permissions::MANAGE_PROJECTS))
-                                    return $user['id'];
+                                if ($operation === 'create' && auth()->user()->can('manageProjects', Project::class))
+                                    return auth()->id();
                                 return null;
                             })
                             ->hint('Apenas usuários com permissão podem gerenciar projetos')

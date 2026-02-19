@@ -4,6 +4,7 @@ namespace App\Filament\Resources\Users\Pages;
 
 use App\Filament\Resources\Users\UserResource;
 use App\Models\Role;
+use App\Models\User;
 use Filament\Actions\Action;
 use Filament\Actions\CreateAction;
 use Filament\Resources\Pages\ListRecords;
@@ -25,7 +26,8 @@ class ListUsers extends ListRecords
             CreateAction::make()
                 ->label('Cadastrar')
                 ->color('escuro-3')
-                ->icon(Heroicon::OutlinedUserPlus),
+                ->icon(Heroicon::OutlinedUserPlus)
+                ->hidden(fn () => auth()->user()->cannot('create', User::class)),
         ];
     }
 

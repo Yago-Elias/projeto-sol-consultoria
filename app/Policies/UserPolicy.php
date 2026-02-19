@@ -63,7 +63,8 @@ class UserPolicy
         if ($user['profile']['global_access'])
             return true;
 
-        return $user['profile']['manage_users'] & Permissions::REMOVE;
+        return $user['profile']['manage_users'] & Permissions::REMOVE &&
+            $model['managedProjects']->merge($model['projects'])->count() === 0;
     }
 
     /**

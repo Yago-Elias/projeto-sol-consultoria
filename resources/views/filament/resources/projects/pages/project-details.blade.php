@@ -4,16 +4,16 @@
     @php
         $userProfile = filament()->auth()->user()['profile'];
     @endphp
-    @if($userProfile['global_access'] || ($userProfile['project_manager'] & \App\Permissions::EDIT))
+    @can('update', $record)
         <div>
             {{\Filament\Actions\Action::make('Editar Projeto')
-                ->url("/projects/{$this->record['id']}/edit")
+                ->url("/projects/{$record['id']}/edit")
                 ->icon(\Filament\Support\Icons\Heroicon::OutlinedPencilSquare)
                 ->extraAttributes([
                     'class' => 'w-fit'
             ])}}
         </div>
-    @endif
+    @endcan
     <x-filament::section>
         <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
             <div class="flex items-start">

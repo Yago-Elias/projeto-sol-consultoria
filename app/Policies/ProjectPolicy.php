@@ -25,7 +25,7 @@ class ProjectPolicy
         if ($user['profile']['global_access'])
             return true;
 
-        if ($user['profile']['manage_projects'] & Permissions::LIST)
+        if ($user['profile']['manage_projects'] & Permissions::LIST_ALL_PROJECTS)
             return true;
 
         return $project['manager_id'] === $user['id'] ||
@@ -48,7 +48,7 @@ class ProjectPolicy
      */
     public function update(User $user, Project $project): bool
     {
-        if ($user['profile']['global_access'])
+        if ($user['profile']['global_access'] || $user['id'] === $project['manager_id'])
             return true;
 
         return $user['profile']['manage_projects'] & Permissions::EDIT;
@@ -59,10 +59,31 @@ class ProjectPolicy
      */
     public function delete(User $user, Project $project): bool
     {
-        if ($user['profile']['global_access'])
+        if ($user['profile']['global_access'] || $user['id'] === $project['manager_id'])
             return true;
 
         return $user['profile']['manage_projects'] & Permissions::REMOVE;
+    }
+
+    public function finance(User $user, Project $project): bool
+    {
+        if ($user['profile']['global_access'] || $user['id'] === $project['manager_id'])
+            return true;
+
+        return $user['profile']['manage_projects'] & Permissions::FINANCIAL_ACCESS;
+    }
+
+    public function approveTasks(User $user, Project $project): bool
+    {
+        if ($user['profile']['global_access'] || $user['id'] === $project['manager_id'])
+            return true;
+
+        return $user['profile']['task_access'] & Permissions::APPROVE_TASKS;
+    }
+
+    public function manageProjects(User $user): bool
+    {
+        return $user['profile']['manage_projects'] & Permissions::MANAGE_PROJECTS;
     }
 
     /**
