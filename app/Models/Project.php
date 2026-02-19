@@ -59,7 +59,8 @@ class Project extends Model
         return Attribute::make(
             get: fn() => $this->tasks()
                 ->getQuery()
-                ->where('status', 'ATRASADA')
+                ->where('status', 'PENDENTE')
+                ->where('due_date', '<', now())
                 ->count()
         );
     }
