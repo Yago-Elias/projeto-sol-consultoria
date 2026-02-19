@@ -15,8 +15,7 @@ class ProjectLayout extends Component
     public function __construct(
         public string $activeTab,
         public array $urls
-    )
-    {
+    ) {
         //
     }
 

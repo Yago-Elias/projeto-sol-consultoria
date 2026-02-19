@@ -3,7 +3,6 @@
 namespace App\Filament\Resources\Projects\RelationManagers;
 
 use App\Filament\Resources\Projects\Pages\UnderApprovalTasks;
-use App\Models\Board;
 use App\Models\Project;
 use App\Models\Task;
 use Filament\Actions\Action;
@@ -39,12 +38,12 @@ class TasksRelationManager extends RelationManager
 {
     #[Url(as: 'consultor')]
     public ?string $activeTab = null;
-    public Board $board;
+    public ?string $status = null;
     protected static string $relationship = 'tasks';
 
-    public function mount($board = null): void
+    public function mount(?string $status = null): void
     {
-        $this->board = $board;
+        $this->status = $status;
         parent::mount();
     }
 
@@ -100,18 +99,13 @@ class TasksRelationManager extends RelationManager
                             ->iconButton()
                             ->iconSize(IconSize::TwoExtraLarge),
                         Action::make('move_task')
-                            ->schema([
-                                Select::make('board')
-                                    ->label('Mover tarefa para')
-                                    ->options(function  (Task $record) {
-                                        return [
-                                            
-                                        ];
-                                    }),
-                            ])
+                            ->action(function (Task $record) {
+                                $record->status = 'EM_PROGRESSO';
+                                $record->save();
+                            })
                             ->modalSubmitActionLabel('Mover')
                             ->modalHeading('Mover Tarefa')
-                            ->icon(Heroicon::ArrowLeftStartOnRectangle)
+                            ->icon(Heroicon::ArrowsRightLeft)
                             ->extraAttributes([
                                 'class' => 'bg-warning-200 rounded-full border border-warning-600'
                             ])
@@ -244,15 +238,13 @@ class TasksRelationManager extends RelationManager
         return $table
             ->defaultSort('due_date')
             ->modifyQueryUsing(function (Builder $query) {
-                if (isset($this->board)) {
-                    $query = $query->where('board_id', $this->board['id']);
+                if (isset($this->status)) {
+                    $query = $query->where('status', $this->status);
                 }
-                if ($this->pageClass === UnderApprovalTasks::class) {
-                    $query = $query->where('status', 'EM_APROVACAO');
-                }
+
                 return $query;
             })
-            ->heading($this->board['name'])
+            ->heading($this->status)
             ->recordTitleAttribute('title')
             ->columns([
                 TextColumn::make('title')
@@ -285,73 +277,6 @@ class TasksRelationManager extends RelationManager
                         return null;
                     }),
             ])
-            ->groups([
-                Group::make('status')
-                    ->getTitleFromRecordUsing(function (Task $task) {
-                        if ($task['status'] === 'PENDENTE') {
-                            return 'Pendentes';
-                        }
-                        if ($task['status'] === 'APROVADA') {
-                            return 'Concluídas';
-                        }
-                        return 'Em Aprovação';
-                    })
-                    ->titlePrefixedWithLabel(false)
-                    ->collapsible()
-            ])
-            ->defaultGroup(fn () => $this->pageClass !== UnderApprovalTasks::class ? 'status' : null)
-            ->groupingSettingsHidden()
-            ->headerActions([
-                CreateAction::make('Criar Tarefa')
-                    ->modalHeading('Nova Tarefa')
-                    ->mutateDataUsing(function (array $data): array {
-                        $data['board_id'] = $this->board['id'];
-
-                        return $data;
-                    })
-                    ->icon(Heroicon::OutlinedPlus)
-                    ->extraAttributes([
-                        'class' => 'bg-primary-900 rounded-full border border-primary-100 text-primary-100'
-                    ])
-                    ->iconButton()
-                    ->hidden(fn () => $this->pageClass === UnderApprovalTasks::class),
-                EditAction::make('edit')
-                    ->modalHeading('Editar Quadro')
-                    ->modalWidth('md')
-                    ->schema([
-                        TextInput::make('name')
-                            ->label('Nome do quadro')
-                    ])
-                    ->after(function (array $data, Board $record, $livewire) {
-                        $record['name'] = $data['name'];
-                        $record->save();
-                        $livewire->resetTable();
-                    })
-                    ->record($this->board)
-                    ->icon(Heroicon::OutlinedPencil)
-                    ->extraAttributes([
-                        'class' => 'bg-primary-200 rounded-full border border-primary-600 text-primary-600'
-                    ])
-                    ->iconButton()
-                    ->hidden(fn () => $this->pageClass === UnderApprovalTasks::class),
-                DeleteAction::make('Deletar Quadro')
-                    ->record($this->board)
-                    ->before(function (Board $record) {
-                        $record['tasks']->each->delete();
-                    })
-                    ->after(function () {
-                        $this->redirect("/projects/{$this->ownerRecord['id']}");
-                    })
-                    ->modalHeading('Excluir Quadro?')
-                    ->modalDescription('Essa ação apagará todas as tarefas do quadro')
-                    ->icon(Heroicon::OutlinedTrash)
-                    ->extraAttributes([
-                        'class' => 'bg-danger-200 rounded-full border border-danger-600 text-danger-600'
-                    ])
-                    ->iconButton()
-                    ->hidden(fn () => $this->pageClass === UnderApprovalTasks::class)
-            ])
-            ->headerActionsPosition(HeaderActionsPosition::Adaptive)
             ->recordActions([
                 ViewAction::make()
                     ->modalHeading(fn (Task $record) => $record['title'])
@@ -362,18 +287,6 @@ class TasksRelationManager extends RelationManager
                     ], true)
                     ->iconButton()
                     ->iconSize(IconSize::TwoExtraLarge),
-            ])
-            ->toolbarActions([
-                Action::make('progress')
-                    ->view('filament.resources.projects.partials.progress')
-                    ->viewData(function () {
-                        $finished = count(($this->board['tasks']->groupBy('status'))['APROVADA'] ?? []);
-                        $total = count($this->board['tasks']);
-
-                        return [
-                            'percent' => $total > 0 ? round(100 * $finished / $total) : 0
-                        ];
-                    })
             ])
             ->emptyStateHeading('Sem Tarefas')
             ->emptyStateDescription('Crie uma tarefa nova no menu acima')

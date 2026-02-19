@@ -2,12 +2,12 @@
     <livewire:criar-quadro :project="$record"/>
 
     <div class="flex gap-4 flex-nowrap overflow-x-auto p-1">
-        @forelse($record['boards']->sortBy('created_at') as $board)
+        @forelse(['PENDENTE', 'EM_PROGRESSO', 'EM_APROVACAO', 'APROVADA'] as $status)
             <div class="min-w-xs max-w-sm">
                 @livewire(\App\Filament\Resources\Projects\RelationManagers\TasksRelationManager::class, [
                     'ownerRecord' => $record,
                     'pageClass' => static::class,
-                    'board' => $board
+                    'status' => $status
                 ])
             </div>
         @empty

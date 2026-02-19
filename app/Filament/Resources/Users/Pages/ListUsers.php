@@ -34,9 +34,10 @@ class ListUsers extends ListRecords
         $roles = Role::query()->get(['id', 'role'])->all();
         $tabs = ['all' => Tab::make('Todos')];
 
-        foreach ($roles as $role)
+        foreach ($roles as $role) {
             $tabs[$role['role']] = Tab::make($role['role'])
                 ->modifyQueryUsing(fn (Builder $query) => $query->where('role_id', $role['id']));
+        }
 
         return $tabs;
     }

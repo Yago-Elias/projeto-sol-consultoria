@@ -20,9 +20,10 @@ class ProgressTable extends TableWidget
         return $table
             ->query(function (): Builder {
                 $user = filament()->auth()->user();
-                if ($user['profile']['global_access'])
+                if ($user['profile']['global_access']) {
                     return Project::query();
-                return Project::query()->whereIn('id' , $user['managedProjects']->pluck('id'));
+                }
+                return Project::query()->whereIn('id', $user['managedProjects']->pluck('id'));
             })
             ->defaultSort('end_date')
             ->heading('Andamento dos Projetos')
@@ -39,17 +40,21 @@ class ProgressTable extends TableWidget
                     ->width('25%'),
                 TextColumn::make('Tempo restante')
                     ->state(function (Project $record) {
-                        if (now() > $record['end_date'])
+                        if (now() > $record['end_date']) {
                             return 'Atrasado';
+                        }
 
                         $diff = now()->diff($record['end_date']);
 
-                        if ($diff->y > 0)
+                        if ($diff->y > 0) {
                             return $diff->y . ' ano' . ($diff->y > 1 ? 's' : '');
-                        if ($diff->m > 0)
+                        }
+                        if ($diff->m > 0) {
                             return $diff->m . ($diff->m > 1 ? ' meses' : ' mês');
-                        if ($diff->d > 7)
+                        }
+                        if ($diff->d > 7) {
                             return round($diff->d / 7) . ' semana' . ($diff->d >= 14 ? 's' : '');
+                        }
                         return $diff->d . ' dia' . ($diff->d > 1 ? 's' : '');
                     }),
                 TextColumn::make('Custos')
@@ -57,16 +62,14 @@ class ProgressTable extends TableWidget
                         'R$ ' . number_format($record['financialEntries']
                             ->whereNotNull('payment_date')
                             ->where('financialType.type', 'Expense')
-                            ->sum('total_amount'), 2, ',', '.')
-                    )
+                            ->sum('total_amount'), 2, ',', '.'))
                     ->color('danger'),
                 TextColumn::make('Receita')
                     ->state(fn (Project $record) =>
                         'R$ ' . number_format($record['financialEntries']
                             ->whereNotNull('payment_date')
                             ->where('financialType.type', 'Payment')
-                            ->sum('total_amount'), 2, ',', '.')
-                    )
+                            ->sum('total_amount'), 2, ',', '.'))
                     ->color('success'),
                 TextColumn::make('Lucro')
                     ->state(fn (Project $record) =>
@@ -76,8 +79,7 @@ class ProgressTable extends TableWidget
                             ->sum('total_amount') - $record['financialEntries']
                             ->whereNotNull('payment_date')
                             ->where('financialType.type', 'Expense')
-                            ->sum('total_amount'), 2, ',', '.')
-                    )
+                            ->sum('total_amount'), 2, ',', '.'))
             ]);
     }
 }

@@ -62,18 +62,19 @@ class FinancialEntry extends Model
         $start_date = $this['project']['start_date'];
         $value = round($this['total_amount'] / $this['total_installments'], 2);
 
-        for ($i = 1; $i <= $this['total_installments']; $i++)
-        {
-            if ($i === $this['total_installments'])
+        for ($i = 1; $i <= $this['total_installments']; $i++) {
+            if ($i === $this['total_installments']) {
                 $value = $this['total_amount'] - $value * ($i - 1);
+            }
 
             $due_date = $start_date->copy()->addMonthsWithoutOverflow($i);
 
             if ($due_date->isWeekend()) {
-                if ($due_date->copy()->nextWeekDay()->month === $due_date->month)
+                if ($due_date->copy()->nextWeekDay()->month === $due_date->month) {
                     $due_date->nextWeekday();
-                else
+                } else {
                     $due_date->previousWeekDay();
+                }
             }
 
             $installment = Installment::create([

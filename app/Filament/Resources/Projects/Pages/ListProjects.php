@@ -27,7 +27,7 @@ class ListProjects extends ListRecords
             $query->where(function ($q) {
                     $q->where('name', 'like', "%{$this->search}%")
                       ->orWhere('description', 'like', "%{$this->search}%");
-                });
+            });
         }
 
         return $query->paginate($this->perPage);

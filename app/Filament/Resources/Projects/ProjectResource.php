@@ -64,7 +64,6 @@ class ProjectResource extends Resource
             'create' => CreateProject::route('/create'),
             'view' => ViewProject::route('/{record}'),
             'edit' => EditProject::route('/{record}/edit'),
-            'aprovacao' => UnderApprovalTasks::route('/{record}/aprovacao'),
             'financeiro' => ManageFinance::route('/{record}/financeiro'),
             'detalhes' => ProjectDetails::route('/{record}/detalhes'),
         ];
@@ -74,7 +73,6 @@ class ProjectResource extends Resource
     {
         return $page->generateNavigationItems([
             ViewProject::class,
-            UnderApprovalTasks::class,
             ManageFinance::class,
             ProjectDetails::class,
         ]);
@@ -82,7 +80,7 @@ class ProjectResource extends Resource
 
     public static function searchConsultants(array $ids): array
     {
-        if ($ids)
+        if ($ids) {
             return User::query()
                 ->with('role:id,role')
                 ->findMany($ids, ['id', 'name', 'image', 'role_id'])
@@ -93,6 +91,7 @@ class ProjectResource extends Resource
                     'role' => $user->role->role,
                 ])
                 ->all();
+        }
         return [];
     }
 }

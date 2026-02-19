@@ -31,7 +31,7 @@ return new class extends Migration
 
             $table->enum('status', ['PENDENTE', 'EM_PROGRESSO', 'EM_APROVACAO', 'APROVADA'])->default('PENDENTE')->change();
 
-           $table->dropForeign(['project_id' ]);
+            $table->dropForeign(['project_id' ]);
             $table->dropColumn(['project_id']);
         });
     }

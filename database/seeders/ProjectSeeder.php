@@ -84,7 +84,7 @@ class ProjectSeeder extends Seeder
 
                     $project->tasks->each(function (Task $task) use ($collaboratorIds) {
                         $task->update(['assigned_to' => $collaboratorIds->random()]);
-                });
+                    });
             });
     }
 }

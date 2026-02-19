@@ -214,8 +214,9 @@ class ProjectForm extends Component
                         Hidden::make('selected_consultants')
                             ->default(function ($operation) {
                                 $user = filament()->auth()->user();
-                                if ($operation === 'create' && ($user['profile']['manage_projects'] & Permissions::MANAGE_PROJECTS))
+                                if ($operation === 'create' && ($user['profile']['manage_projects'] & Permissions::MANAGE_PROJECTS)) {
                                     return [$user['id']];
+                                }
                                 return [];
                             }),
                         Hidden::make('remove_consultants')
@@ -270,8 +271,9 @@ class ProjectForm extends Component
                             ->options(function (?Project $project, Get $get, $operation) {
                                 $consultants = $get('selected_consultants') ?? [];
 
-                                if ($operation === 'edit')
+                                if ($operation === 'edit') {
                                     $consultants = array_merge($consultants, $project->collaborators()->pluck('id')->toArray());
+                                }
 
                                 return User::query()
                                     ->findMany($consultants)
@@ -282,8 +284,9 @@ class ProjectForm extends Component
                             ->searchable()
                             ->default(function ($operation) {
                                 $user = filament()->auth()->user();
-                                if ($operation === 'create' && ($user['profile']['manage_projects'] & Permissions::MANAGE_PROJECTS))
+                                if ($operation === 'create' && ($user['profile']['manage_projects'] & Permissions::MANAGE_PROJECTS)) {
                                     return $user['id'];
+                                }
                                 return null;
                             })
                             ->hint('Apenas usuários com permissão podem gerenciar projetos')

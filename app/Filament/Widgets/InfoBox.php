@@ -21,8 +21,7 @@ class InfoBox extends StatsOverviewWidget
         if ($user['profile']['global_access']) {
             $projects = Project::query()->get();
             $tasks = Task::query()->get();
-        }
-        else {
+        } else {
             $projects = $user['managedProjects']->merge($user['projects']);
             $tasks = $projects->flatMap(fn (Project $project) => $project['tasks']);
         }
@@ -43,8 +42,9 @@ class InfoBox extends StatsOverviewWidget
         $lateProjects = $projects->where('end_date', '<', now())->count();
 
         $dangeredProjects = 0;
-        foreach ($projects as $project)
+        foreach ($projects as $project) {
             $dangeredProjects += $project['tasks']->where('due_date', '<', now(), 'and')->where('status', 'PENDENTE')->count() > 0;
+        }
 
         return [
             Stat::make('Projetos', count($projects))
