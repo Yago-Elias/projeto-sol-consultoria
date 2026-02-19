@@ -98,18 +98,6 @@ class TasksRelationManager extends RelationManager
                             ], true)
                             ->iconButton()
                             ->iconSize(IconSize::TwoExtraLarge),
-                        Action::make('move_task')
-                            ->action(function (Task $record) {
-                                $record->status = 'EM_PROGRESSO';
-                                $record->save();
-                            })
-                            ->modalSubmitActionLabel('Mover')
-                            ->modalHeading('Mover Tarefa')
-                            ->icon(Heroicon::ArrowsRightLeft)
-                            ->extraAttributes([
-                                'class' => 'bg-warning-200 rounded-full border border-warning-600'
-                            ])
-                            ->iconButton(),
                         EditAction::make()
                             ->icon(Heroicon::OutlinedPencil)
                             ->extraAttributes([
@@ -165,16 +153,20 @@ class TasksRelationManager extends RelationManager
                             ->placeholder('-')
                             ->icon(Heroicon::OutlinedBars3BottomLeft)
                             ->columnSpanFull(),
+                        TextEntry::make('created_at')
+                            ->label('Data de Criação')
+                            ->icon(Heroicon::OutlinedCalendar)
+                            ->date(),
                         TextEntry::make('conclusion_date')
                             ->label('Data de conclusão')
                             ->icon(Heroicon::OutlinedCalendar)
                             ->date()
-                            ->hidden(fn (Task $task) => $task['status'] === 'PENDENTE'),
+                            ->hidden(fn (Task $task) => $task['status'] === 'PENDENTE' || $task['status'] === 'EM_PROGRESSO'),
                         TextEntry::make('conclusion_message')
                             ->label('Mensagem de conclusão')
                             ->placeholder('-')
                             ->icon(Heroicon::OutlinedBars3BottomLeft)
-                            ->hidden(fn (Task $task) => $task['status'] === 'PENDENTE')
+                            ->hidden(fn (Task $task) => $task['status'] === 'PENDENTE' || $task['status'] === 'EM_PROGRESSO')
                             ->columnSpanFull(),
                     ])
                     ->footerActions([
@@ -201,7 +193,7 @@ class TasksRelationManager extends RelationManager
                             })
                             ->hidden(fn (Task $record) =>
                                 filament()->auth()->id() !== $record['assigned_to'] ||
-                                $record['status'] !== 'PENDENTE'),
+                                $record['status'] !== 'EM_PROGRESSO'),
                         Action::make('approve')
                             ->label('Aprovar Tarefa')
                             ->icon(Heroicon::OutlinedCheck)
@@ -226,7 +218,21 @@ class TasksRelationManager extends RelationManager
 
                                 $this->redirect("/projects/{$this->ownerRecord['id']}/aprovacao");
                             })
-                            ->hidden(fn () => $this->pageClass !== UnderApprovalTasks::class)
+                            ->hidden(fn () => $this->pageClass !== UnderApprovalTasks::class),
+                        Action::make('start_task')
+                            ->label('Iniciar Tarefa')
+                            ->action(function (Task $record) {
+                                $record->status = 'EM_PROGRESSO';
+                                $record->save();
+                            })
+                            ->hidden(function(Task $task) {
+                                // TODO: Implementar a condição só para o dono da tarefa
+                                return $task['status'] !== 'PENDENTE';
+                            })
+                            ->icon(Heroicon::Play)
+                            ->extraAttributes([
+                                'class' => 'bg-warning-200 rounded-full border border-warning-600'
+                            ]),
                     ])
                     ->contained(false)
                     ->columnSpanFull(),

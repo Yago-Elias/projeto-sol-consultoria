@@ -20,6 +20,8 @@ class Task extends Model
         'conclusion_message',
         'status',
         'assigned_to',
+
+        'project_id',
     ];
 
     public function casts(): array
