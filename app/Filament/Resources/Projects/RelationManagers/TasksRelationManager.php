@@ -34,6 +34,7 @@ class TasksRelationManager extends RelationManager
     public ?string $status = null;
     protected static string $relationship = 'tasks';
     protected static ?string $label = 'tarefa';
+    protected string $view = 'livewire.task-board';
 
     public function mount(?string $status = null): void
     {
