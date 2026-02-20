@@ -14,6 +14,7 @@ use Filament\Actions\DeleteAction;
 use Filament\Actions\EditAction;
 use Filament\Actions\ViewAction;
 use Filament\Forms\Components\DatePicker;
+use Filament\Forms\Components\Hidden;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Textarea;
@@ -67,6 +68,8 @@ class ManageFinance extends ManageRelatedRecords
     {
         return $schema
             ->components([
+                Hidden::make('type_nature'),
+                Hidden::make('nature'),
                 Textarea::make('description')
                     ->label('Descrição')
                     ->required()
@@ -90,15 +93,12 @@ class ManageFinance extends ManageRelatedRecords
                     ->required()
                     ->searchable()
                     ->options(fn () => FinancialType::query()->pluck('type', 'id')),
-                Select::make('nature')
-                    ->label('Natureza')
-                    ->required()
-                    ->options(fn () => FinancialNature::query()->pluck('nature', 'id')),
                 Select::make('provider')
                     ->label('Fornecedor')
                     ->searchable()
                     ->options(fn () => Provider::query()->pluck('provider', 'id'))
-                    ->required(),
+                    ->required()
+                    ->visible(fn ($get) => $get('type_nature') === 'cost'),
             ]);
     }
 
@@ -204,9 +204,25 @@ class ManageFinance extends ManageRelatedRecords
                     ->relationship('providerModel', 'provider'),
             ])
             ->headerActions([
-                CreateAction::make()
-                    ->label('Criar entrada financeira')
-                    ->modalHeading('Criar entrada financeira'),
+                CreateAction::make('revenue')
+                    ->label('Criar Nova Receita')
+                    ->fillForm([
+                        'type_nature' => 'revenue',
+                        'nature' => 2
+                        ])
+                    ->modalHeading('Nova Receita')
+                    ->mutateFormDataUsing(fn (array $data) => $data),
+                CreateAction::make('cost')
+                    ->label('Criar Novo Custo')
+                    ->fillForm([
+                        'type_nature' => 'cost',
+                        'nature' => 1
+                        ])
+                    ->modalHeading('Novo Custo')
+                    ->mutateFormDataUsing(function (array $data) {
+                        dump($data);
+                        return $data;
+                    }),
             ])
             ->recordActions([
                 ActionGroup::make([
