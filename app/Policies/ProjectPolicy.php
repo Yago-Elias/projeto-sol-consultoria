@@ -78,14 +78,6 @@ class ProjectPolicy
         return $user['profile']['manage_projects'] & Permissions::FINANCIAL_ACCESS;
     }
 
-    public function approveTasks(User $user, Project $project): bool
-    {
-        if ($user['profile']['global_access'] || $user['id'] === $project['manager_id'])
-            return true;
-
-        return $user['profile']['task_access'] & Permissions::APPROVE_TASKS;
-    }
-
     public function manageProjects(User $user): bool
     {
         return $user['profile']['manage_projects'] & Permissions::MANAGE_PROJECTS;

@@ -98,6 +98,7 @@ class TasksRelationManager extends RelationManager
                                 'class' => 'bg-primary-200 rounded-full border border-primary-600'
                             ])
                             ->modelLabel('tarefa')
+                            ->hidden(fn (Task $task) => auth()->user()->cannot('update', $task))
                             ->iconButton(),
                         DeleteAction::make()
                             ->icon(Heroicon::OutlinedTrash)
@@ -106,6 +107,7 @@ class TasksRelationManager extends RelationManager
                             ])
                             ->modelLabel('tarefa')
                             ->cancelParentActions()
+                            ->hidden(fn (Task $task) => auth()->user()->cannot('delete', $task))
                             ->iconButton(),
                     ])
                     ->components([
@@ -178,7 +180,6 @@ class TasksRelationManager extends RelationManager
                                     ->columnSpanFull(),
                                 TextInput::make('message')
                                     ->label('Mensagem de Conclusão')
-                                    ->hidden(fn (Task $record) => filament()->auth()->id() !== $record['assigned_to'])
                                     ->columnSpanFull()
                             ])
                             ->action(function (array $data, Task $record) {
@@ -192,9 +193,7 @@ class TasksRelationManager extends RelationManager
                                 $this->dispatch('refresh-tables');
                             })
                             ->cancelParentActions()
-                            ->hidden(fn (Task $record) =>
-                                filament()->auth()->id() !== $record['assigned_to'] ||
-                                $record['status'] !== 'EM_PROGRESSO'),
+                            ->hidden(fn (Task $record) => auth()->user()->cannot('conclude', $record)),
                         Action::make('approve')
                             ->label('Aprovar Tarefa')
                             ->icon(Heroicon::OutlinedCheck)
@@ -207,7 +206,7 @@ class TasksRelationManager extends RelationManager
                                 $this->dispatch('refresh-tables');
                             })
                             ->cancelParentActions()
-                            ->hidden(fn (Task $record) => $record['status'] !== 'EM_APROVACAO'),
+                            ->hidden(fn (Task $record) => auth()->user()->cannot('approve', $record)),
                         Action::make('deny')
                             ->label('Reprovar Tarefa')
                             ->icon(Heroicon::OutlinedXMark)
@@ -223,17 +222,14 @@ class TasksRelationManager extends RelationManager
                                 $this->dispatch('refresh-tables');
                             })
                             ->cancelParentActions()
-                            ->hidden(fn (Task $record) => $record['status'] !== 'EM_APROVACAO'),
+                            ->hidden(fn (Task $record) => auth()->user()->cannot('approve', $record)),
                         Action::make('start_task')
                             ->label('Iniciar Tarefa')
                             ->action(function (Task $record) {
                                 $record->status = 'EM_PROGRESSO';
                                 $record->save();
                             })
-                            ->hidden(function(Task $task) {
-                                // TODO: Implementar a condição só para o dono da tarefa
-                                return $task['status'] !== 'PENDENTE';
-                            })
+                            ->hidden(fn (Task $record) => auth()->user()->cannot('start', $record))
                             ->after(function () {
                                 $this->dispatch('refresh-tables');
                             })

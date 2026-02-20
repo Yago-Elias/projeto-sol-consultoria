@@ -1,9 +1,6 @@
 {{-- @dd($record) --}}
 
 <x-filament-panels::page>
-    @php
-        $userProfile = filament()->auth()->user()['profile'];
-    @endphp
     @can('update', $record)
         <div>
             {{\Filament\Actions\Action::make('Editar Projeto')
