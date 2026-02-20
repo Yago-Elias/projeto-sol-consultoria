@@ -34,7 +34,7 @@ class ManageFinance extends ManageRelatedRecords
 
     protected static string $relationship = 'financialEntries';
 
-    protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedRectangleStack;
+    protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedBanknotes;
 
     protected static ?string $navigationLabel = 'Financeiro';
 

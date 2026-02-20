@@ -1,12 +1,25 @@
 {{-- @dd($record) --}}
 
 <x-filament-panels::page>
+    @php
+        $userProfile = filament()->auth()->user()['profile'];
+    @endphp
+    @if($userProfile['global_access'] || ($userProfile['project_manager'] & \App\Permissions::EDIT))
+        <div>
+            {{\Filament\Actions\Action::make('Editar Projeto')
+                ->url("/projects/{$this->record['id']}/edit")
+                ->icon(\Filament\Support\Icons\Heroicon::OutlinedPencilSquare)
+                ->extraAttributes([
+                    'class' => 'w-fit'
+            ])}}
+        </div>
+    @endif
     <x-filament::section>
         <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
             <div class="flex items-start">
                 <div class="w-full max-w-md mx-auto bg-gray-200 rounded-lg overflow-hidden aspect-video">
-                    @if($record->image)
-                        <img class="w-full h-full object-cover" src="{{ $record->image }}" alt="imagem projeto">
+                    @if($record->getFilamentImageUrl())
+                        <img class="w-full h-full object-cover" src="{{ $record->getFilamentImageUrl() }}" alt="imagem projeto">
                     @endif
                 </div>
             </div>
@@ -43,8 +56,8 @@
                 <div class="flex items-center space-x-3">
                     <div class="flex-shrink-0">
                         <div class="w-12 h-12 rounded-full gb-gray-200 overflow-hidden flex items-center justify-center">
-                            @if($user->image)
-                                <img class="w-full h-full object-cover" src="{{ $user->image }}" alt="{{ $user->name }}">
+                            @if($user->getFilamentAvatarUrl())
+                                <img class="w-full h-full object-cover" src="{{ $user->getFilamentAvatarUrl() }}" alt="{{ $user->name }}">
                             @else
                                 <svg class="w-6 h-6 text-gray-400" fill="currentColor" viewBox="0 0 20 20">
                                     <path fill-rule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clip-rule="evenodd" />
@@ -65,5 +78,4 @@
             @endforelse
         </div>
     </x-filament::section>
-
 </x-filament-panels::page>
