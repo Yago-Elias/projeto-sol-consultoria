@@ -36,7 +36,7 @@ class InfoBox extends StatsOverviewWidget
                     ->whereNotNull('payment_date')
                     ->get()
                     ->avg(fn (FinancialEntry $entry) =>
-                        $entry['total_amount'] * ($entry['financialType']['type'] === 'Expense' ? -1 : 1)) ?? 0;
+                        $entry['total_amount'] * ($entry['financialNature']['nature'] === 'Expense' ? -1 : 1)) ?? 0;
         }
 
         $lateProjects = $projects->where('end_date', '<', now())->count();

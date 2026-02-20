@@ -14,6 +14,8 @@ class Profile extends Model
     protected $fillable = [
         'profile',
         'manage_projects',
+        'task_access',
+        'financial_access',
         'manage_users',
         'system_config',
         'global_access',

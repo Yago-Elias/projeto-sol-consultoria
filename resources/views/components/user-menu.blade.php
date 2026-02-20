@@ -10,14 +10,14 @@
 @endphp
 
 <div class="user-menu" xmlns:x-filament="http://www.w3.org/1999/html">
-    <div class='user-info'>
+    <a href="/my-profile" class='user-info'>
         <aside>
             <x-filament::avatar
                 :src="$src"
                 :alt="$alt"
                 :attributes="
                     \Filament\Support\prepare_inherited_attributes($attributes)
-                        ->class(['fi-user-avatar'])
+                        ->class(['fi-user-avatar border border-(--neutro-3) min-w-8'])
                 "
             />
         </aside>
@@ -25,7 +25,7 @@
             <p class='user-name'>{{ $name }}</p>
             <p class='user-position'>{{ $role }}</p>
         </div>
-    </div>
+    </a>
     {{ \Filament\Actions\Action::make('logout')
         ->url(filament()->getLogoutUrl())
         ->postToUrl()
