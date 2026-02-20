@@ -22,12 +22,12 @@ class ListProjects extends ListRecords
         $query = Project::query()
             ->with('tasks')
             ->select(['id', 'name', 'description', 'end_date', 'manager_id']);
-        
+
         if ($this->search) {
             $query->where(function ($q) {
                     $q->where('name', 'like', "%{$this->search}%")
                       ->orWhere('description', 'like', "%{$this->search}%");
-                });
+            });
         }
 
         return $query->paginate($this->perPage);

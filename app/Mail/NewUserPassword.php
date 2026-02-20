@@ -13,15 +13,15 @@ use Illuminate\Support\Facades\Password;
 
 class NewUserPassword extends Mailable
 {
-    use Queueable, SerializesModels;
+    use Queueable;
+    use SerializesModels;
 
     /**
      * Create a new message instance.
      */
     public function __construct(
         public User $user
-    )
-    {
+    ) {
         //
     }
 

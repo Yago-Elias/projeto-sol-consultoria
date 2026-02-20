@@ -30,8 +30,9 @@ class InfoBox extends StatsOverviewWidget
         $lateProjects = $projects->where('end_date', '<', now())->count();
 
         $dangeredProjects = 0;
-        foreach ($projects as $project)
+        foreach ($projects as $project) {
             $dangeredProjects += $project['tasks']->where('due_date', '<', now(), 'and')->where('status', 'PENDENTE')->count() > 0;
+        }
 
         return [
             Stat::make('Projetos', count($projects))

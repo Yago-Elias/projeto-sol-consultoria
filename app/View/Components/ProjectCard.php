@@ -14,8 +14,8 @@ class ProjectCard extends Component
      */
     public function __construct(
         public Project $project,
-    )
-    {}
+    ) {
+    }
 
     /**
      * Get the view / contents that represent the component.

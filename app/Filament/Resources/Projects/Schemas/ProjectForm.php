@@ -80,7 +80,7 @@ class ProjectForm extends Component
                                     ->label('E-mail')
                                     ->placeholder('E-mail'),
                             ]),
-                        
+
                         Textarea::make('description')
                             ->columnSpanFull()
                             ->label('Descrição do Projeto')
@@ -95,7 +95,7 @@ class ProjectForm extends Component
                             ->required()
                             ->label('Data de Início')
                             ->disabled(fn ($operation) => $operation === 'edit'),
-                        
+
                         DatePicker::make('end_date')
                             ->columnSpan([
                                 'sm' => 2,
@@ -170,7 +170,7 @@ class ProjectForm extends Component
                             ->options(fn () => User::query()->pluck('name', 'id'))
                             ->searchable()
                     ]),
-                
+
                 Section::make('Consultores')
                     ->columnSpanFull()
                     ->headerActions([
@@ -235,7 +235,7 @@ class ProjectForm extends Component
                                                 'role' => $user->role->role,
                                             ])
                                             ->all();
-                                        
+
                                         $set('consultants', $consultants);
                                         return ['consultants' => $consultants];
                                     }
@@ -251,7 +251,7 @@ class ProjectForm extends Component
                                             'role' => $user->role->role,
                                         ])
                                         ->all();
-                                    
+
                                     return ['consultants' => $consultants];
                                 })
                                 ->live(debounce:500)
