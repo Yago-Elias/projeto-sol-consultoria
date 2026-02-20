@@ -2,27 +2,20 @@
 
 namespace App\Filament\Resources\Projects\RelationManagers;
 
-use App\Filament\Resources\Projects\Pages\UnderApprovalTasks;
-use App\Models\Project;
 use App\Models\Task;
 use Filament\Actions\Action;
-use Filament\Actions\CreateAction;
 use Filament\Actions\DeleteAction;
 use Filament\Actions\EditAction;
 use Filament\Actions\ViewAction;
 use Filament\Forms\Components\DatePicker;
-use Filament\Forms\Components\Placeholder;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Textarea;
 use Filament\Infolists\Components\TextEntry;
-use Filament\Notifications\Notification;
 use Filament\Resources\RelationManagers\RelationManager;
 use Filament\Schemas\Components\EmbeddedTable;
 use Filament\Schemas\Components\RenderHook;
 use Filament\Schemas\Components\Tabs\Tab;
-use Filament\Tables\Actions\HeaderActionsPosition;
-use Filament\Tables\Grouping\Group;
 use Filament\Schemas\Components\Section;
 use Filament\Schemas\Schema;
 use Filament\Support\Enums\IconSize;
@@ -30,7 +23,6 @@ use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
 use Filament\View\PanelsRenderHook;
-use http\Client\Request;
 use Illuminate\Database\Eloquent\Builder;
 use Livewire\Attributes\On;
 use Livewire\Attributes\Url;
@@ -41,6 +33,7 @@ class TasksRelationManager extends RelationManager
     public ?string $activeTab = null;
     public ?string $status = null;
     protected static string $relationship = 'tasks';
+    protected static ?string $label = 'tarefa';
 
     public function mount(?string $status = null): void
     {
@@ -104,12 +97,14 @@ class TasksRelationManager extends RelationManager
                             ->extraAttributes([
                                 'class' => 'bg-primary-200 rounded-full border border-primary-600'
                             ])
+                            ->modelLabel('tarefa')
                             ->iconButton(),
                         DeleteAction::make()
                             ->icon(Heroicon::OutlinedTrash)
                             ->extraAttributes([
                                 'class' => 'bg-danger-200 rounded-full border border-danger-600'
                             ])
+                            ->modelLabel('tarefa')
                             ->cancelParentActions()
                             ->iconButton(),
                     ])
@@ -261,7 +256,15 @@ class TasksRelationManager extends RelationManager
 
                 return $query;
             })
-            ->heading($this->status)
+            ->heading(function () {
+                if ($this->status === 'PENDENTE')
+                    return 'Pendentes';
+                if ($this->status === 'EM_PROGRESSO')
+                    return 'Em progresso';
+                if ($this->status === 'EM_APROVACAO')
+                    return 'Esperando aprovação';
+                return 'Concluídas';
+            })
             ->recordTitleAttribute('title')
             ->columns([
                 TextColumn::make('title')
@@ -306,7 +309,6 @@ class TasksRelationManager extends RelationManager
                     ->iconSize(IconSize::TwoExtraLarge),
             ])
             ->emptyStateHeading('Sem Tarefas')
-            ->emptyStateDescription('Crie uma tarefa nova no menu acima')
             ->paginated(false)
             ->searchable(false)
             ->selectable(false)

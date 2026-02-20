@@ -15,6 +15,7 @@ use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
 use Filament\Schemas\Components\Form;
+use Filament\Schemas\Components\Section;
 use Filament\Schemas\Concerns\InteractsWithSchemas;
 use Filament\Schemas\Contracts\HasSchemas;
 use Filament\Schemas\Schema;
@@ -41,39 +42,46 @@ class CriarQuadro extends Component implements HasActions, HasSchemas
         return CreateAction::make()
             ->label('Criar Tarefa')
             ->schema([
-                TextInput::make('title')
-                    ->label('Título')
-                    ->required(),
-                Select::make('assigned_to')
-                    ->label('Responsável')
-                    ->required()
-                    ->relationship(
-                        'assignedTo',
-                        'name',
-                        fn (Builder $query) =>
-                            $query
-                                ->join('projects_users', 'user_id', 'id')
-                                ->where('project_id', $this->project->id)
-                    )
-                    ->searchable()
-                    ->preload(),
-                Textarea::make('description')
-                    ->label('Descrição')
-                    ->columnSpanFull(),
-                TextInput::make('predicted_hours')
-                    ->label('Duração da Tarefa')
-                    ->required()
-                    ->numeric(),
-                DatePicker::make('due_date')
-                    ->label('Prazo de Conclusão')
-                    ->required(),
-            ])
+                Section::make('task_form')
+                    ->columns()
+                    ->contained(false)
+                    ->heading(null)
+                    ->components([
+                            TextInput::make('title')
+                                ->label('Título')
+                                ->required(),
+                            Select::make('assigned_to')
+                                ->label('Responsável')
+                                ->required()
+                                ->relationship(
+                                    'assignedTo',
+                                    'name',
+                                    fn (Builder $query) =>
+                                        $query
+                                            ->join('projects_users', 'user_id', 'id')
+                                            ->where('project_id', $this->project->id)
+                                )
+                                ->searchable()
+                                ->preload(),
+                            Textarea::make('description')
+                                ->label('Descrição')
+                                ->columnSpanFull(),
+                            TextInput::make('predicted_hours')
+                                ->label('Duração da Tarefa')
+                                ->required()
+                                ->numeric(),
+                            DatePicker::make('due_date')
+                                ->label('Prazo de Conclusão')
+                                ->required(),
+                        ])
+                    ])
             ->mutateDataUsing(function (array $data) {
                 $data['project_id'] = $this->project['id'];
 
                 return $data;
             })
             ->model(Task::class)
+            ->modelLabel('tarefa')
             ->after(function () {
                 $this->dispatch('refresh-tables');
             });

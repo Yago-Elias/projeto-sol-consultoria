@@ -53,12 +53,20 @@ class Project extends Model
         );
     }
 
+    public function getTasksByStatus($status): int
+    {
+        return $this->tasks()
+                ->getQuery()
+                ->where('status', $status)
+                ->count();
+    }
+
     protected function overdueTasks(): Attribute
     {
         return Attribute::make(
             get: fn() => $this->tasks()
                 ->getQuery()
-                ->where('status', 'PENDENTE')
+                ->whereNull('conclusion_date')
                 ->where('due_date', '<', now())
                 ->count()
         );
