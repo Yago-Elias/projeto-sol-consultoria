@@ -68,7 +68,6 @@ class CriarQuadro extends Component implements HasActions, HasSchemas
                     ->label('Prazo de Conclusão')
                     ->required(),
             ])
-            ->modalWidth('md')
             ->mutateDataUsing(function (array $data) {
                 $data['project_id'] = $this->project['id'];
 
@@ -76,7 +75,7 @@ class CriarQuadro extends Component implements HasActions, HasSchemas
             })
             ->model(Task::class)
             ->after(function () {
-                $this->redirect("/projects/{$this->project['id']}");
+                $this->dispatch('refresh-tables');
             });
     }
 

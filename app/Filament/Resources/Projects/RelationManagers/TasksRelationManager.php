@@ -16,6 +16,7 @@ use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Textarea;
 use Filament\Infolists\Components\TextEntry;
+use Filament\Notifications\Notification;
 use Filament\Resources\RelationManagers\RelationManager;
 use Filament\Schemas\Components\EmbeddedTable;
 use Filament\Schemas\Components\RenderHook;
@@ -109,6 +110,7 @@ class TasksRelationManager extends RelationManager
                             ->extraAttributes([
                                 'class' => 'bg-danger-200 rounded-full border border-danger-600'
                             ])
+                            ->cancelParentActions()
                             ->iconButton(),
                     ])
                     ->components([
@@ -191,6 +193,10 @@ class TasksRelationManager extends RelationManager
 
                                 $record->save();
                             })
+                            ->after(function () {
+                                $this->dispatch('refresh-tables');
+                            })
+                            ->cancelParentActions()
                             ->hidden(fn (Task $record) =>
                                 filament()->auth()->id() !== $record['assigned_to'] ||
                                 $record['status'] !== 'EM_PROGRESSO'),
@@ -201,10 +207,12 @@ class TasksRelationManager extends RelationManager
                             ->action(function (Task $record) {
                                 $record['status'] = 'APROVADA';
                                 $record->save();
-
-                                $this->redirect("/projects/{$this->ownerRecord['id']}/aprovacao");
                             })
-                            ->hidden(fn () => $this->pageClass !== UnderApprovalTasks::class),
+                            ->after(function () {
+                                $this->dispatch('refresh-tables');
+                            })
+                            ->cancelParentActions()
+                            ->hidden(fn (Task $record) => $record['status'] !== 'EM_APROVACAO'),
                         Action::make('deny')
                             ->label('Reprovar Tarefa')
                             ->icon(Heroicon::OutlinedXMark)
@@ -215,10 +223,12 @@ class TasksRelationManager extends RelationManager
                                 $record['conclusion_message'] = null;
 
                                 $record->save();
-
-                                $this->redirect("/projects/{$this->ownerRecord['id']}/aprovacao");
                             })
-                            ->hidden(fn () => $this->pageClass !== UnderApprovalTasks::class),
+                            ->after(function () {
+                                $this->dispatch('refresh-tables');
+                            })
+                            ->cancelParentActions()
+                            ->hidden(fn (Task $record) => $record['status'] !== 'EM_APROVACAO'),
                         Action::make('start_task')
                             ->label('Iniciar Tarefa')
                             ->action(function (Task $record) {
@@ -229,10 +239,11 @@ class TasksRelationManager extends RelationManager
                                 // TODO: Implementar a condição só para o dono da tarefa
                                 return $task['status'] !== 'PENDENTE';
                             })
-                            ->icon(Heroicon::Play)
-                            ->extraAttributes([
-                                'class' => 'bg-warning-200 rounded-full border border-warning-600'
-                            ]),
+                            ->after(function () {
+                                $this->dispatch('refresh-tables');
+                            })
+                            ->cancelParentActions()
+                            ->icon(Heroicon::OutlinedPlay),
                     ])
                     ->contained(false)
                     ->columnSpanFull(),
@@ -285,9 +296,9 @@ class TasksRelationManager extends RelationManager
             ])
             ->recordActions([
                 ViewAction::make()
-                    ->modalHeading(fn (Task $record) => $record['title'])
+                    ->modalHeading(fn (?Task $record) => $record['title'] ?? '')
                     ->modalCancelAction(false)
-                    ->icon(fn (Task $record): string => filament()->getUserAvatarUrl($record['assignedTo']))
+                    ->icon(fn (?Task $record): string => filament()->getUserAvatarUrl($record['assignedTo']) ?? null)
                     ->extraAttributes([
                         'class' => '[clip-path:circle(50%_at_50%_50%)] rounded-full border border-(--neutro-3)'
                     ], true)
@@ -335,5 +346,11 @@ class TasksRelationManager extends RelationManager
     public function userFilter($user): void
     {
         $this->activeTab = $user;
+    }
+
+    #[On('refresh-tables')]
+    public function refreshTable(): void
+    {
+        $this->dispatch('$refresh');
     }
 }
