@@ -41,4 +41,12 @@ class EditProject extends EditRecord
     {
         return [];
     }
+
+    protected function mutateFormDataBeforeFill(array $data): array
+    {
+        $pagamento = $this->record['financialEntries']->where('financialNature.nature', 'Payment')->first();
+        $data['payment'] = $pagamento['total_installments'];
+        $data['payment_type'] = $pagamento['type'];
+        return $data;
+    }
 }

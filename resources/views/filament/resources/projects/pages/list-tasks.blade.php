@@ -1,9 +1,9 @@
 <x-filament-panels::page>
     <livewire:criar-quadro :project="$record"/>
 
-    <div class="flex gap-4 flex-nowrap overflow-x-auto p-1">
+    <div class="grid lg:grid-cols-4 md:grid-cols-2 gap-4 flex-nowrap overflow-x-auto p-1">
         @forelse(['PENDENTE', 'EM_PROGRESSO', 'EM_APROVACAO', 'APROVADA'] as $status)
-            <div class="min-w-xs max-w-sm min-h-md">
+            <div class="col-span-1">
                 @livewire(\App\Filament\Resources\Projects\RelationManagers\TasksRelationManager::class, [
                     'ownerRecord' => $record,
                     'pageClass' => static::class,
