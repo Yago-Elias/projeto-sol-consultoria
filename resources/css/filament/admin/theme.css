@@ -122,7 +122,7 @@
 
     button {
         margin: auto;
-        width: 90%;
+        width: 100%;
         background-color: var(--claro-3);
         border: var(--escuro-1) solid 1px;
         box-shadow: var(--neutro-2) 1px 1px 2px;

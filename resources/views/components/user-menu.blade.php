@@ -26,9 +26,23 @@
             <p class='user-position'>{{ $role }}</p>
         </div>
     </a>
-    {{ \Filament\Actions\Action::make('logout')
-        ->url(filament()->getLogoutUrl())
-        ->postToUrl()
-        ->label('Sair')
-        ->icon('heroicon-o-arrow-left-start-on-rectangle') }}
+    <div class="flex gap-4">
+        @can('settings', \App\Models\User::class)
+            {{ \Filament\Actions\Action::make('settings')
+                ->url('/settings')
+                ->icon('heroicon-o-cog-8-tooth')
+                ->iconButton()
+                ->size('xl')
+                ->extraAttributes([
+                    'class' => 'my-auto p-2 text-(--escuro-1) hover:text-(--claro-1)'
+                ]) }}
+        @endcan
+        <aside class="w-full">
+            {{ \Filament\Actions\Action::make('logout')
+                ->url(filament()->getLogoutUrl())
+                ->postToUrl()
+                ->label('Sair')
+                ->icon('heroicon-o-arrow-left-start-on-rectangle') }}
+        </aside>
+    </div>
 </div>

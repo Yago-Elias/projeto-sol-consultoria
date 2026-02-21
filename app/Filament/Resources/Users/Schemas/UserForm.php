@@ -92,14 +92,6 @@ class UserForm
                                 'xl' => 4
                             ])
                             ->relationship('role', 'role'),
-                        Select::make('profile_id')
-                            ->label('Perfil')
-                            ->columnSpan([
-                                'md' => 2,
-                                'lg' => 4,
-                                'xl' => 4
-                            ])
-                            ->relationship('profile', 'profile'),
                     ])
             ]);
     }
