@@ -26,7 +26,7 @@ class ProjectPolicy
             return true;
         }
 
-        if ($user['profile']['manage_projects'] & Permissions::LIST_ALL_PROJECTS) {
+        if ($user['profile']['manage_projects'] & Permissions::LIST) {
             return true;
         }
 
