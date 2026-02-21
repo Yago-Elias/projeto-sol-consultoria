@@ -21,9 +21,11 @@ use Filament\Forms\Components\Hidden;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Textarea;
+use Filament\Notifications\Notification;
 use Filament\Resources\Pages\ManageRelatedRecords;
 use Filament\Schemas\Schema;
 use Filament\Support\Icons\Heroicon;
+use Filament\Support\RawJs;
 use Filament\Tables\Columns\Summarizers\Sum;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Filters\SelectFilter;
@@ -81,11 +83,13 @@ class ManageFinance extends ManageRelatedRecords
                     ->label('Valor')
                     ->prefix('R$')
                     ->required()
-                    ->numeric(),
+                    ->numeric()
+                    ->disabled(fn ($operation) => $operation === 'edit'),
                 TextInput::make('total_installments')
                     ->label('Nº de parcelas')
                     ->required()
-                    ->numeric(),
+                    ->numeric()
+                    ->disabled(fn ($operation) => $operation === 'edit'),
                 DatePicker::make('due_date')
                     ->label('Data de vencimento')
                     ->required(),
@@ -132,20 +136,18 @@ class ManageFinance extends ManageRelatedRecords
                     ->label('Tipo de pagamento')
                     ->required()
                     ->options(fn () => FinancialType::query()->pluck('type', 'id')),
-                Select::make('nature')
-                    ->label('Natureza')
-                    ->required()
-                    ->options(fn () => FinancialNature::query()->pluck('nature', 'id')),
                 Select::make('provider')
                     ->label('Fornecedor')
                     ->options(fn () => Provider::query()->pluck('provider', 'id'))
-                    ->required(),
+                    ->required()
+                    ->visible(fn (FinancialEntry $record) => $record->provider),
             ]);
     }
 
     public function table(Table $table): Table
     {
         return $table
+            ->modifyQueryUsing(fn ($query) => $query->withSum(['installments as installments_total'], 'value'))
             ->recordTitleAttribute('description')
             ->groups([
                 Group::make('financialNature.nature')
@@ -156,36 +158,31 @@ class ManageFinance extends ManageRelatedRecords
                     ->collapsible(),
             ])
             ->columns([
-                TextColumn::make('total_amount')
+                TextColumn::make('installments_total')
                     ->label('Total')
                     ->money('BRL')
-                    ->summarize([
-                        Sum::make()
-                            ->label('Total Receita')
-                            ->money('BRL')
-                            ->prefix('R$')
-                    ])
                     ->sortable(),
-                TextColumn::make('total_installments')
+                TextColumn::make('installments_count')
                     ->label('Parcelas')
+                    ->counts('installments')
                     ->numeric()
                     ->sortable(),
                 TextColumn::make('due_date')
                     ->label('Vencimento')
-                    ->date()
+                    ->date('d/m/Y')
                     ->sortable(),
                 TextColumn::make('payment_date')
                     ->label('Pagamento')
-                    ->date()
+                    ->date('d/m/Y')
                     ->sortable(),
                 TextColumn::make('created_at')
                     ->label('Criado em')
-                    ->dateTime()
+                    ->date('d/m/Y H:i')
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
                 TextColumn::make('updated_at')
                     ->label('Atualizado em')
-                    ->dateTime()
+                    ->date('d/m/Y H:i')
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
                 TextColumn::make('financialType.type')
@@ -214,7 +211,7 @@ class ManageFinance extends ManageRelatedRecords
                         'nature' => 2
                         ])
                     ->modalHeading('Nova Receita')
-                    ->after(fn (FinancialEntry $financialEntry) => $financialEntry->create_installments()),
+                    ->after(fn (FinancialEntry $record) => $record->create_installments()),
                 CreateAction::make('cost')
                     ->label('Criar Novo Custo')
                     ->fillForm([
@@ -222,7 +219,7 @@ class ManageFinance extends ManageRelatedRecords
                         'nature' => 1
                         ])
                     ->modalHeading('Novo Custo')
-                    ->after(fn (FinancialEntry $financialEntry) => $financialEntry->create_installments()),
+                    ->after(fn (FinancialEntry $record) => $record->create_installments()),
             ])
             ->recordActions([
                 Action::make('installments')
@@ -237,7 +234,21 @@ class ManageFinance extends ManageRelatedRecords
                     ->modalCancelActionLabel('Fechar'),
                 ActionGroup::make([
                     ViewAction::make(),
-                    EditAction::make(),
+                    EditAction::make()
+                        ->before(function (FinancialEntry $record, EditAction $action) {
+                            $hasPaidInstallments = $record->installments()
+                                ->where('payment_date', '<>', 'null')
+                                ->exists();
+                            
+                            if ($hasPaidInstallments) {
+                                Notification::make()
+                                    ->title('Alteração bloqueada')
+                                    ->body('Esta entrada possui parcelas já pagas e não pode ser editada.')
+                                    ->danger()
+                                    ->send();
+                                $action->halt();
+                            }
+                        }),
                     DeleteAction::make(),
                 ])
             ]);
