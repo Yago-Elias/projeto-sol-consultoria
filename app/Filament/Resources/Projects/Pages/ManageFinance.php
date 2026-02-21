@@ -3,8 +3,11 @@
 namespace App\Filament\Resources\Projects\Pages;
 
 use App\Filament\Resources\Projects\ProjectResource;
+use App\Livewire\TableInstallment;
+use App\Models\FinancialEntry;
 use App\Models\FinancialNature;
 use App\Models\FinancialType;
+use App\Models\Installment;
 use App\Models\Provider;
 use BackedEnum;
 use Filament\Actions\Action;
@@ -211,7 +214,7 @@ class ManageFinance extends ManageRelatedRecords
                         'nature' => 2
                         ])
                     ->modalHeading('Nova Receita')
-                    ->mutateFormDataUsing(fn (array $data) => $data),
+                    ->after(fn (FinancialEntry $financialEntry) => $financialEntry->create_installments()),
                 CreateAction::make('cost')
                     ->label('Criar Novo Custo')
                     ->fillForm([
@@ -219,12 +222,19 @@ class ManageFinance extends ManageRelatedRecords
                         'nature' => 1
                         ])
                     ->modalHeading('Novo Custo')
-                    ->mutateFormDataUsing(function (array $data) {
-                        dump($data);
-                        return $data;
-                    }),
+                    ->after(fn (FinancialEntry $financialEntry) => $financialEntry->create_installments()),
             ])
             ->recordActions([
+                Action::make('installments')
+                    ->label('Parcelas')
+                    ->icon(Heroicon::OutlinedListBullet)
+                    ->modalHeading(fn (FinancialEntry $record) => "Parcelas — {$record->description}")
+                    ->modalContent(fn (FinancialEntry $record) => view(
+                        'filament.resources.projects.partials.installments-modal',
+                        ['financial_entry' => $record]
+                    ))
+                    ->modalSubmitAction(false)
+                    ->modalCancelActionLabel('Fechar'),
                 ActionGroup::make([
                     ViewAction::make(),
                     EditAction::make(),
