@@ -52,10 +52,12 @@ class ProfileResource extends Resource
                 Toggle::make('global_access')
                     ->label('Acesso Global')
                     ->belowLabel('Acesso liberado a todo o sistema')
+                    ->live()
                     ->required(),
                 Toggle::make('system_config')
                     ->label('Configurações')
                     ->belowLabel('Acesso à tela de configurações')
+                    ->disabled(fn (Get $get) => $get('global_access') ?? false)
                     ->required(),
                 Section::make('Administrar Projetos')
                     ->collapsible()
@@ -81,6 +83,7 @@ class ProfileResource extends Resource
                             ])
                             ->columns()
                             ->hiddenLabel()
+                            ->disabled(fn (Get $get) => $get('global_access') ?? false)
                     ]),
                 Section::make('Administrar Tarefas')
                     ->collapsible()
@@ -102,6 +105,7 @@ class ProfileResource extends Resource
                             ])
                             ->columns()
                             ->hiddenLabel()
+                            ->disabled(fn (Get $get) => $get('global_access') ?? false)
                     ]),
                 Section::make('Administrar Consultores')
                     ->collapsible()
@@ -123,6 +127,7 @@ class ProfileResource extends Resource
                             ])
                             ->columns()
                             ->hiddenLabel()
+                            ->disabled(fn (Get $get) => $get('global_access') ?? false)
                     ]),
             ]);
     }
@@ -162,7 +167,7 @@ class ProfileResource extends Resource
                         }),
                     IconColumn::make('manage_users')
                         ->label('Usuários')
-                        ->state(fn ($record) => static::numToArray($record['manage_projects']))
+                        ->state(fn ($record) => static::numToArray($record['manage_users']))
                         ->size(IconSize::Medium)
                         ->icon(function (string $state): Heroicon {
                             return match ($state) {
@@ -178,7 +183,7 @@ class ProfileResource extends Resource
                         }),
                     IconColumn::make('task_access')
                         ->label('Tarefas')
-                        ->state(fn ($record) => static::numToArray($record['manage_projects']))
+                        ->state(fn ($record) => static::numToArray($record['task_access']))
                         ->size(IconSize::Medium)
                         ->icon(function (string $state): Heroicon {
                             return match ($state) {
@@ -207,6 +212,12 @@ class ProfileResource extends Resource
                         return $data;
                     })
                     ->mutateDataUsing(function (array $data) {
+                        if ($data['global_access']) {
+                            $data['manage_projects'] = ['c', 'e', 'd', 'f', 'm', 'l'];
+                            $data['task_access'] = ['c', 'e', 'd', 'a'];
+                            $data['manage_users'] = ['c', 'e', 'd', 'l'];
+                        }
+
                         $data['manage_projects'] = static::arrayToNum($data['manage_projects']);
                         $data['task_access'] = static::arrayToNum($data['task_access']);
                         $data['manage_users'] = static::arrayToNum($data['manage_users']);

@@ -16,26 +16,16 @@ class ManageProfiles extends ManageRecords
         return [
             CreateAction::make()
                 ->mutateDataUsing(function (array $data) {
-                    $checkT = $data['task_access'];
-                    $checkP = $data['manage_projects'];
-                    $checkU = $data['manage_users'];
+                    if ($data['global_access']) {
+                        $data['manage_projects'] = ['c', 'e', 'd', 'f', 'm', 'l'];
+                        $data['task_access'] = ['c', 'e', 'd', 'a'];
+                        $data['manage_users'] = ['c', 'e', 'd', 'l'];
+                    }
 
-                    $data['manage_projects'] = in_array('c', $checkP) * Permissions::CREATE           |
-                                               in_array('e', $checkP) * Permissions::EDIT             |
-                                               in_array('d', $checkP) * Permissions::REMOVE           |
-                                               in_array('m', $checkP) * Permissions::MANAGE_PROJECTS  |
-                                               in_array('f', $checkP) * Permissions::FINANCIAL_ACCESS |
-                                               in_array('l', $checkP) * Permissions::LIST_ALL_PROJECTS;
-
-                    $data['task_access'] = in_array('c', $checkT) * Permissions::CREATE |
-                                           in_array('e', $checkT) * Permissions::EDIT   |
-                                           in_array('d', $checkT) * Permissions::REMOVE |
-                                           in_array('a', $checkT) * Permissions::APPROVE_TASKS;
-
-                    $data['manage_users'] = in_array('c', $checkU) * Permissions::CREATE |
-                                            in_array('e', $checkU) * Permissions::EDIT   |
-                                            in_array('d', $checkU) * Permissions::REMOVE |
-                                            in_array('l', $checkU) * Permissions::LIST;
+                    $data['manage_projects'] = ProfileResource::arrayToNum($data['manage_projects']);
+                    $data['task_access'] = ProfileResource::arrayToNum($data['task_access']);
+                    $data['manage_users'] = ProfileResource::arrayToNum($data['manage_users']);
+                    $data['financial_access'] = 0;
 
                     return $data;
                 }),
