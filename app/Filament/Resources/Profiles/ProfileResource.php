@@ -4,6 +4,7 @@ namespace App\Filament\Resources\Profiles;
 
 use App\Filament\Resources\Profiles\Pages\ManageProfiles;
 use App\Models\Profile;
+use App\Models\User;
 use App\Permissions;
 use BackedEnum;
 use BladeUI\Icons\Components\Icon;
@@ -40,6 +41,8 @@ class ProfileResource extends Resource
     protected static ?int $navigationSort = 10;
 
     protected static ?string $slug = 'settings';
+
+    protected static ?string $label = 'perfil';
 
     public static function form(Schema $schema): Schema
     {
@@ -271,5 +274,10 @@ class ProfileResource extends Resource
                in_array('a', $array) * Permissions::APPROVE_TASKS   |
                in_array('m', $array) * Permissions::MANAGE_PROJECTS |
                in_array('f', $array) * Permissions::FINANCIAL_ACCESS;
+    }
+
+    public static function canAccess(): bool
+    {
+        return auth()->user()->can('settings', User::class);
     }
 }

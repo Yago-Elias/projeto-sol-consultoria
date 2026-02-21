@@ -20,7 +20,7 @@ class ProgressTable extends TableWidget
         return $table
             ->query(function (): Builder {
                 $user = filament()->auth()->user();
-                if ($user['profile']['global_access']) {
+                if ($user->can('list', Project::class)) {
                     return Project::query();
                 }
                 return Project::query()->whereIn('id', $user['managedProjects']->pluck('id'));

@@ -31,7 +31,6 @@ class User extends Authenticatable implements HasAvatar
         'image',
         'telephone',
 
-        'profile_id',
         'role_id',
     ];
 
@@ -78,11 +77,6 @@ class User extends Authenticatable implements HasAvatar
             'user_id',
             'project_id'
         );
-    }
-
-    public function profile(): BelongsTo
-    {
-        return $this->belongsTo(Profile::class);
     }
 
     public function role(): BelongsTo

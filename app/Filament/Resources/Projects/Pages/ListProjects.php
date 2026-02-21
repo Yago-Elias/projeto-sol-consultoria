@@ -27,8 +27,7 @@ class ListProjects extends ListRecords
             ->select(['id', 'name', 'description', 'end_date', 'manager_id']);
         $user = filament()->auth()->user();
 
-        if (!$user['profile']['global_access'] &&
-            !($user['profile']['manage_projects'] & Permissions::LIST)) {
+        if ($user->cannot('list', Project::class)) {
             $user_projects = $user['managedProjects']->merge($user['projects'])->pluck('id');
             $this->query->whereIn('id', $user_projects);
         }

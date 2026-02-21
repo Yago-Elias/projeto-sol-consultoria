@@ -22,11 +22,11 @@ class ProjectPolicy
      */
     public function view(User $user, Project $project): bool
     {
-        if ($user['profile']['global_access']) {
+        if ($user['role']['profile']['global_access']) {
             return true;
         }
 
-        if ($user['profile']['manage_projects'] & Permissions::LIST) {
+        if ($user['role']['profile']['manage_projects'] & Permissions::LIST) {
             return true;
         }
 
@@ -34,16 +34,24 @@ class ProjectPolicy
                $project['collaborators']->where('id', $user['id'])->count();
     }
 
+    public function list(User $user): bool
+    {
+        return $user['role']['profile']['global_access'] ||
+            ($user['role']['profile']['manage_projects'] & Permissions::LIST);
+    }
+
+
+
     /**
      * Determine whether the user can create models.
      */
     public function create(User $user): bool
     {
-        if ($user['profile']['global_access']) {
+        if ($user['role']['profile']['global_access']) {
             return true;
         }
 
-        return $user['profile']['manage_projects'] & Permissions::CREATE;
+        return $user['role']['profile']['manage_projects'] & Permissions::CREATE;
     }
 
     /**
@@ -51,11 +59,11 @@ class ProjectPolicy
      */
     public function update(User $user, Project $project): bool
     {
-        if ($user['profile']['global_access'] || $user['id'] === $project['manager_id']) {
+        if ($user['role']['profile']['global_access'] || $user['id'] === $project['manager_id']) {
             return true;
         }
 
-        return $user['profile']['manage_projects'] & Permissions::EDIT;
+        return $user['role']['profile']['manage_projects'] & Permissions::EDIT;
     }
 
     /**
@@ -63,24 +71,24 @@ class ProjectPolicy
      */
     public function delete(User $user, Project $project): bool
     {
-        if ($user['profile']['global_access'] || $user['id'] === $project['manager_id']) {
+        if ($user['role']['profile']['global_access'] || $user['id'] === $project['manager_id']) {
             return true;
         }
 
-        return $user['profile']['manage_projects'] & Permissions::REMOVE;
+        return $user['role']['profile']['manage_projects'] & Permissions::REMOVE;
     }
 
     public function finance(User $user, Project $project): bool
     {
-        if ($user['profile']['global_access'] || $user['id'] === $project['manager_id'])
+        if ($user['role']['profile']['global_access'] || $user['id'] === $project['manager_id'])
             return true;
 
-        return $user['profile']['manage_projects'] & Permissions::FINANCIAL_ACCESS;
+        return $user['role']['profile']['manage_projects'] & Permissions::FINANCIAL_ACCESS;
     }
 
     public function manageProjects(User $user): bool
     {
-        return $user['profile']['manage_projects'] & Permissions::MANAGE_PROJECTS;
+        return $user['role']['profile']['manage_projects'] & Permissions::MANAGE_PROJECTS;
     }
 
     /**
