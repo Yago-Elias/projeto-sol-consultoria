@@ -9,6 +9,7 @@ use App\Models\FinancialNature;
 use App\Models\FinancialType;
 use App\Models\Installment;
 use App\Models\Provider;
+use App\Permissions;
 use BackedEnum;
 use Filament\Actions\Action;
 use Filament\Actions\ActionGroup;
@@ -32,6 +33,7 @@ use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Grouping\Group;
 use Filament\Tables\Table;
 use Illuminate\Contracts\Support\Htmlable;
+use Illuminate\Database\Eloquent\Model;
 
 class ManageFinance extends ManageRelatedRecords
 {
@@ -55,15 +57,11 @@ class ManageFinance extends ManageRelatedRecords
 
     protected function getHeaderActions(): array
     {
-        $total = count($this->record['tasks']);
-        $status = $this->record['tasks']->groupBy('status');
-        $percentage = $total > 0 ? 100 * count($status['APROVADA']) / $total : 0;
-
         return [
             Action::make('progress-bar')
                 ->view('filament.resources.projects.partials.circle-progress')
                 ->viewData([
-                    'percentage' => $percentage,
+                    'percentage' => $this->record->progress,
                     'endDate' => $this->record['end_date']
                 ]),
         ];
@@ -252,5 +250,10 @@ class ManageFinance extends ManageRelatedRecords
                     DeleteAction::make(),
                 ])
             ]);
+    }
+
+    public static function canAccess(array $parameters = []): bool
+    {
+        return auth()->user()->can('finance', $parameters['record']);
     }
 }

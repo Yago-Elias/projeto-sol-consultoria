@@ -13,10 +13,11 @@ class UserPolicy
      */
     public function viewAny(User $user): bool
     {
-        if ($user['profile']['global_access'])
+        if ($user['role']['profile']['global_access']) {
             return true;
+        }
 
-        return $user['profile']['manage_users'] & Permissions::LIST;
+        return $user['role']['profile']['manage_users'] & Permissions::LIST;
     }
 
     /**
@@ -24,11 +25,13 @@ class UserPolicy
      */
     public function view(User $user, User $model): bool
     {
-        if ($user['profile']['global_access'])
+        if ($user['role']['profile']['global_access']) {
             return true;
+        }
 
-        if ($user['profile']['manage_users'] & Permissions::LIST)
+        if ($user['role']['profile']['manage_users'] & Permissions::LIST) {
             return true;
+        }
 
         return $user['id'] === $model['id'];
     }
@@ -38,10 +41,11 @@ class UserPolicy
      */
     public function create(User $user): bool
     {
-        if ($user['profile']['global_access'])
+        if ($user['role']['profile']['global_access']) {
             return true;
+        }
 
-        return $user['profile']['manage_users'] & Permissions::CREATE;
+        return $user['role']['profile']['manage_users'] & Permissions::CREATE;
     }
 
     /**
@@ -49,10 +53,11 @@ class UserPolicy
      */
     public function update(User $user, User $model): bool
     {
-        if ($user['profile']['global_access'])
+        if ($user['role']['profile']['global_access']) {
             return true;
+        }
 
-        return $user['profile']['manage_users'] & Permissions::EDIT;
+        return $user['role']['profile']['manage_users'] & Permissions::EDIT;
     }
 
     /**
@@ -60,10 +65,17 @@ class UserPolicy
      */
     public function delete(User $user, User $model): bool
     {
-        if ($user['profile']['global_access'])
+        if ($user['role']['profile']['global_access']) {
             return true;
+        }
 
-        return $user['profile']['manage_users'] & Permissions::REMOVE;
+        return $user['role']['profile']['manage_users'] & Permissions::REMOVE &&
+            $model['managedProjects']->merge($model['projects'])->count() === 0;
+    }
+
+    public function settings(User $user): bool
+    {
+        return ($user['role']['profile']['global_access']) || $user['role']['profile']['system_config'];
     }
 
     /**

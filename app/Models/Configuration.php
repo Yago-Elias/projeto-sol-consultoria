@@ -5,12 +5,11 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class ProjectAttribution extends Model
+class Configuration extends Model
 {
     use HasFactory;
 
     protected $fillable = [
-        'attribution'
+        'max_installments'
     ];
-    public $timestamps = false;
 }

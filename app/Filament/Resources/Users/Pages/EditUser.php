@@ -22,7 +22,8 @@ class EditUser extends EditRecord
                     count($record['managedProjects']) + count($record['projects']) > 0)
                 ->before(function (User $record): void {
                     $record->expertises()->detach();
-                }),
+                })
+                ->hidden(fn (User $record) => auth()->user()->cannot('delete', $record)),
         ];
     }
 

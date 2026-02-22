@@ -15,8 +15,10 @@
             </x-filament::input.select>
         </x-filament::input.wrapper>
     </div>
-    <div>
-        {{ $this->createAction }}
-        <x-filament-actions::modals />
-    </div>
+    @can('create', [\App\Models\Task::class, $this->project])
+        <div>
+            {{ $this->createAction }}
+            <x-filament-actions::modals />
+        </div>
+    @endcan
 </div>

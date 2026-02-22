@@ -11,13 +11,10 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('project_attributions', function (Blueprint $table) {
+        Schema::create('configurations', function (Blueprint $table) {
             $table->id();
-            $table->string('attribution');
-
-            $table->unsignedSmallInteger('task_access');
-            $table->unsignedSmallInteger('board_access');
-            $table->unsignedSmallInteger('financial_access');
+            $table->integer('max_installments');
+            $table->timestamps();
         });
     }
 
@@ -26,6 +23,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('project_attributions');
+        Schema::dropIfExists('configurations');
     }
 };
