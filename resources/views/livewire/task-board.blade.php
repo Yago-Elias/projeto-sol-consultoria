@@ -5,7 +5,7 @@
 <ul class="kanban-column flex flex-col gap-4 h-full min-h-10">
     @forelse($tasks as $task)
         <li wire:key="{{ $task->id }}" data-id="{{ $task->id }}">
-            <div class="flex gap-4 justify-between rounded pr-2">
+            <div class="flex gap-4 justify-between rounded pr-2" @click="$wire.openTask({{ $task }})">
                 <span class="handle my-auto" style="cursor: grab;">
                     <x-filament::icon-button
                         icon="heroicon-o-bars-3"

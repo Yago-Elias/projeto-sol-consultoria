@@ -298,7 +298,7 @@ class TasksRelationManager extends RelationManager
                     }),
             ])
             ->recordActions([
-                ViewAction::make()
+                ViewAction::make('viewTask')
                     ->modalHeading(fn (?Task $record) => $record['title'] ?? '')
                     ->modalCancelAction(false)
                     ->icon(fn (?Task $record): string => filament()->getUserAvatarUrl($record['assignedTo']) ?? null)
@@ -354,6 +354,11 @@ class TasksRelationManager extends RelationManager
     public function refreshTable(): void
     {
         $this->dispatch('$refresh');
+    }
+
+    public function openTask(Task $task)
+    {
+        $this->mountAction('viewTask', ['record' => $task]);
     }
 
     public function receiveTask(int $id): void
