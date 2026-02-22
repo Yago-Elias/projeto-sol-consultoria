@@ -3,6 +3,7 @@
 namespace App\Filament\Resources\Projects\Pages;
 
 use App\Filament\Resources\Projects\ProjectResource;
+use App\Livewire\FinanceBalanceStats;
 use App\Livewire\TableInstallment;
 use App\Models\FinancialEntry;
 use App\Models\FinancialNature;
@@ -252,5 +253,21 @@ class ManageFinance extends ManageRelatedRecords
                     DeleteAction::make(),
                 ])
             ]);
+    }
+
+    protected function getHeaderWidgets(): array
+    {
+        return [
+            FinanceBalanceStats::class,
+        ];
+    }
+
+    public function getHeaderWidgetsData(): array
+    {
+        return [
+            FinanceBalanceStats::class => [
+                'record' => $this->record,
+            ],
+        ];
     }
 }
