@@ -247,20 +247,27 @@ class ProfileResource extends Resource
     {
         $array = [];
 
-        if ($num & Permissions::CREATE)
+        if ($num & Permissions::CREATE) {
             $array[] = 'c';
-        if ($num & Permissions::EDIT)
+        }
+        if ($num & Permissions::EDIT) {
             $array[] = 'e';
-        if ($num & Permissions::REMOVE)
+        }
+        if ($num & Permissions::REMOVE) {
             $array[] = 'd';
-        if ($num & Permissions::LIST)
+        }
+        if ($num & Permissions::LIST) {
             $array[] = 'l';
-        if ($num & Permissions::APPROVE_TASKS)
+        }
+        if ($num & Permissions::APPROVE_TASKS) {
             $array[] = 'a';
-        if ($num & Permissions::MANAGE_PROJECTS)
+        }
+        if ($num & Permissions::MANAGE_PROJECTS) {
             $array[] = 'm';
-        if ($num & Permissions::FINANCIAL_ACCESS)
+        }
+        if ($num & Permissions::FINANCIAL_ACCESS) {
             $array[] = 'f';
+        }
 
         return $array;
     }

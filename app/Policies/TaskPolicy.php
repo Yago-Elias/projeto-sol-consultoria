@@ -31,11 +31,13 @@ class TaskPolicy
      */
     public function create(User $user, ?Project $project = null): bool
     {
-        if ($user['role']['profile']['global_access'])
+        if ($user['role']['profile']['global_access']) {
             return true;
+        }
 
-        if ($project && $user['id'] === $project['manager_id'])
+        if ($project && $user['id'] === $project['manager_id']) {
             return true;
+        }
 
         return $user['role']['profile']['task_access'] & Permissions::CREATE;
     }
@@ -46,8 +48,9 @@ class TaskPolicy
     public function update(User $user, Task $task): bool
     {
 //        dd($task['project']);
-        if ($user['role']['profile']['global_access'] || $user['id'] === $task['project']['manager_id'])
+        if ($user['role']['profile']['global_access'] || $user['id'] === $task['project']['manager_id']) {
             return true;
+        }
 
         return $user['role']['profile']['task_access'] & Permissions::EDIT;
     }
@@ -57,19 +60,22 @@ class TaskPolicy
      */
     public function delete(User $user, Task $task): bool
     {
-        if ($user['role']['profile']['global_access']|| $user['id'] === $task['project']['manager_id'])
+        if ($user['role']['profile']['global_access'] || $user['id'] === $task['project']['manager_id']) {
             return true;
+        }
 
         return $user['role']['profile']['task_access'] & Permissions::REMOVE;
     }
 
     public function approve(User $user, Task $task): bool
     {
-        if ($user['role']['profile']['global_access'] || $user['id'] === $task['project']['manager_id'])
+        if ($user['role']['profile']['global_access'] || $user['id'] === $task['project']['manager_id']) {
             return $task['status'] === 'EM_APROVACAO';
+        }
 
-        if ($task['assignedTo']['id'] === $user['id'])
+        if ($task['assignedTo']['id'] === $user['id']) {
             return false;
+        }
 
         return ($user['role']['profile']['task_access'] & Permissions::APPROVE_TASKS) &&
                $task['status'] === 'EM_APROVACAO';

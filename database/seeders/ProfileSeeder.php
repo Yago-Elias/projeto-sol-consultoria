@@ -17,7 +17,7 @@ class ProfileSeeder extends Seeder
         Profile::factory()->create([
             'profile' => 'admin',
             'manage_users' => Permissions::CREATE | Permissions::EDIT | Permissions::REMOVE | Permissions::LIST,
-            'manage_projects' => Permissions::CREATE | Permissions::EDIT | Permissions::REMOVE | Permissions::LIST | Permissions::FINANCIAL_ACCESS | Permissions::MANAGE_PROJECTS,
+            'manage_projects' => Permissions::CREATE | Permissions::EDIT | Permissions::REMOVE | Permissions::LIST | Permissions::FINANCIAL_ACCESS,
             'task_access' => Permissions::CREATE | Permissions::EDIT | Permissions::REMOVE | Permissions::APPROVE_TASKS,
             'system_config' => true,
             'global_access' => true,
@@ -25,7 +25,7 @@ class ProfileSeeder extends Seeder
         Profile::factory()->create([
             'profile' => 'consultant',
             'manage_users' => Permissions::NONE,
-            'manage_projects' => Permissions::CREATE | Permissions::EDIT,
+            'manage_projects' => Permissions::CREATE | Permissions::EDIT | Permissions::MANAGE_PROJECTS,
             'task_access' => Permissions::CREATE | Permissions::EDIT | Permissions::REMOVE | Permissions::APPROVE_TASKS,
             'system_config' => false,
             'global_access' => false,

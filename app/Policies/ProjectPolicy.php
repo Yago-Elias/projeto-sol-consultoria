@@ -80,8 +80,9 @@ class ProjectPolicy
 
     public function finance(User $user, Project $project): bool
     {
-        if ($user['role']['profile']['global_access'] || $user['id'] === $project['manager_id'])
+        if ($user['role']['profile']['global_access'] || $user['id'] === $project['manager_id']) {
             return true;
+        }
 
         return $user['role']['profile']['manage_projects'] & Permissions::FINANCIAL_ACCESS;
     }

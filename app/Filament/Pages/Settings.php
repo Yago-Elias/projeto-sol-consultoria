@@ -19,5 +19,7 @@ class Settings extends Page
     }
 
     #[On('refresh-install')]
-    public function refresh(): void {}
+    public function refresh(): void
+    {
+    }
 }

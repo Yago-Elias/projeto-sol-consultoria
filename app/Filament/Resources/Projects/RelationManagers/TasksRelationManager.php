@@ -253,12 +253,15 @@ class TasksRelationManager extends RelationManager
                 return $query;
             })
             ->heading(function () {
-                if ($this->status === 'PENDENTE')
+                if ($this->status === 'PENDENTE') {
                     return 'Pendentes';
-                if ($this->status === 'EM_PROGRESSO')
+                }
+                if ($this->status === 'EM_PROGRESSO') {
                     return 'Em progresso';
-                if ($this->status === 'EM_APROVACAO')
+                }
+                if ($this->status === 'EM_APROVACAO') {
                     return 'Esperando aprovação';
+                }
                 return 'Concluídas';
             })
             ->recordTitleAttribute('title')
