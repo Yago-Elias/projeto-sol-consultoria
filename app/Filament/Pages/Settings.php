@@ -5,6 +5,7 @@ namespace App\Filament\Pages;
 use App\Models\User;
 use Filament\Pages\Page;
 use Filament\Schemas\Schema;
+use Livewire\Attributes\On;
 
 class Settings extends Page
 {
@@ -16,4 +17,7 @@ class Settings extends Page
     {
         return auth()->user()->can('settings', User::class);
     }
+
+    #[On('refresh-install')]
+    public function refresh(): void {}
 }
