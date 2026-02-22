@@ -56,7 +56,9 @@ class TasksRelationManager extends RelationManager
                 Select::make('assigned_to')
                     ->label('Responsável')
                     ->required()
-                    ->relationship('assignedTo', 'name',
+                    ->relationship(
+                        'assignedTo',
+                        'name',
                         fn (Builder $query) =>
                             $query
                                 ->join('projects_users', 'user_id', 'id')
@@ -122,21 +124,27 @@ class TasksRelationManager extends RelationManager
                             ->label('Status')
                             ->badge()
                             ->color(function (Task $task) {
-                                if ($task['status'] === 'APROVADA')
+                                if ($task['status'] === 'APROVADA') {
                                     return 'success';
-                                if ($task['status'] === 'EM_APROVACAO')
+                                }
+                                if ($task['status'] === 'EM_APROVACAO') {
                                     return 'warning';
-                                if ($task['due_date'] < now())
+                                }
+                                if ($task['due_date'] < now()) {
                                     return 'danger';
+                                }
                                 return 'gray';
                             })
                             ->formatStateUsing(function (string $state, Task $task) {
-                                if ($state === 'APROVADA')
+                                if ($state === 'APROVADA') {
                                     return 'Concluída';
-                                if ($state === 'EM_APROVACAO')
+                                }
+                                if ($state === 'EM_APROVACAO') {
                                     return 'Esperando Aprovação';
-                                if ($task['due_date'] < now())
+                                }
+                                if ($task['due_date'] < now()) {
                                     return 'Atrasada';
+                                }
                                 return 'Pendente';
                             }),
                         TextEntry::make('description')
@@ -231,34 +239,42 @@ class TasksRelationManager extends RelationManager
                 TextColumn::make('title')
                     ->wrap()
                     ->icon(function (Task $task) {
-                        if ($task['status'] === 'PENDENTE' && $task['due_date'] < now())
+                        if ($task['status'] === 'PENDENTE' && $task['due_date'] < now()) {
                             return Heroicon::OutlinedExclamationCircle;
-                        if ($task['status'] === 'EM_APROVACAO')
+                        }
+                        if ($task['status'] === 'EM_APROVACAO') {
                             return Heroicon::OutlinedClock;
+                        }
                         return Heroicon::OutlinedCheckCircle;
                     })
                     ->iconColor(function (Task $task) {
-                        if ($task['status'] === 'APROVADA')
+                        if ($task['status'] === 'APROVADA') {
                             return 'success';
-                        if ($task['status'] === 'EM_APROVACAO')
+                        }
+                        if ($task['status'] === 'EM_APROVACAO') {
                             return 'warning';
-                        if ($task['due_date'] >= now())
+                        }
+                        if ($task['due_date'] >= now()) {
                             return 'gray';
+                        }
                         return 'danger';
                     })
                     ->description(function (Task $task) {
-                        if ($task['status'] !== 'APROVADA')
+                        if ($task['status'] !== 'APROVADA') {
                             return 'Até ' . date_format($task['due_date'], 'd/m/Y');
+                        }
                         return null;
                     }),
             ])
             ->groups([
                 Group::make('status')
                     ->getTitleFromRecordUsing(function (Task $task) {
-                        if ($task['status'] === 'PENDENTE')
+                        if ($task['status'] === 'PENDENTE') {
                             return 'Pendentes';
-                        if ($task['status'] === 'APROVADA')
+                        }
+                        if ($task['status'] === 'APROVADA') {
                             return 'Concluídas';
+                        }
                         return 'Em Aprovação';
                     })
                     ->titlePrefixedWithLabel(false)
@@ -359,9 +375,10 @@ class TasksRelationManager extends RelationManager
     {
         $tabs = ['all' => Tab::make('Todos')];
 
-        foreach ($this->ownerRecord['collaborators'] as $user)
+        foreach ($this->ownerRecord['collaborators'] as $user) {
             $tabs[$user['name']] = Tab::make($user['name'])
                 ->modifyQueryUsing(fn (Builder $query) => $query->where('assigned_to', $user['id']));
+        }
 
         return $tabs;
     }

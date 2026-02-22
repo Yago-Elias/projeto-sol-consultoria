@@ -21,7 +21,6 @@ use Illuminate\Session\Middleware\StartSession;
 use Illuminate\Support\Facades\Blade;
 use Illuminate\View\Middleware\ShareErrorsFromSession;
 
-
 class AdminPanelProvider extends PanelProvider
 {
     public function panel(Panel $panel): Panel
@@ -37,16 +36,24 @@ class AdminPanelProvider extends PanelProvider
             ->brandLogo(asset('images/logo.svg'))
             ->brandLogoHeight('2em')
             ->globalSearch(false)
-            ->renderHook(PanelsRenderHook::TOPBAR_END,
-                        fn () => Blade::render('<p class="logo-name">Sol Consultorias</p><span style="width: 2em;"></span>'))
+            ->renderHook(
+                PanelsRenderHook::TOPBAR_END,
+                fn () => Blade::render('<p class="logo-name">Sol Consultorias</p><span style="width: 2em;"></span>')
+            )
             ->sidebarWidth('17em')
-            ->renderHook(PanelsRenderHook::SIDEBAR_NAV_START,
-                        fn () => view('components.sidebar-new-project'))
+            ->renderHook(
+                PanelsRenderHook::SIDEBAR_NAV_START,
+                fn () => view('components.sidebar-new-project')
+            )
             ->userMenu(false)
-            ->renderHook(PanelsRenderHook::SIDEBAR_FOOTER,
-                        fn () => view('components.user-menu'))
-            ->renderHook(PanelsRenderHook::BODY_END,
-                        fn () => Blade::render('<p class="footer">Sol Consultorias &copy; 2025</p>'))
+            ->renderHook(
+                PanelsRenderHook::SIDEBAR_FOOTER,
+                fn () => view('components.user-menu')
+            )
+            ->renderHook(
+                PanelsRenderHook::BODY_END,
+                fn () => Blade::render('<p class="footer">Sol Consultorias &copy; 2025</p>')
+            )
             ->colors([
                 'primary' => '#A77022',
                 'escuro-1' => '#85561A',

@@ -7,7 +7,6 @@ use Illuminate\Database\Eloquent\Model;
 
 class ProjectAttribution extends Model
 {
-
     use HasFactory;
 
     protected $fillable = [

@@ -82,7 +82,7 @@ class ProjectResource extends Resource
 
     public static function searchConsultants(array $ids): array
     {
-        if ($ids)
+        if ($ids) {
             return User::query()
                 ->with('role:id,role')
                 ->findMany($ids, ['id', 'name', 'image', 'role_id'])
@@ -93,6 +93,7 @@ class ProjectResource extends Resource
                     'role' => $user->role->role,
                 ])
                 ->all();
+        }
         return [];
     }
 }
