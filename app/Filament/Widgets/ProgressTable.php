@@ -20,7 +20,7 @@ class ProgressTable extends TableWidget
         return $table
             ->query(function (): Builder {
                 $user = filament()->auth()->user();
-                if ($user['profile']['global_access']) {
+                if ($user->can('list', Project::class)) {
                     return Project::query();
                 }
                 return Project::query()->whereIn('id', $user['managedProjects']->pluck('id'));
@@ -62,16 +62,14 @@ class ProgressTable extends TableWidget
                         'R$ ' . number_format($record['financialEntries']
                             ->whereNotNull('payment_date')
                             ->where('financialNature.nature', 'Expense')
-                            ->sum('total_amount'), 2, ',', '.')
-                    )
+                            ->sum('total_amount'), 2, ',', '.'))
                     ->color('danger'),
                 TextColumn::make('Receita')
                     ->state(fn (Project $record) =>
                         'R$ ' . number_format($record['financialEntries']
                             ->whereNotNull('payment_date')
                             ->where('financialNature.nature', 'Payment')
-                            ->sum('total_amount'), 2, ',', '.')
-                    )
+                            ->sum('total_amount'), 2, ',', '.'))
                     ->color('success'),
                 TextColumn::make('Lucro')
                     ->state(fn (Project $record) =>
@@ -81,8 +79,7 @@ class ProgressTable extends TableWidget
                             ->sum('total_amount') - $record['financialEntries']
                             ->whereNotNull('payment_date')
                             ->where('financialNature.nature', 'Expense')
-                            ->sum('total_amount'), 2, ',', '.')
-                    )
+                            ->sum('total_amount'), 2, ',', '.'))
             ]);
     }
 }

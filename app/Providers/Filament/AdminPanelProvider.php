@@ -37,16 +37,24 @@ class AdminPanelProvider extends PanelProvider
             ->brandLogo(asset('images/logo.svg'))
             ->brandLogoHeight('2em')
             ->globalSearch(false)
-            ->renderHook(PanelsRenderHook::TOPBAR_END,
-                        fn () => Blade::render('<p class="logo-name">Sol Consultorias</p><span style="width: 2em;"></span>'))
+            ->renderHook(
+                PanelsRenderHook::TOPBAR_END,
+                fn () => Blade::render('<p class="logo-name">Sol Consultorias</p><span style="width: 2em;"></span>')
+            )
             ->sidebarWidth('15em')
-            ->renderHook(PanelsRenderHook::SIDEBAR_NAV_START,
-                        fn () => auth()->user()->can('create', Project::class) ? view('components.sidebar-new-project') : null)
+            ->renderHook(
+                PanelsRenderHook::SIDEBAR_NAV_START,
+                fn () => auth()->user()->can('create', Project::class) ? view('components.sidebar-new-project') : null
+            )
             ->userMenu(false)
-            ->renderHook(PanelsRenderHook::SIDEBAR_FOOTER,
-                        fn () => view('components.user-menu'))
-            ->renderHook(PanelsRenderHook::PAGE_END,
-                        fn () => Blade::render('<p class="footer">Sol Consultorias &copy; 2025</p>'))
+            ->renderHook(
+                PanelsRenderHook::SIDEBAR_FOOTER,
+                fn () => view('components.user-menu')
+            )
+            ->renderHook(
+                PanelsRenderHook::PAGE_END,
+                fn () => Blade::render('<p class="footer">Sol Consultorias &copy; 2025</p>')
+            )
             ->colors([
                 'primary' => '#A77022',
                 'escuro-1' => '#85561A',

@@ -3,10 +3,12 @@
 namespace Database\Seeders;
 
 use App\Models\Board;
+use App\Models\Configuration;
 use App\Models\Project;
 use App\Models\Task;
 use App\Models\User;
 use App\Permissions;
+use Database\Factories\ConfigurationFactory;
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Seeder;
@@ -20,6 +22,11 @@ class ProjectSeeder extends Seeder
     public function run(): void
     {
         static::$users ??= User::all();
+
+        Configuration::factory()
+            ->create([
+                'max_installments' => 4
+            ]);
 
         Project::factory(3)
             ->for(User::find(1), 'manager')
@@ -46,7 +53,7 @@ class ProjectSeeder extends Seeder
 
                 $project->tasks->each(function (Task $task) use ($collaboratorIds) {
                         $task->update(['assigned_to' => $collaboratorIds->random()]);
-                    });
+                });
             });
     }
 }

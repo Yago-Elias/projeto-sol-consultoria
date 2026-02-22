@@ -29,4 +29,9 @@ class Profile extends Model
     {
         return $this->hasMany(User::class);
     }
+
+    public function roles(): HasMany
+    {
+        return $this->hasMany(Role::class);
+    }
 }

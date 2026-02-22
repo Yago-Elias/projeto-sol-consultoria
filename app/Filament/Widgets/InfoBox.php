@@ -18,7 +18,7 @@ class InfoBox extends StatsOverviewWidget
         $projects = [];
         $tasks = [];
 
-        if ($user['profile']['global_access']) {
+        if ($user->can('list', Project::class)) {
             $projects = Project::query()->get();
             $tasks = Task::query()->get();
         } else {
@@ -31,7 +31,7 @@ class InfoBox extends StatsOverviewWidget
         $percentage = $totalTasks > 0 ? round($approvedTasks / $totalTasks * 100, 1) : 0;
 
         $avgProfit = 0;
-        if ($user['profile']['global_access']) {
+        if ($user->can('list', Project::class)) {
             $avgProfit = FinancialEntry::query()
                     ->whereNotNull('payment_date')
                     ->get()
@@ -55,14 +55,14 @@ class InfoBox extends StatsOverviewWidget
                 ->icon(Heroicon::OutlinedCheckCircle),
             Stat::make('Lucro Médio', 'R$ ' . round($avgProfit, 2))
                 ->description('Lucro médio dos projetos')
-                ->hidden(!$user['profile']['global_access'])
+                ->hidden($user->cannot('list', Project::class))
                 ->icon(Heroicon::OutlinedArrowTrendingUp),
             Stat::make('Atrasados', $lateProjects)
                 ->description('Total de projetos atrasados')
                 ->icon(Heroicon::OutlinedExclamationCircle),
             Stat::make('Risco de Atraso', $dangeredProjects)
                 ->description('Total de projetos com tarefas atrasadas')
-                ->hidden(!$user['profile']['global_access'])
+                ->hidden($user->cannot('list', Project::class))
                 ->icon(Heroicon::OutlinedExclamationTriangle),
         ];
     }

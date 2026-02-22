@@ -3,6 +3,7 @@
 namespace App\Filament\Resources\Projects\Schemas;
 
 use App\Filament\Forms\Components\Consultants;
+use App\Models\Configuration;
 use App\Models\FinancialType;
 use App\Models\Project;
 use App\Models\User;
@@ -140,12 +141,16 @@ class ProjectForm extends Component
                                 'xl' => 4,
                             ])
                             ->label('Pagamento')
-                            ->options([
-                                '1' => 'Á vista',
-                                '2' => '2x',
-                                '3' => '3x',
-                                '4' => '4x',
-                            ])
+                            ->options(function () {
+                                $maxInst = Configuration::query()->first()['max_installments'];
+                                $options = [];
+
+                                for ($i = 1; $i <= $maxInst; $i++) {
+                                    $options[$i] = ($i === 1) ? 'À Vista' : $i . 'x';
+                                }
+
+                                return $options;
+                            })
                             ->required()
                             ->disabled(fn ($operation) => $operation === 'edit'),
                         Select::make('payment_type')
@@ -208,8 +213,9 @@ class ProjectForm extends Component
                     ->schema([
                         Hidden::make('selected_consultants')
                             ->default(function ($operation) {
-                                if ($operation === 'create' && auth()->user()->can('manageProjects', Project::class))
+                                if ($operation === 'create' && auth()->user()->can('manageProjects', Project::class)) {
                                     return [auth()->id()];
+                                }
                                 return [];
                             }),
                         Hidden::make('remove_consultants')
@@ -276,8 +282,9 @@ class ProjectForm extends Component
                             })
                             ->searchable()
                             ->default(function ($operation) {
-                                if ($operation === 'create' && auth()->user()->can('manageProjects', Project::class))
+                                if ($operation === 'create' && auth()->user()->can('manageProjects', Project::class)) {
                                     return auth()->id();
+                                }
                                 return null;
                             })
                             ->hint('Apenas usuários com permissão podem gerenciar projetos')

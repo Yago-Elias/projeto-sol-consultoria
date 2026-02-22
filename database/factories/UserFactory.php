@@ -28,7 +28,6 @@ class UserFactory extends Factory
      */
     public function definition(): array
     {
-        static::$profiles = Profile::all();
         static::$roles = Role::all();
         return [
             'name' => fake()->name(),
@@ -41,7 +40,6 @@ class UserFactory extends Factory
             'remember_token' => Str::random(10),
 
             'role_id' => static::$roles->random(),
-            'profile_id' => static::$profiles->random(),
         ];
     }
 
