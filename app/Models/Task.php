@@ -41,4 +41,9 @@ class Task extends Model
     {
         return $this->belongsTo(User::class, 'assigned_to');
     }
+
+    public function overdue(): bool
+    {
+        return $this->conclusion_date == null && $this->due_date < now();
+    }
 }
