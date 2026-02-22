@@ -3,7 +3,8 @@
 
     <div class="grid lg:grid-cols-4 md:grid-cols-2 gap-4 flex-nowrap overflow-x-auto p-1">
         @forelse(['PENDENTE', 'EM_PROGRESSO', 'EM_APROVACAO', 'APROVADA'] as $status)
-            <div class="col-span-1">
+            <div class="col-span-1 flex-col gap-2">
+                <p>{{ $status }}</p>
                 @livewire(\App\Filament\Resources\Projects\RelationManagers\TasksRelationManager::class, [
                     'ownerRecord' => $record,
                     'pageClass' => static::class,
@@ -68,4 +69,22 @@
             </div>
         </div>
     </div>
+    <script>
+        document.addEventListener('livewire:initialized', () => {
+            document.querySelectorAll('.kanban-column').forEach(column => {
+                Sortable.create(column, {
+                    group: 'tasks',
+                    animation: 150,
+                    onEnd: function(evt) {
+                        if (evt.from === evt.to) return;
+
+                        let itemId = evt.item.dataset.id;
+                        let toWireId = evt.to.closest('[wire\\:id]').getAttribute('wire:id');
+
+                        Livewire.find(toWireId).call('receiveTask', itemId);
+                    }
+                });
+            });
+        });
+    </script>
 </x-filament-panels::page>

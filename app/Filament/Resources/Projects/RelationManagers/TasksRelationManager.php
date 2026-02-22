@@ -352,4 +352,12 @@ class TasksRelationManager extends RelationManager
     {
         $this->dispatch('$refresh');
     }
+
+    public function receiveTask(int $id): void
+    {
+        $task = $this->ownerRecord->tasks->findOrFail($id);
+        $task->status = $this->status;
+        $task->save();
+        $this->dispatch('refresh-tables');
+    }
 }
