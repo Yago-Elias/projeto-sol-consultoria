@@ -14,6 +14,8 @@ class Profile extends Model
     protected $fillable = [
         'profile',
         'manage_projects',
+        'task_access',
+        'financial_access',
         'manage_users',
         'system_config',
         'global_access',
@@ -26,5 +28,10 @@ class Profile extends Model
     public function users(): HasMany
     {
         return $this->hasMany(User::class);
+    }
+
+    public function roles(): HasMany
+    {
+        return $this->hasMany(Role::class);
     }
 }

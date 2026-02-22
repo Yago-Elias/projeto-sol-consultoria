@@ -16,6 +16,10 @@ return new class extends Migration
 
             $table->unsignedSmallInteger('manage_projects');
             $table->unsignedSmallInteger('manage_users');
+
+            $table->unsignedSmallInteger('task_access');
+            $table->unsignedSmallInteger('financial_access');
+
             $table->boolean('system_config');
             $table->boolean('global_access');
         });

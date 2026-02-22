@@ -91,11 +91,19 @@
         width: 1.5em;
         color: inherit;
     }
+
+    span {
+        color: inherit;
+    }
 }
 
 #new-project:hover {
     background-color: var(--escuro-1);
     color: var(--claro-3);
+
+    span {
+        color: inherit;
+    }
 }
 
 /* User Menu */
@@ -106,7 +114,7 @@
     row-gap: 1em;
     padding: 1rem;
     margin: auto;
-    width: 70%;
+    width: 90%;
 
     aside {
         margin: auto 0;
@@ -140,7 +148,6 @@
     text-align: center;
     align-content: center;
     height: 2em;
-    border-top: var(--neutro-2) solid 1px;
     color: var(--neutro-2);
 }
 

@@ -11,9 +11,7 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::table('projects_users', function (Blueprint $table) {
-            $table->foreignId('attribution_id')->nullable()->constrained('project_attributions');
-        });
+        Schema::dropIfExists('boards');
     }
 
     /**
@@ -21,9 +19,12 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::table('projects_users', function (Blueprint $table) {
-            $table->dropForeign('attribution_id');
-            $table->dropColumn('attribution_id');
+        Schema::create('boards', function (Blueprint $table) {
+            $table->id();
+            $table->string('name');
+            $table->timestamps();
+
+            $table->foreignId('project_id')->constrained('projects');
         });
     }
 };

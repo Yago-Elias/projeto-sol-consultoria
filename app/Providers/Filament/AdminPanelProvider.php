@@ -6,6 +6,7 @@ use App\Filament\Pages\DashboardPage;
 use App\Filament\Pages\LoginPage;
 use App\Filament\Widgets\InfoBox;
 use App\Filament\Widgets\ProgressTable;
+use App\Models\Project;
 use Filament\Http\Middleware\Authenticate;
 use Filament\Http\Middleware\AuthenticateSession;
 use Filament\Http\Middleware\DisableBladeIconComponents;
@@ -40,10 +41,10 @@ class AdminPanelProvider extends PanelProvider
                 PanelsRenderHook::TOPBAR_END,
                 fn () => Blade::render('<p class="logo-name">Sol Consultorias</p><span style="width: 2em;"></span>')
             )
-            ->sidebarWidth('17em')
+            ->sidebarWidth('15em')
             ->renderHook(
                 PanelsRenderHook::SIDEBAR_NAV_START,
-                fn () => view('components.sidebar-new-project')
+                fn () => auth()->user()->can('create', Project::class) ? view('components.sidebar-new-project') : null
             )
             ->userMenu(false)
             ->renderHook(
@@ -51,7 +52,7 @@ class AdminPanelProvider extends PanelProvider
                 fn () => view('components.user-menu')
             )
             ->renderHook(
-                PanelsRenderHook::BODY_END,
+                PanelsRenderHook::PAGE_END,
                 fn () => Blade::render('<p class="footer">Sol Consultorias &copy; 2025</p>')
             )
             ->colors([

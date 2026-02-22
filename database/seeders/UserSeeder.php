@@ -15,11 +15,9 @@ class UserSeeder extends Seeder
      */
     public function run(): void
     {
-        $profiles = Profile::all();
         $roles = Role::all();
 
         User::factory()
-            ->for(Profile::find(1))
             ->for(Role::find(1))
             ->create([
                 'name' => 'dev',

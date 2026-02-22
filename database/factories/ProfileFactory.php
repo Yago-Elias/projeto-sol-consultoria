@@ -21,8 +21,10 @@ class ProfileFactory extends Factory
         // quando for implementado a bitmask
         return [
             'profile' => fake()->word(),
-            'manage_users' => Permissions::NONE,
             'manage_projects' => Permissions::LIST | Permissions::CREATE | Permissions::MANAGE_PROJECTS,
+            'task_access' => Permissions::LIST | Permissions::CREATE | Permissions::EDIT | Permissions::FINANCIAL_ACCESS,
+            'financial_access' => Permissions::CREATE | Permissions::EDIT | Permissions::LIST,
+            'manage_users' => Permissions::NONE,
             'system_config' => false,
             'global_access' => false,
         ];

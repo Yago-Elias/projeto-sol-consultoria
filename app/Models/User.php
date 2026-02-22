@@ -31,7 +31,6 @@ class User extends Authenticatable implements HasAvatar
         'image',
         'telephone',
 
-        'profile_id',
         'role_id',
     ];
 
@@ -80,11 +79,6 @@ class User extends Authenticatable implements HasAvatar
         );
     }
 
-    public function profile(): BelongsTo
-    {
-        return $this->belongsTo(Profile::class);
-    }
-
     public function role(): BelongsTo
     {
         return $this->belongsTo(Role::class);
@@ -93,16 +87,6 @@ class User extends Authenticatable implements HasAvatar
     public function expertises(): BelongsToMany
     {
         return $this->belongsToMany(Expertise::class, 'users_expertises');
-    }
-
-    public function project_attribution(Project $project): BelongsToMany
-    {
-        return $this->belongsToMany(
-            ProjectAttribution::class,
-            'projects_users',
-            'user_id',
-            'attribution_id'
-        )->wherePivot('project_id', $project->id);
     }
 
     public function getFilamentAvatarUrl(): ?string

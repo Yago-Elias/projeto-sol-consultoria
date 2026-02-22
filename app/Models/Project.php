@@ -9,7 +9,6 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
-use Illuminate\Database\Eloquent\Relations\HasManyThrough;
 use Illuminate\Support\Facades\Storage;
 
 class Project extends Model
@@ -54,12 +53,21 @@ class Project extends Model
         );
     }
 
+    public function getTasksByStatus($status): int
+    {
+        return $this->tasks()
+                ->getQuery()
+                ->where('status', $status)
+                ->count();
+    }
+
     protected function overdueTasks(): Attribute
     {
         return Attribute::make(
             get: fn() => $this->tasks()
                 ->getQuery()
-                ->where('status', 'ATRASADA')
+                ->whereNull('conclusion_date')
+                ->where('due_date', '<', now())
                 ->count()
         );
     }
@@ -95,14 +103,9 @@ class Project extends Model
         );
     }
 
-    public function boards(): HasMany
+    public function tasks(): HasMany
     {
-        return $this->hasMany(Board::class, 'project_id');
-    }
-
-    public function tasks(): HasManyThrough
-    {
-        return $this->through('boards')->has('tasks');
+        return $this->hasMany(Task::class);
     }
 
     public function financialEntries(): HasMany

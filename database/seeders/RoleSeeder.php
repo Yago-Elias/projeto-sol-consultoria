@@ -2,6 +2,7 @@
 
 namespace Database\Seeders;
 
+use App\Models\Profile;
 use App\Models\Role;
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
@@ -13,9 +14,21 @@ class RoleSeeder extends Seeder
      */
     public function run(): void
     {
-        Role::factory()->create([
-            'role' => 'ceo'
-        ]);
-        Role::factory(10)->create();
+        $profiles = Profile::all();
+        Role::factory()
+            ->for(Profile::find(1))
+            ->create([
+                'role' => 'Proprietário'
+            ]);
+        Role::factory()
+            ->for(Profile::find(2))
+            ->create([
+                'role' => 'Consultor'
+            ]);
+        Role::factory()
+            ->for(Profile::find(3))
+            ->create([
+                'role' => 'Estagiário'
+            ]);
     }
 }

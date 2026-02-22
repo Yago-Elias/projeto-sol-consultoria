@@ -22,7 +22,6 @@ class TaskFactory extends Factory
      */
     public function definition(): array
     {
-        static::$boards ??= Board::all();
         static::$users ??= User::all();
 
         $newRecord = [
@@ -33,7 +32,6 @@ class TaskFactory extends Factory
             'conclusion_date' => fake()->optional()->dateTimeThisMonth(),
             'conclusion_message' => null,
             'status' => 'PENDENTE',
-            'board_id' => static::$boards->random(),
             'assigned_to' => static::$users->random(),
         ];
 

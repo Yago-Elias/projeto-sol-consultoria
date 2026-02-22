@@ -2,11 +2,8 @@
 
 namespace App\Filament\Resources\Projects\RelationManagers;
 
-use App\Filament\Resources\Projects\Pages\UnderApprovalTasks;
-use App\Models\Board;
 use App\Models\Task;
 use Filament\Actions\Action;
-use Filament\Actions\CreateAction;
 use Filament\Actions\DeleteAction;
 use Filament\Actions\EditAction;
 use Filament\Actions\ViewAction;
@@ -19,8 +16,6 @@ use Filament\Resources\RelationManagers\RelationManager;
 use Filament\Schemas\Components\EmbeddedTable;
 use Filament\Schemas\Components\RenderHook;
 use Filament\Schemas\Components\Tabs\Tab;
-use Filament\Tables\Actions\HeaderActionsPosition;
-use Filament\Tables\Grouping\Group;
 use Filament\Schemas\Components\Section;
 use Filament\Schemas\Schema;
 use Filament\Support\Enums\IconSize;
@@ -28,7 +23,6 @@ use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
 use Filament\View\PanelsRenderHook;
-use http\Client\Request;
 use Illuminate\Database\Eloquent\Builder;
 use Livewire\Attributes\On;
 use Livewire\Attributes\Url;
@@ -37,12 +31,13 @@ class TasksRelationManager extends RelationManager
 {
     #[Url(as: 'consultor')]
     public ?string $activeTab = null;
-    public Board $board;
+    public ?string $status = null;
     protected static string $relationship = 'tasks';
+    protected static ?string $label = 'tarefa';
 
-    public function mount($board = null): void
+    public function mount(?string $status = null): void
     {
-        $this->board = $board;
+        $this->status = $status;
         parent::mount();
     }
 
@@ -102,12 +97,17 @@ class TasksRelationManager extends RelationManager
                             ->extraAttributes([
                                 'class' => 'bg-primary-200 rounded-full border border-primary-600'
                             ])
+                            ->modelLabel('tarefa')
+                            ->hidden(fn (Task $task) => auth()->user()->cannot('update', $task))
                             ->iconButton(),
                         DeleteAction::make()
                             ->icon(Heroicon::OutlinedTrash)
                             ->extraAttributes([
                                 'class' => 'bg-danger-200 rounded-full border border-danger-600'
                             ])
+                            ->modelLabel('tarefa')
+                            ->cancelParentActions()
+                            ->hidden(fn (Task $task) => auth()->user()->cannot('delete', $task))
                             ->iconButton(),
                     ])
                     ->components([
@@ -152,16 +152,20 @@ class TasksRelationManager extends RelationManager
                             ->placeholder('-')
                             ->icon(Heroicon::OutlinedBars3BottomLeft)
                             ->columnSpanFull(),
+                        TextEntry::make('created_at')
+                            ->label('Data de Criação')
+                            ->icon(Heroicon::OutlinedCalendar)
+                            ->date(),
                         TextEntry::make('conclusion_date')
                             ->label('Data de conclusão')
                             ->icon(Heroicon::OutlinedCalendar)
                             ->date()
-                            ->hidden(fn (Task $task) => $task['status'] === 'PENDENTE'),
+                            ->hidden(fn (Task $task) => $task['status'] === 'PENDENTE' || $task['status'] === 'EM_PROGRESSO'),
                         TextEntry::make('conclusion_message')
                             ->label('Mensagem de conclusão')
                             ->placeholder('-')
                             ->icon(Heroicon::OutlinedBars3BottomLeft)
-                            ->hidden(fn (Task $task) => $task['status'] === 'PENDENTE')
+                            ->hidden(fn (Task $task) => $task['status'] === 'PENDENTE' || $task['status'] === 'EM_PROGRESSO')
                             ->columnSpanFull(),
                     ])
                     ->footerActions([
@@ -176,7 +180,6 @@ class TasksRelationManager extends RelationManager
                                     ->columnSpanFull(),
                                 TextInput::make('message')
                                     ->label('Mensagem de Conclusão')
-                                    ->hidden(fn (Task $record) => filament()->auth()->id() !== $record['assigned_to'])
                                     ->columnSpanFull()
                             ])
                             ->action(function (array $data, Task $record) {
@@ -186,9 +189,11 @@ class TasksRelationManager extends RelationManager
 
                                 $record->save();
                             })
-                            ->hidden(fn (Task $record) =>
-                                filament()->auth()->id() !== $record['assigned_to'] ||
-                                $record['status'] !== 'PENDENTE'),
+                            ->after(function () {
+                                $this->dispatch('refresh-tables');
+                            })
+                            ->cancelParentActions()
+                            ->hidden(fn (Task $record) => auth()->user()->cannot('conclude', $record)),
                         Action::make('approve')
                             ->label('Aprovar Tarefa')
                             ->icon(Heroicon::OutlinedCheck)
@@ -196,10 +201,12 @@ class TasksRelationManager extends RelationManager
                             ->action(function (Task $record) {
                                 $record['status'] = 'APROVADA';
                                 $record->save();
-
-                                $this->redirect("/projects/{$this->ownerRecord['id']}/aprovacao");
                             })
-                            ->hidden(fn () => $this->pageClass !== UnderApprovalTasks::class),
+                            ->after(function () {
+                                $this->dispatch('refresh-tables');
+                            })
+                            ->cancelParentActions()
+                            ->hidden(fn (Task $record) => auth()->user()->cannot('approve', $record)),
                         Action::make('deny')
                             ->label('Reprovar Tarefa')
                             ->icon(Heroicon::OutlinedXMark)
@@ -210,10 +217,24 @@ class TasksRelationManager extends RelationManager
                                 $record['conclusion_message'] = null;
 
                                 $record->save();
-
-                                $this->redirect("/projects/{$this->ownerRecord['id']}/aprovacao");
                             })
-                            ->hidden(fn () => $this->pageClass !== UnderApprovalTasks::class)
+                            ->after(function () {
+                                $this->dispatch('refresh-tables');
+                            })
+                            ->cancelParentActions()
+                            ->hidden(fn (Task $record) => auth()->user()->cannot('approve', $record)),
+                        Action::make('start_task')
+                            ->label('Iniciar Tarefa')
+                            ->action(function (Task $record) {
+                                $record->status = 'EM_PROGRESSO';
+                                $record->save();
+                            })
+                            ->hidden(fn (Task $record) => auth()->user()->cannot('start', $record))
+                            ->after(function () {
+                                $this->dispatch('refresh-tables');
+                            })
+                            ->cancelParentActions()
+                            ->icon(Heroicon::OutlinedPlay),
                     ])
                     ->contained(false)
                     ->columnSpanFull(),
@@ -225,15 +246,24 @@ class TasksRelationManager extends RelationManager
         return $table
             ->defaultSort('due_date')
             ->modifyQueryUsing(function (Builder $query) {
-                if (isset($this->board)) {
-                    $query = $query->where('board_id', $this->board['id']);
+                if (isset($this->status)) {
+                    $query = $query->where('status', $this->status);
                 }
-                if ($this->pageClass === UnderApprovalTasks::class) {
-                    $query = $query->where('status', 'EM_APROVACAO');
-                }
+
                 return $query;
             })
-            ->heading($this->board['name'])
+            ->heading(function () {
+                if ($this->status === 'PENDENTE') {
+                    return 'Pendentes';
+                }
+                if ($this->status === 'EM_PROGRESSO') {
+                    return 'Em progresso';
+                }
+                if ($this->status === 'EM_APROVACAO') {
+                    return 'Esperando aprovação';
+                }
+                return 'Concluídas';
+            })
             ->recordTitleAttribute('title')
             ->columns([
                 TextColumn::make('title')
@@ -266,98 +296,18 @@ class TasksRelationManager extends RelationManager
                         return null;
                     }),
             ])
-            ->groups([
-                Group::make('status')
-                    ->getTitleFromRecordUsing(function (Task $task) {
-                        if ($task['status'] === 'PENDENTE') {
-                            return 'Pendentes';
-                        }
-                        if ($task['status'] === 'APROVADA') {
-                            return 'Concluídas';
-                        }
-                        return 'Em Aprovação';
-                    })
-                    ->titlePrefixedWithLabel(false)
-                    ->collapsible()
-            ])
-            ->defaultGroup(fn () => $this->pageClass !== UnderApprovalTasks::class ? 'status' : null)
-            ->groupingSettingsHidden()
-            ->headerActions([
-                CreateAction::make('Criar Tarefa')
-                    ->modalHeading('Nova Tarefa')
-                    ->mutateDataUsing(function (array $data): array {
-                        $data['board_id'] = $this->board['id'];
-
-                        return $data;
-                    })
-                    ->icon(Heroicon::OutlinedPlus)
-                    ->extraAttributes([
-                        'class' => 'bg-primary-900 rounded-full border border-primary-100 text-primary-100'
-                    ])
-                    ->iconButton()
-                    ->hidden(fn () => $this->pageClass === UnderApprovalTasks::class),
-                EditAction::make('edit')
-                    ->modalHeading('Editar Quadro')
-                    ->modalWidth('md')
-                    ->schema([
-                        TextInput::make('name')
-                            ->label('Nome do quadro')
-                    ])
-                    ->after(function (array $data, Board $record, $livewire) {
-                        $record['name'] = $data['name'];
-                        $record->save();
-                        $livewire->resetTable();
-                    })
-                    ->record($this->board)
-                    ->icon(Heroicon::OutlinedPencil)
-                    ->extraAttributes([
-                        'class' => 'bg-primary-200 rounded-full border border-primary-600 text-primary-600'
-                    ])
-                    ->iconButton()
-                    ->hidden(fn () => $this->pageClass === UnderApprovalTasks::class),
-                DeleteAction::make('Deletar Quadro')
-                    ->record($this->board)
-                    ->before(function (Board $record) {
-                        $record['tasks']->each->delete();
-                    })
-                    ->after(function () {
-                        $this->redirect("/projects/{$this->ownerRecord['id']}");
-                    })
-                    ->modalHeading('Excluir Quadro?')
-                    ->modalDescription('Essa ação apagará todas as tarefas do quadro')
-                    ->icon(Heroicon::OutlinedTrash)
-                    ->extraAttributes([
-                        'class' => 'bg-danger-200 rounded-full border border-danger-600 text-danger-600'
-                    ])
-                    ->iconButton()
-                    ->hidden(fn () => $this->pageClass === UnderApprovalTasks::class)
-            ])
-            ->headerActionsPosition(HeaderActionsPosition::Adaptive)
             ->recordActions([
                 ViewAction::make()
-                    ->modalHeading(fn (Task $record) => $record['title'])
+                    ->modalHeading(fn (?Task $record) => $record['title'] ?? '')
                     ->modalCancelAction(false)
-                    ->icon(fn (Task $record): string => filament()->getUserAvatarUrl($record['assignedTo']))
+                    ->icon(fn (?Task $record): string => filament()->getUserAvatarUrl($record['assignedTo']) ?? null)
                     ->extraAttributes([
                         'class' => '[clip-path:circle(50%_at_50%_50%)] rounded-full border border-(--neutro-3)'
                     ], true)
                     ->iconButton()
                     ->iconSize(IconSize::TwoExtraLarge),
             ])
-            ->toolbarActions([
-                Action::make('progress')
-                    ->view('filament.resources.projects.partials.progress')
-                    ->viewData(function () {
-                        $finished = count(($this->board['tasks']->groupBy('status'))['APROVADA'] ?? []);
-                        $total = count($this->board['tasks']);
-
-                        return [
-                            'percent' => $total > 0 ? round(100 * $finished / $total) : 0
-                        ];
-                    })
-            ])
             ->emptyStateHeading('Sem Tarefas')
-            ->emptyStateDescription('Crie uma tarefa nova no menu acima')
             ->paginated(false)
             ->searchable(false)
             ->selectable(false)
@@ -397,5 +347,11 @@ class TasksRelationManager extends RelationManager
     public function userFilter($user): void
     {
         $this->activeTab = $user;
+    }
+
+    #[On('refresh-tables')]
+    public function refreshTable(): void
+    {
+        $this->dispatch('$refresh');
     }
 }

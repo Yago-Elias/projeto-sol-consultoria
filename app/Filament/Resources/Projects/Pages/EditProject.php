@@ -3,6 +3,7 @@
 namespace App\Filament\Resources\Projects\Pages;
 
 use App\Filament\Resources\Projects\ProjectResource;
+use App\Models\Project;
 use Filament\Actions\DeleteAction;
 use Filament\Resources\Pages\EditRecord;
 use Filament\Schemas\Schema;
@@ -14,7 +15,9 @@ class EditProject extends EditRecord
     protected function getHeaderActions(): array
     {
         return [
-            DeleteAction::make(),
+            DeleteAction::make()
+                ->label('Finalizar projeto')
+                ->hidden(fn (Project $record) => auth()->user()->cannot('delete', $record)),
         ];
     }
 
@@ -34,5 +37,13 @@ class EditProject extends EditRecord
     public function getSubNavigation(): array
     {
         return [];
+    }
+
+    protected function mutateFormDataBeforeFill(array $data): array
+    {
+        $pagamento = $this->record['financialEntries']->where('financialNature.nature', 'Payment')->first();
+        $data['payment'] = $pagamento['total_installments'];
+        $data['payment_type'] = $pagamento['type'];
+        return $data;
     }
 }

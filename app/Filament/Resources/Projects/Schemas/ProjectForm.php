@@ -3,13 +3,12 @@
 namespace App\Filament\Resources\Projects\Schemas;
 
 use App\Filament\Forms\Components\Consultants;
+use App\Models\Configuration;
 use App\Models\FinancialType;
 use App\Models\Project;
 use App\Models\User;
-use App\Permissions;
 use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\FileUpload;
-use Filament\Forms\Components\Repeater;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Textarea;
@@ -22,10 +21,6 @@ use Filament\Forms\Components\ViewField;
 use Filament\Schemas\Components\Utilities\Get;
 use Filament\Schemas\Components\Utilities\Set;
 use Filament\Schemas\Components\View;
-use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Database\Eloquent\Relations\BelongsToMany;
-use Illuminate\Support\Carbon;
-use Illuminate\Support\Facades\DB;
 use Livewire\Component;
 
 class ProjectForm extends Component
@@ -64,6 +59,7 @@ class ProjectForm extends Component
                                     ->label('Clique para adicionar uma imagem')
                                     ->image()
                                     ->imageEditor()
+                                    ->disk('public')
                                     ->alignCenter(),
                                 TextInput::make('company_name')
                                     ->columnSpan([
@@ -145,12 +141,16 @@ class ProjectForm extends Component
                                 'xl' => 4,
                             ])
                             ->label('Pagamento')
-                            ->options([
-                                '1' => 'Á vista',
-                                '2' => '2x',
-                                '3' => '3x',
-                                '4' => '4x',
-                            ])
+                            ->options(function () {
+                                $maxInst = Configuration::query()->first()['max_installments'];
+                                $options = [];
+
+                                for ($i = 1; $i <= $maxInst; $i++) {
+                                    $options[$i] = ($i === 1) ? 'À Vista' : $i . 'x';
+                                }
+
+                                return $options;
+                            })
                             ->required()
                             ->disabled(fn ($operation) => $operation === 'edit'),
                         Select::make('payment_type')
@@ -213,9 +213,9 @@ class ProjectForm extends Component
                     ->schema([
                         Hidden::make('selected_consultants')
                             ->default(function ($operation) {
-                                $user = filament()->auth()->user();
-                                if ($operation === 'create' && ($user['profile']['manage_projects'] & Permissions::MANAGE_PROJECTS))
-                                    return [$user['id']];
+                                if ($operation === 'create' && auth()->user()->can('manageProjects', Project::class)) {
+                                    return [auth()->id()];
+                                }
                                 return [];
                             }),
                         Hidden::make('remove_consultants')
@@ -270,20 +270,21 @@ class ProjectForm extends Component
                             ->options(function (?Project $project, Get $get, $operation) {
                                 $consultants = $get('selected_consultants') ?? [];
 
-                                if ($operation === 'edit')
+                                if ($operation === 'edit') {
                                     $consultants = array_merge($consultants, $project->collaborators()->pluck('id')->toArray());
+                                }
 
                                 return User::query()
                                     ->findMany($consultants)
                                     ->whereNotIn('id', $get('remove_consultants') ?? [])
-                                    ->filter(fn (User $user) => $user['profile']['manage_projects'] & Permissions::MANAGE_PROJECTS)
+                                    ->filter(fn (User $user) => $user->can('manageProjects', Project::class))
                                     ->pluck('name', 'id');
                             })
                             ->searchable()
                             ->default(function ($operation) {
-                                $user = filament()->auth()->user();
-                                if ($operation === 'create' && ($user['profile']['manage_projects'] & Permissions::MANAGE_PROJECTS))
-                                    return $user['id'];
+                                if ($operation === 'create' && auth()->user()->can('manageProjects', Project::class)) {
+                                    return auth()->id();
+                                }
                                 return null;
                             })
                             ->hint('Apenas usuários com permissão podem gerenciar projetos')

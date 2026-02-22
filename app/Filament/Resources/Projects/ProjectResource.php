@@ -64,7 +64,6 @@ class ProjectResource extends Resource
             'create' => CreateProject::route('/create'),
             'view' => ViewProject::route('/{record}'),
             'edit' => EditProject::route('/{record}/edit'),
-            'aprovacao' => UnderApprovalTasks::route('/{record}/aprovacao'),
             'financeiro' => ManageFinance::route('/{record}/financeiro'),
             'detalhes' => ProjectDetails::route('/{record}/detalhes'),
         ];
@@ -74,7 +73,6 @@ class ProjectResource extends Resource
     {
         return $page->generateNavigationItems([
             ViewProject::class,
-            UnderApprovalTasks::class,
             ManageFinance::class,
             ProjectDetails::class,
         ]);

@@ -3,6 +3,7 @@
 namespace App\Filament\Resources\Users\Pages;
 
 use App\Filament\Resources\Users\UserResource;
+use App\Models\User;
 use Filament\Actions\Action;
 use Filament\Actions\EditAction;
 use Filament\Resources\Pages\ViewRecord;
@@ -23,7 +24,8 @@ class ViewUser extends ViewRecord
                 ->color('neutro-1'),
             EditAction::make()
                 ->icon(Heroicon::OutlinedPencilSquare)
-                ->iconSize('md'),
+                ->iconSize('md')
+                ->hidden(fn (User $record) => auth()->user()->cannot('update', $record)),
         ];
     }
 
