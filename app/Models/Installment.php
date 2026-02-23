@@ -29,9 +29,10 @@ class Installment extends Model
 
     public function validatePreviousInstallmentPaid(): bool
     {
-        if ($this->number == 1)
+        if ($this->number == 1) {
             return true;
-        
+        }
+
         return self::where('financial_entry_id', $this->financial_entry_id)
             ->where('number', $this->number - 1)
             ->whereNotNull('payment_date')

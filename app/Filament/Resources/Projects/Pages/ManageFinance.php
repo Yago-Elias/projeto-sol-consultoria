@@ -237,7 +237,7 @@ class ManageFinance extends ManageRelatedRecords
                             $hasPaidInstallments = $record->installments()
                                 ->where('payment_date', '<>', 'null')
                                 ->exists();
-                            
+
                             if ($hasPaidInstallments) {
                                 Notification::make()
                                     ->title('Alteração bloqueada')
