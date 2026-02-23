@@ -81,6 +81,7 @@ class TableInstallment extends Component implements HasActions, HasSchemas, HasT
                     ->modalCancelActionLabel('Cancelar')
                     ->action(function (Installment $record) {
                         $record->markAsPaid();
+                        $this->dispatch('update_balanco');
                     })
             ])
             ->toolbarActions([

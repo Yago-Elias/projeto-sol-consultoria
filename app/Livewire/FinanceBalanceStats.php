@@ -2,10 +2,12 @@
 
 namespace App\Livewire;
 
+use App\Models\Installment;
 use App\Models\Project;
 use Filament\Support\Icons\Heroicon;
 use Filament\Widgets\StatsOverviewWidget;
 use Filament\Widgets\StatsOverviewWidget\Stat;
+use Livewire\Attributes\On;
 
 class FinanceBalanceStats extends StatsOverviewWidget
 {
@@ -15,36 +17,58 @@ class FinanceBalanceStats extends StatsOverviewWidget
 
     protected function getStats(): array
     {
-        $entries = $this->record->financialEntries()
-            ->with('financialNature')
-            ->whereNotNull('payment_date')
+        $installments = Installment::query()
+            ->whereHas('financialEntry', fn ($q) => $q->where('project_id', $this->record->id))
+            ->with('financialEntry.financialNature')
             ->get();
+        
+        // receita já paga
+        $paid_revenue = $installments
+            ->filter(fn ($i) => $i->payment_date !== null
+                && $i->financialEntry->financialNature?->nature === 'Payment')
+                ->sum('value');
+        
+        // receita a ser paga
+        $uncollected_revenue = $installments
+            ->filter(fn ($i) => $i->payment_date == null
+                && $i->financialEntry->financialNature?->nature === 'Payment')
+            ->sum('value');
 
-        $receita = $entries
-            ->where('financialNature.nature', 'Payment')
-            ->sum('total_amount');
+        // custo pago
+        $cost_paid = $installments
+            ->filter(fn ($i) => $i->payment_date !== null
+                && $i->financialEntry->financialNature?->nature === 'Expense')
+            ->sum('value');
 
-        $custos = $entries
-            ->where('financialNature.nature', 'Expense')
-            ->sum('total_amount');
+        // custo à pagar
+        $accounts_payable = $installments
+            ->filter(fn ($i) => $i->payment_date === null
+                && $i->financialEntry->financialNature?->nature === 'Expense')
+            ->sum('value');
 
-        $lucro = $receita - $custos;
+        $proit = $paid_revenue - $cost_paid;
 
         return [
-            Stat::make('Receita', 'R$ ' . number_format($receita, 2, ',', '.'))
-                ->description('Total de receitas pagas')
+            Stat::make('Receita Recebida', 'R$ ' . number_format($paid_revenue, 2, ',', '.'))
+                ->description('Pendente: R$ ' . number_format($uncollected_revenue, 2, ',', '.'))
                 ->color('success')
                 ->icon(Heroicon::OutlinedArrowTrendingUp),
 
-            Stat::make('Custos', 'R$ ' . number_format($custos, 2, ',', '.'))
-                ->description('Total de despesas pagas')
+            Stat::make('Custos Pagos', 'R$ ' . number_format($cost_paid, 2, ',', '.'))
+                ->description('Pendente: R$ ' . number_format($accounts_payable, 2, ',', '.'))
                 ->color('danger')
                 ->icon(Heroicon::OutlinedArrowTrendingDown),
 
-            Stat::make('Lucro', 'R$ ' . number_format($lucro, 2, ',', '.'))
-                ->description('Receita menos custos')
-                ->color($lucro >= 0 ? 'success' : 'danger')
+            Stat::make('Lucro Realizado', 'R$ ' . number_format($proit, 2, ',', '.'))
+                ->description('Baseado nas parcelas pagas')
+                ->color($proit >= 0 ? 'success' : 'danger')
                 ->icon(Heroicon::OutlinedBanknotes),
         ];
+    }
+
+    #[On('update_balanco')]
+    public function updateBalanco(): void
+    {
+        $this->dispatch('$refresh');
     }
 }

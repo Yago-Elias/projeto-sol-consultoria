@@ -3,7 +3,6 @@
 namespace App\Filament\Resources\Projects\Pages;
 
 use App\Livewire\FinanceBalanceStats;
-use App\Permissions;
 use BackedEnum;
 use Filament\Actions\EditAction;
 use Filament\Support\Icons\Heroicon;
@@ -33,14 +32,11 @@ class ProjectDetails extends ViewProject
     public function getHeaderActions(): array
     {
         $user = filament()->auth()->user();
-        $profile = $user['profile'];
-
-        $canEdit = $profile['global_access'] || ($profile['project_manager'] & Permissions::EDIT);
 
         return [
             EditAction::make()
                 ->icon(Heroicon::OutlinedPencilSquare)
-                ->visible($canEdit),
+                ->visible($user->can('update', $this->record)),
         ];
     }
 }

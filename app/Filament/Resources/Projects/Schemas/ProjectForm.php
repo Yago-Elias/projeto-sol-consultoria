@@ -161,9 +161,10 @@ class ProjectForm extends Component
                                 'xl' => 4,
                             ])
                             ->label('Tipo de Pagamento')
-                            ->required()
+                            ->required(fn ($operation) => $operation !== 'edit')
                             ->options(fn () => FinancialType::query()->pluck('type', 'id'))
-                            ->disabled(fn ($operation) => $operation === 'edit'),
+                            ->disabled(fn ($operation) => $operation === 'edit')
+                            ->visible(fn ($operation) => $operation !== 'edit'),
                     ]),
 
                 Section::make('Consultores')
