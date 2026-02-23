@@ -2,24 +2,37 @@
     <livewire:criar-quadro :project="$record"/>
 
     <div class="grid lg:grid-cols-4 md:grid-cols-2 gap-4 flex-nowrap overflow-x-auto p-1">
-        @forelse(['PENDENTE', 'EM_PROGRESSO', 'EM_APROVACAO', 'APROVADA'] as $status)
-            <div class="col-span-1">
+        @foreach(['PENDENTE', 'EM_PROGRESSO', 'EM_APROVACAO', 'APROVADA'] as $status)
+            @php
+                $title = match($status) {
+                    'PENDENTE' => 'Pendentes',
+                    'EM_PROGRESSO' => 'Em Progresso',
+                    'EM_APROVACAO' => 'Esperando Aprovação',
+                    'APROVADA' => 'Aprovadas'
+                };
+                $icon = match($status) {
+                    'EM_PROGRESSO' => 'heroicon-o-clipboard-document-list',
+                    'EM_APROVACAO' => 'heroicon-o-clock',
+                    default => 'heroicon-o-check-circle'
+                };
+                $color = match($status) {
+                    'PENDENTE' => 'gray',
+                    'EM_PROGRESSO' => 'info',
+                    'EM_APROVACAO' => 'warning',
+                    'APROVADA' => 'success'
+                };
+            @endphp
+            <x-filament::section :icon="$icon" :icon-color="$color" class="h-fit">
+                <x-slot name="heading">
+                    {{ $title }}
+                </x-slot>
                 @livewire(\App\Filament\Resources\Projects\RelationManagers\TasksRelationManager::class, [
                     'ownerRecord' => $record,
                     'pageClass' => static::class,
                     'status' => $status
                 ])
-            </div>
-        @empty
-            <x-filament::empty-state>
-                <x-slot name="heading">
-                    Projeto Vazio
-                </x-slot>
-                <x-slot name="description">
-                    Crie um quadro para começar a criar tarefas
-                </x-slot>
-            </x-filament::empty-state>
-        @endforelse
+            </x-filament::section>
+        @endforeach
     </div>
 
     <div class="grid lg:grid-cols-4 md:grid-cols-2 gap-4">
@@ -68,4 +81,23 @@
             </div>
         </div>
     </div>
+    <script>
+        document.addEventListener('livewire:initialized', () => {
+            document.querySelectorAll('.kanban-column').forEach(column => {
+                Sortable.create(column, {
+                    group: 'tasks',
+                    handle: '.handle',
+                    animation: 150,
+                    onEnd: function(evt) {
+                        if (evt.from === evt.to) return;
+
+                        let itemId = evt.item.dataset.id;
+                        let toWireId = evt.to.closest('[wire\\:id]').getAttribute('wire:id');
+
+                        Livewire.find(toWireId).call('receiveTask', itemId);
+                    }
+                });
+            });
+        });
+    </script>
 </x-filament-panels::page>

@@ -61,7 +61,7 @@ class FinancialEntry extends Model
 
     public function create_installments(): void
     {
-        $start_date = max($this['project']['start_date'],  now());
+        $start_date = max($this['project']['start_date'], now());
         $value = round($this['total_amount'] / $this['total_installments'], 2);
 
         for ($i = 1; $i <= $this['total_installments']; $i++) {
