@@ -6,26 +6,26 @@
     @forelse($filteredUsers as $user)
         <x-filament::section>
             <a href="/users/{{ $user['id'] }}" class="flex flex-row justify-between my-auto gap-2">
-                <aside class="flex flex-row gap-x-4 my-auto">
+                <aside class="flex flex-row gap-x-4">
                     <x-filament::avatar
                         :src="filament()->getUserAvatarUrl($user)"
                         :alt="'imagem de '.$user['name']"
                         :size="'lg'"
                         :attributes="
                             \Filament\Support\prepare_inherited_attributes($attributes)
-                                ->class(['fi-user-avatar'])
+                                ->class(['fi-user-avatar my-auto'])
                         "
                     />
-                    <span class="my-auto text-base font-semibold">{{ $user['name'] }}</span>
-                </aside>
-                <div class="flex flex-col gap-2">
-                    <span class="my-auto text-right">{{ count($user['projects']->merge($user['managedProjects'])->unique()) }} Projetos Ativos</span>
-                    <div class="flex flex-row gap-2 justify-end">
-                        @foreach($user['expertises'] as $expertise)
-                            <x-filament::badge class="my-auto">{{ $expertise['expertise'] }}</x-filament::badge>
-                        @endforeach
+                    <div class="flex flex-col gap-2">
+                        <span class="my-auto text-base font-semibold">{{ $user['name'] }}</span>
+                        <div class="flex flex-row gap-2 justify-end">
+                            @foreach($user['expertises'] as $expertise)
+                                <x-filament::badge class="my-auto">{{ $expertise['expertise'] }}</x-filament::badge>
+                            @endforeach
+                        </div>
                     </div>
-                </div>
+                </aside>
+                <span class="my-auto text-right">{{ count($user['projects']->merge($user['managedProjects'])->unique()) }} Projetos Ativos</span>
             </a>
         </x-filament::section>
     @empty
