@@ -53,22 +53,29 @@
         </div>
     </x-filament::section>
 
-    @if(count($user['managedProjects']) > 0)
+    @php
+        $managing = $user['managedProjects'];
+        $participating = $user['projects']->whereNotIn('id', $user['managedProjects']->pluck('id')->toArray());
+    @endphp
+
+    @if(count($managing) > 0)
         <h1 class="text-2xl font-bold mt-8">Projetos como gerente</h1>
         <div class="grid grid-cols-12">
-            @foreach($user['managedProjects'] as $project)
+            @foreach($managing as $project)
                 <x-project-card :project="$project"/>
             @endforeach
         </div>
 
-        <h1 class="text-2xl font-bold mt-6">Outros projetos</h1>
+        @if(count($participating) > 0)
+            <h1 class="text-2xl font-bold mt-6">Outros projetos</h1>
+        @endif
     @else
         <h1 class="text-2xl font-bold mt-6">Projetos</h1>
     @endif
 
-    @if(count($user['projects']) > 0)
+    @if(count($participating) > 0)
         <div class="grid grid-cols-12">
-            @foreach($user['projects'] as $project)
+            @foreach($participating as $project)
                 <x-project-card :project="$project"/>
             @endforeach
         </div>
