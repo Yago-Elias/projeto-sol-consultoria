@@ -5,13 +5,9 @@ namespace App\Filament\Resources\Projects\Pages;
 use App\Filament\Resources\Projects\ProjectResource;
 use App\Livewire\FinanceBalanceStats;
 use App\Filament\Widgets\ProjectConsultantCostWidget;
-use App\Livewire\TableInstallment;
 use App\Models\FinancialEntry;
-use App\Models\FinancialNature;
 use App\Models\FinancialType;
-use App\Models\Installment;
 use App\Models\Provider;
-use App\Permissions;
 use BackedEnum;
 use Filament\Actions\Action;
 use Filament\Actions\ActionGroup;
@@ -28,14 +24,11 @@ use Filament\Notifications\Notification;
 use Filament\Resources\Pages\ManageRelatedRecords;
 use Filament\Schemas\Schema;
 use Filament\Support\Icons\Heroicon;
-use Filament\Support\RawJs;
-use Filament\Tables\Columns\Summarizers\Sum;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Grouping\Group;
 use Filament\Tables\Table;
 use Illuminate\Contracts\Support\Htmlable;
-use Illuminate\Database\Eloquent\Model;
 
 class ManageFinance extends ManageRelatedRecords
 {
@@ -66,6 +59,43 @@ class ManageFinance extends ManageRelatedRecords
                     'percentage' => $this->record->progress,
                     'endDate' => $this->record['end_date']
                 ]),
+        ];
+    }
+
+    protected function getHeaderWidgets(): array
+    {
+        return [
+            FinanceBalanceStats::class,
+        ];
+    }
+
+    public function getHeaderWidgetsData(): array
+    {
+        return [
+            FinanceBalanceStats::class => [
+                'record' => $this->record,
+            ],
+        ];
+    }
+    
+    public static function canAccess(array $parameters = []): bool
+    {
+        return auth()->user()->can('finance', $parameters['record']);
+    }
+    
+    protected function getFooterWidgets(): array
+    {
+        return [
+            ProjectConsultantCostWidget::class,
+        ];
+    }
+
+    protected function getFooterWidgetsData(): array
+    {
+        return [
+            ProjectConsultantCostWidget::class => [
+                'record' => $this->record,
+            ],
         ];
     }
 
@@ -213,7 +243,7 @@ class ManageFinance extends ManageRelatedRecords
                     ->modalHeading('Nova Receita')
                     ->after(function (FinancialEntry $record) {
                         $record->create_installments();
-                        $this->dispatch('update_balanco');
+                        $this->dispatch('update_balance');
                     }),
                 CreateAction::make('cost')
                     ->label('Criar Novo Custo')
@@ -224,7 +254,7 @@ class ManageFinance extends ManageRelatedRecords
                     ->modalHeading('Novo Custo')
                     ->after(function (FinancialEntry $record) {
                         $record->create_installments();
-                        $this->dispatch('update_balanco');
+                        $this->dispatch('update_balance');
                     }),
             ])
             ->recordActions([
@@ -258,42 +288,5 @@ class ManageFinance extends ManageRelatedRecords
                     DeleteAction::make(),
                 ])
             ]);
-    }
-
-    protected function getHeaderWidgets(): array
-    {
-        return [
-            FinanceBalanceStats::class,
-        ];
-    }
-
-    public function getHeaderWidgetsData(): array
-    {
-        return [
-            FinanceBalanceStats::class => [
-                'record' => $this->record,
-            ],
-        ];
-    }
-    
-    public static function canAccess(array $parameters = []): bool
-    {
-        return auth()->user()->can('finance', $parameters['record']);
-    }
-    
-    protected function getFooterWidgets(): array
-    {
-        return [
-            ProjectConsultantCostWidget::class,
-        ];
-    }
-
-    protected function getFooterWidgetsData(): array
-    {
-        return [
-            ProjectConsultantCostWidget::class => [
-                'projectId' => $this->record,
-            ],
-        ];
     }
 }

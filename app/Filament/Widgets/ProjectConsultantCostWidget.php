@@ -5,8 +5,6 @@ namespace App\Filament\Widgets;
 use App\Models\Project;
 use App\Models\User;
 use Filament\Actions\BulkActionGroup;
-use Filament\Tables\Columns\Summarizers\Sum;
-use Filament\Tables\Columns\Summarizers\Summarizer;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
 use Filament\Widgets\TableWidget;
@@ -21,10 +19,26 @@ class ProjectConsultantCostWidget extends TableWidget
 
     protected static ?string $heading = 'Custo por Consultor';
 
+    protected int | string | array $columnSpan = 'full';
+
     public function table(Table $table): Table
     {
         return $table
-            ->records(fn () => $this->record->collaborators()->get())
+            ->records(function () {
+                if (!$this->record) return collect();
+
+                $project = $this->record->load([
+                    'collaborators',
+                    'tasks:id,project_id,assigned_to,predicted_hours',
+                ]);
+
+                return $project->collaborators->map(function (User $user) use ($project) {
+                    $user->total_hours = $project->tasks
+                        ->where('assigned_to', $user->id)
+                        ->sum('predicted_hours');
+                    return $user;
+                });
+            })
             ->columns([
                 TextColumn::make('name')
                     ->label('Consultor')
@@ -33,10 +47,7 @@ class ProjectConsultantCostWidget extends TableWidget
                     ->label('Horas Trabalhadas')
                     ->suffix(' h')
                     ->numeric()
-                    ->default(0)
-                    ->summarize(
-                        Sum::make()->label('Total de Horas')->suffix(' h')
-                    ),
+                    ->default(0),
                 TextColumn::make('valor_hora')
                     ->label('Valor/hora')
                     ->state(fn (User $record) =>
@@ -53,11 +64,6 @@ class ProjectConsultantCostWidget extends TableWidget
                     )
                     ->prefix('R$ ')
                     ->color('danger'),
-                // TextColumn::make('debug')
-                //     ->label(function (?User $record) {
-                //         dump($record);
-                //         return 'teste';
-                //     })
             ])
             ->filters([
                 //

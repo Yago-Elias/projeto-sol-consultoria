@@ -25,28 +25,28 @@ class FinanceBalanceStats extends StatsOverviewWidget
         // receita já paga
         $paid_revenue = $installments
             ->filter(fn ($i) => $i->payment_date !== null
-                && $i->financialEntry->financialNature?->nature === 'Payment')
+                && $i->financialEntry->financialNature?->nature === 'Receita')
                 ->sum('value');
         
         // receita a ser paga
         $uncollected_revenue = $installments
             ->filter(fn ($i) => $i->payment_date == null
-                && $i->financialEntry->financialNature?->nature === 'Payment')
+                && $i->financialEntry->financialNature?->nature === 'Receita')
             ->sum('value');
 
         // custo pago
         $cost_paid = $installments
             ->filter(fn ($i) => $i->payment_date !== null
-                && $i->financialEntry->financialNature?->nature === 'Expense')
+                && $i->financialEntry->financialNature?->nature === 'Custo')
             ->sum('value');
 
         // custo à pagar
         $accounts_payable = $installments
             ->filter(fn ($i) => $i->payment_date === null
-                && $i->financialEntry->financialNature?->nature === 'Expense')
+                && $i->financialEntry->financialNature?->nature === 'Custo')
             ->sum('value');
 
-        $proit = $paid_revenue - $cost_paid;
+        $profit    = $paid_revenue - $cost_paid;
 
         return [
             Stat::make('Receita Recebida', 'R$ ' . number_format($paid_revenue, 2, ',', '.'))
@@ -59,15 +59,15 @@ class FinanceBalanceStats extends StatsOverviewWidget
                 ->color('danger')
                 ->icon(Heroicon::OutlinedArrowTrendingDown),
 
-            Stat::make('Lucro Realizado', 'R$ ' . number_format($proit, 2, ',', '.'))
+            Stat::make('Lucro Realizado', 'R$ ' . number_format($profit, 2, ',', '.'))
                 ->description('Baseado nas parcelas pagas')
-                ->color($proit >= 0 ? 'success' : 'danger')
+                ->color($profit >= 0 ? 'success' : 'danger')
                 ->icon(Heroicon::OutlinedBanknotes),
         ];
     }
 
-    #[On('update_balanco')]
-    public function updateBalanco(): void
+    #[On('update_balance')]
+    public function updateBalance(): void
     {
         $this->dispatch('$refresh');
     }
