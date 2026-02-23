@@ -52,7 +52,7 @@ class RolesTable extends Component implements HasActions, HasSchemas, HasTable
                             ->components([
                                 TextInput::make('role')
                                     ->label('Cargo'),
-                                Select::make('profile')
+                                Select::make('profile_id')
                                     ->label('Perfil')
                                     ->relationship('profile', 'profile')
                                     ->preload()
