@@ -22,7 +22,7 @@ return new class extends Migration
 
             $table->timestamps();
 
-            $table->foreignId('financial_entry_id')->constrained('financial_entries');
+            $table->foreignId('financial_entry_id')->constrained('financial_entries')->cascadeOnDelete();
         });
     }
 

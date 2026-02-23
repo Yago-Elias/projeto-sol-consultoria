@@ -23,7 +23,7 @@ return new class extends Migration
             $table->enum('status', ['PENDENTE', 'APROVADA', 'EM_APROVACAO', 'ATRASADA', 'FINALIZADA_COM_ATRASO'])->default('pendente');
 
             $table->foreignId('board_id')->nullable()->constrained('boards');
-            $table->foreignId('assigned_to')->nullable()->constrained('users');
+            $table->foreignId('assigned_to')->nullable()->constrained('users')->nullOnDelete();
 
             $table->timestamps();
         });

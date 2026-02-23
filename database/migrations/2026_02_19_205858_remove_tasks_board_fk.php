@@ -17,7 +17,7 @@ return new class extends Migration
 
             $table->enum('status', ['PENDENTE', 'EM_PROGRESSO', 'EM_APROVACAO', 'APROVADA'])->default('PENDENTE')->change();
 
-            $table->foreignId('project_id')->constrained('projects');
+            $table->foreignId('project_id')->constrained('projects')->cascadeOnDelete();
         });
     }
 
