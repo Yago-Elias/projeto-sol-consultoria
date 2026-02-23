@@ -281,6 +281,13 @@ class ProjectForm extends Component
                                     ->pluck('name', 'id');
                             })
                             ->searchable()
+                            ->getSearchResultsUsing(function (Get $get, string $search) {
+                                return User::query()
+                                    ->whereIn('id', $get('selected_consultants'))
+                                    ->where('name', 'like', "%{$search}%")
+                                    ->limit(10)
+                                    ->pluck('name', 'id');
+                            })
                             ->default(function ($operation) {
                                 if ($operation === 'create' && auth()->user()->can('manageProjects', Project::class)) {
                                     return auth()->id();

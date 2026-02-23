@@ -36,11 +36,11 @@
                 <div class="space-y-2">
                     <div>
                         <span class="text-gray-700">Data de Início:</span>
-                        <span class="text-gray-900 ml-2">{{ $record->start_date }}</span>
+                        <span class="text-gray-900 ml-2">{{ date_format($record->start_date, 'd/m/Y') }}</span>
                     </div>
                     <div>
                         <span class="text-gray-700">Prazo final:</span>
-                        <span class="text-gray-900 ml-2">{{ $record->end_date }}</span>
+                        <span class="text-gray-900 ml-2">{{ date_format($record->end_date, 'd/m/Y') }}</span>
                     </div>
                 </div>
             </div>
@@ -65,7 +65,7 @@
 
                     <div class="flex flex-col min-w-0">
                         <span class="text-sm font-medium text-gray-900 truncate">{{ $user->name }}</span>
-                        <span class="text-xs text-gray-500 truncate">{{ $user->role->role }}</span>
+                        <span class="text-xs text-gray-500 truncate">{{ $user->id === $record->manager_id ? 'Gerente' : $user->role->role }}</span>
                     </div>
                 </div>
             @empty
