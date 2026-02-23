@@ -92,7 +92,8 @@ class TaskPolicy
 
     public function conclude(User $user, Task $task): bool
     {
-        return $task['assignedTo']['id'] === $user['id'];
+        return $task['assignedTo']['id'] === $user['id'] &&
+               $task['status'] !== 'EM_APROVACAO' && $task['status'] !== 'APROVADA';
     }
 
     /**

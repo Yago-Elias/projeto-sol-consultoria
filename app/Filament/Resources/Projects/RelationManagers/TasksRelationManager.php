@@ -171,6 +171,30 @@ class TasksRelationManager extends RelationManager
                             ->columnSpanFull(),
                     ])
                     ->footerActions([
+                        Action::make('conclusion')
+                            ->label('Adicionar mensagem de conclusão')
+                            ->icon(Heroicon::OutlinedCheck)
+                            ->schema([
+                                TextEntry::make('description')
+                                    ->label('Descrição')
+                                    ->placeholder('-')
+                                    ->icon(Heroicon::OutlinedBars3BottomLeft)
+                                    ->columnSpanFull(),
+                                TextInput::make('message')
+                                    ->label('Mensagem de Conclusão')
+                                    ->columnSpanFull()
+                            ])
+                            ->action(function (array $data, Task $record) {
+//                                $record['conclusion_date'] = now();
+                                $record['conclusion_message'] = $data['message'];
+
+                                $record->save();
+                            })
+                            ->after(function () {
+                                $this->dispatch('refresh-tables');
+                            })
+                            ->cancelParentActions()
+                            ->hidden(fn (Task $task) => auth()->user()->cannot('conclude', $task)),
                     ])
                     ->contained(false)
                     ->columnSpanFull(),
@@ -341,45 +365,20 @@ class TasksRelationManager extends RelationManager
         }
 
         if ($canMove) {
-            if ($this->status === 'EM_APROVACAO') {
-                $this->mountTableAction('conclusionAction', $task->id);
+            if ($this->status === 'EM_APROVACAO' && $task->status !== 'APROVADA') {
+                $task->conclusion_date = now();
             }
+
+            if (($this->status === 'PENDENTE' || $this->status === 'EM_PROGRESSO') &&
+                isset($task->conclusion_date)) {
+                $task->conclusion_date = null;
+            }
+
 
             $task->status = $this->status;
             $task->save();
         }
 
         $this->dispatch('refresh-tables');
-    }
-
-    protected function getTableActions(): array
-    {
-        return [
-            Action::make('conclusion')
-                ->label('Concluir Tarefa')
-                ->icon(Heroicon::OutlinedCheck)
-                ->schema([
-                    TextEntry::make('description')
-                        ->label('Descrição')
-                        ->placeholder('-')
-                        ->icon(Heroicon::OutlinedBars3BottomLeft)
-                        ->columnSpanFull(),
-                    TextInput::make('message')
-                        ->label('Mensagem de Conclusão')
-                        ->columnSpanFull()
-                ])
-                ->action(function (array $data, Task $record) {
-                    $record['status'] = 'EM_APROVACAO';
-                    $record['conclusion_date'] = now();
-                    $record['conclusion_message'] = $data['message'];
-
-                    $record->save();
-                })
-                ->after(function () {
-                    $this->dispatch('refresh-tables');
-                })
-                ->cancelParentActions()
-//                ->hidden(true),
-        ];
     }
 }
