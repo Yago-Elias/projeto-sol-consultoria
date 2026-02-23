@@ -21,19 +21,20 @@ class ProjectFactory extends Factory
     public function definition(): array
     {
         static::$users ??= User::all();
+        $faker = fake('pt_BR');
 
-        $price = fake()->randomFloat(2, 1000);
-        $start_date = fake()->dateTime();
+        $price = $faker->randomFloat(2, 1000);
+        $start_date = $faker->dateTime();
         return [
-            'name' => fake()->words(3, true),
-            'description' => fake()->paragraph(),
-            'image' => 'https://picsum.photos/seed/' . fake()->uuid() . '/640/480',
-            'company_name' => fake()->company(),
-            'company_email' => fake()->companyEmail(),
+            'name' => $faker->words(3, true),
+            'description' => $faker->paragraph(),
+            'image' => 'https://picsum.photos/seed/' . $faker->uuid() . '/640/480',
+            'company_name' => $faker->company(),
+            'company_email' => $faker->companyEmail(),
             'project_price' => $price,
-            'estimated_cost' => fake()->randomFloat(2, max: $price),
+            'estimated_cost' => $faker->randomFloat(2, max: $price),
             'start_date' => $start_date,
-            'end_date' => fake()->dateTimeBetween($start_date, '+ 5 years'),
+            'end_date' => $faker->dateTimeBetween($start_date, '+ 5 years'),
             'manager_id' => static::$users->random()
         ];
     }

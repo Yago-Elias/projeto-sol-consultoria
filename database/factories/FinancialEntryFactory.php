@@ -31,14 +31,16 @@ class FinancialEntryFactory extends Factory
         static::$natures ??= FinancialNature::all();
         static::$providers ??= Provider::all();
 
-        $dueDate = $this->faker->dateTimeBetween('+1 days', '+90 days');
+        $faker = fake('pt_BR');
+
+        $dueDate = $faker->dateTimeBetween('+1 days', '+90 days');
 
         return [
-            'description' => $this->faker->sentence(6),
-            'total_amount' => $this->faker->randomFloat(2, 100, 50000),
-            'total_installments' => $this->faker->numberBetween(1, 12),
+            'description' => $faker->sentence(6),
+            'total_amount' => $faker->randomFloat(2, 100, 50000),
+            'total_installments' => $faker->numberBetween(1, 12),
             'due_date' => $dueDate,
-            'payment_date' => $this->faker->boolean(30) ? $this->faker->dateTimeBetween('-30 days', $dueDate) : null,
+            'payment_date' => $faker->boolean(30) ? $faker->dateTimeBetween('-30 days', $dueDate) : null,
             'project_id' => static::$projects->random(),
             'type' => static::$types->random(),
             'nature' => static::$natures->random(),

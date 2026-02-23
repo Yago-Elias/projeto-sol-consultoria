@@ -1,5 +1,6 @@
 <?php
 
+use App\Models\FinancialType;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
@@ -12,9 +13,11 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('financial_entries', function (Blueprint $table) {
-            $table->foreignId('type')->constrained('financial_types');
-            $table->foreignId('nature')->constrained('financial_natures');
-            $table->foreignId('provider')->constrained('providers');
+            $table->foreignId('type')->nullable()->constrained('financial_types')->nullOnDelete();
+            $table->foreignId('nature')->nullable()->constrained('financial_natures')->nullOnDelete();
+            $table->foreignId('provider')->nullable()->constrained('providers')->nullOnDelete();
+
+            $table->softDeletes();
         });
     }
 

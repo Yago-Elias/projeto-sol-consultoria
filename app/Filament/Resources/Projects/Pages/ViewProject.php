@@ -18,6 +18,10 @@ class ViewProject extends ViewRecord
 
     protected function getHeaderActions(): array
     {
+        $total = count($this->record['tasks']);
+        $status = $this->record['tasks']->groupBy('status');
+        $percentage = $total > 0 ? 100 * count($status['APROVADA'] ?? []) / $total : 0;
+
         return [
             Action::make('progress-bar')
                 ->view('filament.resources.projects.partials.circle-progress')

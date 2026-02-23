@@ -4,7 +4,7 @@ namespace App\Models;
 
 use Filament\Notifications\Notification;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Relations\HasOne;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class Installment extends Model
 {
@@ -22,9 +22,9 @@ class Installment extends Model
         'payment_date' => 'date',
     ];
 
-    public function financialEntry(): HasOne
+    public function financialEntry(): BelongsTo
     {
-        return $this->hasOne(FinancialEntry::class);
+        return $this->belongsTo(FinancialEntry::class);
     }
 
     public function validatePreviousInstallmentPaid(): bool

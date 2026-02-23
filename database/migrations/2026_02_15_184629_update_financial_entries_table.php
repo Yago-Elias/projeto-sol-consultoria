@@ -14,7 +14,7 @@ return new class extends Migration
         Schema::table('financial_entries', function (Blueprint $table) {
             $table->dropForeign(['provider']);
             $table->foreignId('provider')->nullable()->change();
-            $table->foreign('provider')->references('id')->on('providers');
+            $table->foreign('provider')->references('id')->on('providers')->nullOnDelete();
         });
     }
 

@@ -12,6 +12,7 @@ use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Textarea;
 use Filament\Infolists\Components\TextEntry;
+use Filament\Notifications\Notification;
 use Filament\Resources\RelationManagers\RelationManager;
 use Filament\Schemas\Components\EmbeddedTable;
 use Filament\Schemas\Components\RenderHook;
@@ -34,6 +35,7 @@ class TasksRelationManager extends RelationManager
     public ?string $status = null;
     protected static string $relationship = 'tasks';
     protected static ?string $label = 'tarefa';
+    protected string $view = 'livewire.task-board';
 
     public function mount(?string $status = null): void
     {
@@ -170,7 +172,7 @@ class TasksRelationManager extends RelationManager
                     ])
                     ->footerActions([
                         Action::make('conclusion')
-                            ->label('Concluir Tarefa')
+                            ->label('Adicionar mensagem de conclusão')
                             ->icon(Heroicon::OutlinedCheck)
                             ->schema([
                                 TextEntry::make('description')
@@ -183,8 +185,7 @@ class TasksRelationManager extends RelationManager
                                     ->columnSpanFull()
                             ])
                             ->action(function (array $data, Task $record) {
-                                $record['status'] = 'EM_APROVACAO';
-                                $record['conclusion_date'] = now();
+//                                $record['conclusion_date'] = now();
                                 $record['conclusion_message'] = $data['message'];
 
                                 $record->save();
@@ -193,48 +194,7 @@ class TasksRelationManager extends RelationManager
                                 $this->dispatch('refresh-tables');
                             })
                             ->cancelParentActions()
-                            ->hidden(fn (Task $record) => auth()->user()->cannot('conclude', $record)),
-                        Action::make('approve')
-                            ->label('Aprovar Tarefa')
-                            ->icon(Heroicon::OutlinedCheck)
-                            ->color('success')
-                            ->action(function (Task $record) {
-                                $record['status'] = 'APROVADA';
-                                $record->save();
-                            })
-                            ->after(function () {
-                                $this->dispatch('refresh-tables');
-                            })
-                            ->cancelParentActions()
-                            ->hidden(fn (Task $record) => auth()->user()->cannot('approve', $record)),
-                        Action::make('deny')
-                            ->label('Reprovar Tarefa')
-                            ->icon(Heroicon::OutlinedXMark)
-                            ->color('danger')
-                            ->action(function (Task $record) {
-                                $record['status'] = 'PENDENTE';
-                                $record['conclusion_date'] = null;
-                                $record['conclusion_message'] = null;
-
-                                $record->save();
-                            })
-                            ->after(function () {
-                                $this->dispatch('refresh-tables');
-                            })
-                            ->cancelParentActions()
-                            ->hidden(fn (Task $record) => auth()->user()->cannot('approve', $record)),
-                        Action::make('start_task')
-                            ->label('Iniciar Tarefa')
-                            ->action(function (Task $record) {
-                                $record->status = 'EM_PROGRESSO';
-                                $record->save();
-                            })
-                            ->hidden(fn (Task $record) => auth()->user()->cannot('start', $record))
-                            ->after(function () {
-                                $this->dispatch('refresh-tables');
-                            })
-                            ->cancelParentActions()
-                            ->icon(Heroicon::OutlinedPlay),
+                            ->hidden(fn (Task $task) => auth()->user()->cannot('conclude', $task)),
                     ])
                     ->contained(false)
                     ->columnSpanFull(),
@@ -305,6 +265,7 @@ class TasksRelationManager extends RelationManager
                         'class' => '[clip-path:circle(50%_at_50%_50%)] rounded-full border border-(--neutro-3)'
                     ], true)
                     ->iconButton()
+                    ->closeModalByClickingAway()
                     ->iconSize(IconSize::TwoExtraLarge),
             ])
             ->emptyStateHeading('Sem Tarefas')
@@ -353,5 +314,74 @@ class TasksRelationManager extends RelationManager
     public function refreshTable(): void
     {
         $this->dispatch('$refresh');
+    }
+
+    public function openTask(string $task)
+    {
+        $this->mountAction('view', ['record' => $task]);
+    }
+
+    public function receiveTask(int $id): void
+    {
+        $task = $this->ownerRecord->tasks->findOrFail($id);
+        $canMove = true;
+
+        if ($this->status === 'APROVADA') {
+            if ($task['status'] !== 'EM_APROVACAO') {
+                $canMove = false;
+                Notification::make()
+                    ->title('Erro')
+                    ->body('A tarefe precisa ser aprovada')
+                    ->danger()
+                    ->send();
+            } elseif (auth()->user()->cannot('approve', $task)) {
+                $canMove = false;
+                Notification::make()
+                    ->title('Erro')
+                    ->body('Você não tem permissão de fazer isso!')
+                    ->danger()
+                    ->send();
+            }
+        } elseif (
+            $task['status'] === 'PENDENTE' &&
+                 auth()->user()->cannot('start', $task) &&
+                 auth()->user()->cannot('conclude', $task)
+        ) {
+            $canMove = false;
+            Notification::make()
+                ->title('Erro')
+                ->body('Você não tem permissão de fazer isso!')
+                ->danger()
+                ->send();
+        } elseif (
+            $task->status === 'APROVADA' && auth()->user()->cannot('approve', $task) ||
+                 $this->status === 'EM_APROVACAO' && auth()->user()->cannot('conclude', $task)
+        ) {
+            $canMove = false;
+            Notification::make()
+                ->title('Erro')
+                ->body('Você não tem permissão de fazer isso!2')
+                ->danger()
+                ->send();
+        }
+
+        if ($canMove) {
+            if ($this->status === 'EM_APROVACAO' && $task->status !== 'APROVADA') {
+                $task->conclusion_date = now();
+            }
+
+            if (
+                ($this->status === 'PENDENTE' || $this->status === 'EM_PROGRESSO') &&
+                isset($task->conclusion_date)
+            ) {
+                $task->conclusion_date = null;
+            }
+
+
+            $task->status = $this->status;
+            $task->save();
+        }
+
+        $this->dispatch('refresh-tables');
     }
 }

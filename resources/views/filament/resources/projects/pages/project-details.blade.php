@@ -36,11 +36,11 @@
                 <div class="space-y-2">
                     <div>
                         <span class="text-gray-700">Data de Início:</span>
-                        <span class="text-gray-900 ml-2">{{ date_format($record->start_date, 'd/m/Y') }}</span>
+                        <span class="text-gray-900 ml-2">{{ $record->start_date->format('d/m/Y') }}</span>
                     </div>
                     <div>
                         <span class="text-gray-700">Prazo final:</span>
-                        <span class="text-gray-900 ml-2">{{ date_format($record->end_date, 'd/m/Y') }}</span>
+                        <span class="text-gray-900 ml-2">{{ $record->end_date->format('d/m/Y') }}</span>
                     </div>
                 </div>
             </div>
