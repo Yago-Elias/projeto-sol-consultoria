@@ -18,8 +18,10 @@ return new class extends Migration
 
             // Essas duas só tão anuláveis pra ficar melhor de usar nessa parte inicial
             // Deps a gente tira
-            $table->foreignId('profile_id')->nullable()->constrained('profiles');
-            $table->foreignId('role_id')->nullable()->constrained('roles');
+            $table->foreignId('profile_id')->nullable()->constrained('profiles')->nullOnDelete();
+            $table->foreignId('role_id')->nullable()->constrained('roles')->nullOnDelete();
+
+            $table->softDeletes();
         });
     }
 

@@ -23,7 +23,7 @@ class ProfileSeeder extends Seeder
             'global_access' => true,
         ]);
         Profile::factory()->create([
-            'profile' => 'consultant',
+            'profile' => 'consultor',
             'manage_users' => Permissions::NONE,
             'manage_projects' => Permissions::CREATE | Permissions::EDIT | Permissions::MANAGE_PROJECTS,
             'task_access' => Permissions::CREATE | Permissions::EDIT | Permissions::REMOVE | Permissions::APPROVE_TASKS,
@@ -31,7 +31,7 @@ class ProfileSeeder extends Seeder
             'global_access' => false,
         ]);
         Profile::factory()->create([
-            'profile' => 'intern',
+            'profile' => 'estagiário',
             'manage_users' => Permissions::NONE,
             'manage_projects' => Permissions::NONE,
             'task_access' => Permissions::NONE,
