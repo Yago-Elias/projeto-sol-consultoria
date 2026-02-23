@@ -83,12 +83,16 @@ class TaskPolicy
 
     public function start(User $user, Task $task): bool
     {
-        return $task['status'] === 'PENDENTE' && $task['assignedTo']['id'] === $user['id'];
+        if ($user['role']['profile']['global_access'] || $user['id'] === $task['project']['manager_id']) {
+            return true;
+        }
+
+        return $task['assignedTo']['id'] === $user['id'];
     }
 
     public function conclude(User $user, Task $task): bool
     {
-        return $task['status'] === 'EM_PROGRESSO' && $task['assignedTo']['id'] === $user['id'];
+        return $task['assignedTo']['id'] === $user['id'];
     }
 
     /**
