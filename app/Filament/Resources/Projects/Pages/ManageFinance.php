@@ -4,6 +4,7 @@ namespace App\Filament\Resources\Projects\Pages;
 
 use App\Filament\Resources\Projects\ProjectResource;
 use App\Livewire\FinanceBalanceStats;
+use App\Filament\Widgets\ProjectConsultantCostWidget;
 use App\Livewire\TableInstallment;
 use App\Models\FinancialEntry;
 use App\Models\FinancialNature;
@@ -58,6 +59,10 @@ class ManageFinance extends ManageRelatedRecords
 
     protected function getHeaderActions(): array
     {
+        $total = count($this->record['tasks']);
+        $status = $this->record['tasks']->groupBy('status');
+        $percentage = $total > 0 ? 100 * count($status['APROVADA'] ?? []) / $total : 0;
+
         return [
             Action::make('progress-bar')
                 ->view('filament.resources.projects.partials.circle-progress')
@@ -207,18 +212,24 @@ class ManageFinance extends ManageRelatedRecords
                     ->label('Criar Nova Receita')
                     ->fillForm([
                         'type_nature' => 'revenue',
-                        'nature' => 2
+                        'nature' => 1
                         ])
                     ->modalHeading('Nova Receita')
-                    ->after(fn (FinancialEntry $record) => $record->create_installments()),
+                    ->after(function (FinancialEntry $record) {
+                        $record->create_installments();
+                        $this->dispatch('update_balanco');
+                    }),
                 CreateAction::make('cost')
                     ->label('Criar Novo Custo')
                     ->fillForm([
                         'type_nature' => 'cost',
-                        'nature' => 1
+                        'nature' => 2
                         ])
                     ->modalHeading('Novo Custo')
-                    ->after(fn (FinancialEntry $record) => $record->create_installments()),
+                    ->after(function (FinancialEntry $record) {
+                        $record->create_installments();
+                        $this->dispatch('update_balanco');
+                    }),
             ])
             ->recordActions([
                 Action::make('installments')
@@ -272,5 +283,21 @@ class ManageFinance extends ManageRelatedRecords
     public static function canAccess(array $parameters = []): bool
     {
         return auth()->user()->can('finance', $parameters['record']);
+    }
+    
+    protected function getFooterWidgets(): array
+    {
+        return [
+            ProjectConsultantCostWidget::class,
+        ];
+    }
+
+    protected function getFooterWidgetsData(): array
+    {
+        return [
+            ProjectConsultantCostWidget::class => [
+                'projectId' => $this->record->id,
+            ],
+        ];
     }
 }
