@@ -334,8 +334,7 @@ class TasksRelationManager extends RelationManager
                     ->body('A tarefe precisa ser aprovada')
                     ->danger()
                     ->send();
-            }
-            else if (auth()->user()->cannot('approve', $task)) {
+            } elseif (auth()->user()->cannot('approve', $task)) {
                 $canMove = false;
                 Notification::make()
                     ->title('Erro')
@@ -343,19 +342,21 @@ class TasksRelationManager extends RelationManager
                     ->danger()
                     ->send();
             }
-        }
-        else if ($task['status'] === 'PENDENTE' &&
+        } elseif (
+            $task['status'] === 'PENDENTE' &&
                  auth()->user()->cannot('start', $task) &&
-                 auth()->user()->cannot('conclude', $task)) {
+                 auth()->user()->cannot('conclude', $task)
+        ) {
             $canMove = false;
             Notification::make()
                 ->title('Erro')
                 ->body('Você não tem permissão de fazer isso!')
                 ->danger()
                 ->send();
-        }
-        else if ($task->status === 'APROVADA' && auth()->user()->cannot('approve', $task) ||
-                 $this->status === 'EM_APROVACAO' && auth()->user()->cannot('conclude', $task)) {
+        } elseif (
+            $task->status === 'APROVADA' && auth()->user()->cannot('approve', $task) ||
+                 $this->status === 'EM_APROVACAO' && auth()->user()->cannot('conclude', $task)
+        ) {
             $canMove = false;
             Notification::make()
                 ->title('Erro')
@@ -369,8 +370,10 @@ class TasksRelationManager extends RelationManager
                 $task->conclusion_date = now();
             }
 
-            if (($this->status === 'PENDENTE' || $this->status === 'EM_PROGRESSO') &&
-                isset($task->conclusion_date)) {
+            if (
+                ($this->status === 'PENDENTE' || $this->status === 'EM_PROGRESSO') &&
+                isset($task->conclusion_date)
+            ) {
                 $task->conclusion_date = null;
             }
 
