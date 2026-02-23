@@ -38,9 +38,9 @@ class UsersTable
                 ImageColumn::make('image'),
                 TextColumn::make('telephone')
                     ->searchable(),
-                TextColumn::make('profile.id')
-                    ->searchable(),
                 TextColumn::make('role.id')
+                    ->searchable(),
+                TextColumn::make('expertises.expertise')
                     ->searchable(),
             ])
             ->filters([
