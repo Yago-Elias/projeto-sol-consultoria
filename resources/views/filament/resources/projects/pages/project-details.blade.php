@@ -1,16 +1,9 @@
 {{-- @dd($record) --}}
 
 <x-filament-panels::page>
-    @can('update', $record)
-        <div>
-            {{\Filament\Actions\Action::make('Editar Projeto')
-                ->url("/projects/{$record['id']}/edit")
-                ->icon(\Filament\Support\Icons\Heroicon::OutlinedPencilSquare)
-                ->extraAttributes([
-                    'class' => 'w-fit'
-            ])}}
-        </div>
-    @endcan
+    @php
+        $userProfile = filament()->auth()->user()['profile'];
+    @endphp
     <x-filament::section>
         <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
             <div class="flex items-start">
@@ -36,11 +29,11 @@
                 <div class="space-y-2">
                     <div>
                         <span class="text-gray-700">Data de Início:</span>
-                        <span class="text-gray-900 ml-2">{{ $record->start_date }}</span>
+                        <span class="text-gray-900 ml-2">{{ $record->start_date->format('d/m/Y') }}</span>
                     </div>
                     <div>
                         <span class="text-gray-700">Prazo final:</span>
-                        <span class="text-gray-900 ml-2">{{ $record->end_date }}</span>
+                        <span class="text-gray-900 ml-2">{{ $record->end_date->format('d/m/Y') }}</span>
                     </div>
                 </div>
             </div>
