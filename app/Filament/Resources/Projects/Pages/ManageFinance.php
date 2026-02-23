@@ -59,10 +59,6 @@ class ManageFinance extends ManageRelatedRecords
 
     protected function getHeaderActions(): array
     {
-        $total = count($this->record['tasks']);
-        $status = $this->record['tasks']->groupBy('status');
-        $percentage = $total > 0 ? 100 * count($status['APROVADA'] ?? []) / $total : 0;
-
         return [
             Action::make('progress-bar')
                 ->view('filament.resources.projects.partials.circle-progress')
@@ -296,7 +292,7 @@ class ManageFinance extends ManageRelatedRecords
     {
         return [
             ProjectConsultantCostWidget::class => [
-                'projectId' => $this->record->id,
+                'projectId' => $this->record,
             ],
         ];
     }

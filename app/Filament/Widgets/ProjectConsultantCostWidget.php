@@ -13,7 +13,9 @@ use Filament\Widgets\TableWidget;
 
 class ProjectConsultantCostWidget extends TableWidget
 {
-    public ?int $projectId = null;
+    public ?Project $record = null;
+
+    protected static bool $isDiscovered = false;
 
     protected const MONTHLY_HOURS = 176;
 
@@ -22,12 +24,7 @@ class ProjectConsultantCostWidget extends TableWidget
     public function table(Table $table): Table
     {
         return $table
-            ->records(function () {
-                // if (!$this->projectId) return collect();
-
-                return Project::find($this->projectId)
-                    ->collaborators();
-            })
+            ->records(fn () => $this->record->collaborators()->get())
             ->columns([
                 TextColumn::make('name')
                     ->label('Consultor')
